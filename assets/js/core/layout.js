@@ -278,19 +278,18 @@ Quy tắc trả lời:
     const chunk=audioQueue.shift();
     const url='https://translate.google.com/translate_tts?ie=UTF-8&tl=vi&client=tw-ob&q='+encodeURIComponent(chunk);
     const audio=new Audio();
-    audio.referrerPolicy='no-referrer';
-    audio.crossOrigin='anonymous';
+    // Không dùng crossOrigin='anonymous' vì Google Translate TTS không có CORS header và sẽ bị trình duyệt chặn lập tức
     audio.src=url;
     audio.playbackRate=1.15;
     audio.volume=typeof speechVolume==='number'?speechVolume:1.0;
     currentAudio=audio;
     audio.onended=()=>setTimeout(playAudioQueue,80);
     audio.onerror=()=>{
-      console.warn('Google TTS không tải được chunk, chuyển Web Speech:',chunk);
+      console.warn('Google TTS không tải được, chuyển sang Web Speech:',chunk);
       playLocalSpeech(chunk);
     };
     audio.play().catch(e=>{
-      console.warn('Google TTS play bị chặn autoplay:',e.message);
+      console.warn('Google TTS bị chặn autoplay hoặc mạng, chuyển sang Web Speech:',e.message);
       playLocalSpeech(chunk);
     });
   }
@@ -300,40 +299,27 @@ Quy tắc trả lời:
       playAudioQueue();
       return;
     }
-    let voices=speechSynthesis.getVoices();
-    let viVoice=voices.find(v=>(v.lang==='vi-VN'||v.lang==='vi_VN'||v.lang.startsWith('vi'))&&(v.name.includes('Natural')||v.name.includes('Online')))
+    try{
+      if(speechSynthesis.paused)speechSynthesis.resume();
+    }catch(_){}
+
+    const voices=speechSynthesis.getVoices()||[];
+    const viVoice=voices.find(v=>(v.lang==='vi-VN'||v.lang==='vi_VN'||v.lang.startsWith('vi'))&&(v.name.includes('Natural')||v.name.includes('Online')))
       ||voices.find(v=>v.lang==='vi-VN'||v.lang==='vi_VN'||v.lang.startsWith('vi'))
       ||voices.find(v=>/vietnam/i.test(v.name));
-    if(!viVoice && voices.length===0){
-      setTimeout(()=>{
-        voices=speechSynthesis.getVoices();
-        viVoice=voices.find(v=>(v.lang==='vi-VN'||v.lang==='vi_VN'||v.lang.startsWith('vi')));
-        if(viVoice){
-          const u=new SpeechSynthesisUtterance(chunk);
-          u.voice=viVoice;
-          u.lang='vi-VN';
-          u.rate=1.15;
-          u.volume=typeof speechVolume==='number'?speechVolume:1.0;
-          u.onend=()=>setTimeout(playAudioQueue,80);
-          u.onerror=()=>playAudioQueue();
-          speechSynthesis.speak(u);
-        }else{
-          playAudioQueue();
-        }
-      },150);
-      return;
-    }
-    if(!viVoice){
-      playAudioQueue();
-      return;
-    }
+
     const u=new SpeechSynthesisUtterance(chunk);
-    u.voice=viVoice;
+    if(viVoice){
+      u.voice=viVoice;
+    }
     u.lang='vi-VN';
     u.rate=1.15;
     u.volume=typeof speechVolume==='number'?speechVolume:1.0;
     u.onend=()=>setTimeout(playAudioQueue,80);
-    u.onerror=()=>playAudioQueue();
+    u.onerror=(e)=>{
+      console.warn('Web Speech error:',e);
+      playAudioQueue();
+    };
     speechSynthesis.speak(u);
   }
 

@@ -1,0 +1,115 @@
+﻿<!DOCTYPE html>
+<html lang="vi" data-root="../" data-nav="kienthuc">
+<head>
+<meta charset="utf-8">
+<meta name="referrer" content="no-referrer">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Các bài học an toàn dưới nước dành cho trẻ em và gia đình.">
+<title>Bài học an toàn dưới nước – SafeWater</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Nunito:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/base.css">
+<link rel="stylesheet" href="../assets/css/layout.css">
+<link rel="stylesheet" href="../assets/css/components.css">
+<style>
+.lesson-intro{position:relative;overflow:hidden;margin:18px 0 26px;padding:clamp(22px,5vw,40px);border-radius:28px;background:linear-gradient(120deg,#0057b8,#00a9c7);color:#fff;box-shadow:0 14px 32px #0057b833}
+.lesson-intro::after{content:"💧";position:absolute;right:clamp(16px,6vw,64px);top:50%;transform:translateY(-50%);font-size:clamp(70px,12vw,120px);opacity:.22}
+.lesson-intro h1{position:relative;z-index:1;margin:0 0 8px;color:#fff}
+.lesson-intro p{position:relative;z-index:1;max-width:38em;margin:0;font-size:clamp(16px,2.4vw,19px)}
+.lesson-count{position:relative;z-index:1;display:inline-block;margin-top:18px;padding:5px 13px;border:1px solid #ffffff70;border-radius:99px;background:#ffffff1c;font-weight:700}
+.lesson-list{grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:16px}
+.lesson-card{position:relative;min-height:220px;padding:20px;overflow:hidden;border:1px solid #cfe3f3;transition:transform .2s,border-color .2s,box-shadow .2s}
+.lesson-list>.lesson-card{display:flex;flex-direction:column;align-items:flex-start;width:100%}
+.lesson-card:hover,.lesson-card:focus-visible{transform:translateY(-5px);border-color:var(--pr);box-shadow:0 14px 30px #0a84d633}
+.lesson-number{display:inline-block;margin-bottom:14px;padding:4px 11px;border-radius:99px;background:#e2f4ff;color:#075b91;font-size:14px;font-weight:800}
+.lesson-icon{display:grid;width:56px;height:56px;place-items:center;margin-bottom:12px;border-radius:18px;background:linear-gradient(135deg,#a8edea,#4facfe);font-size:30px}
+.lesson-card:nth-child(2) .lesson-icon{background:linear-gradient(135deg,#d4fc79,#38c172)}
+.lesson-card:nth-child(3) .lesson-icon{background:linear-gradient(135deg,#fbc2eb,#a18cd1)}
+.lesson-card h2{margin:0 0 8px;font-size:22px;line-height:1.25}
+.lesson-card h2::after{display:none}
+.lesson-card p{margin:0;color:var(--mu)}
+.lesson-link{display:inline-flex;align-items:center;gap:7px;margin-top:18px;color:var(--pr);font-weight:800}
+.lesson-card:focus-visible{outline:3px solid var(--ac);outline-offset:3px}
+@media(max-width:760px){
+  .lesson-intro{margin:12px 0 20px;border-radius:22px}
+  .lesson-intro::after{right:14px;top:auto;bottom:8px;transform:none;font-size:64px}
+  .lesson-card{min-height:0;padding:17px}
+}
+</style>
+</head>
+<body>
+<!-- Header, menu, nút SOS và footer do assets/js/core/layout.js dựng tự động -->
+<main>
+<a class="b o" href="index.html">← Kiến thức</a>
+<section class="lesson-intro" aria-labelledby="lesson-heading">
+  <h1 id="lesson-heading"><svg class="i3 hi"><use href="#c-card"/></svg> Bài học an toàn dưới nước</h1>
+  <p>Cùng tìm hiểu cách nhận biết nguy hiểm và bảo vệ bản thân khi ở gần nước.</p>
+  <span class="lesson-count">8 bài học</span>
+</section>
+<div class="grid lesson-list" aria-label="Danh sách bài học">
+  <a class="card tile lesson-card" href="bai-hoc/bai-hoc-2-an-toan-trong-moi-truong-nuoc.html">
+    <span class="lesson-number">Bài 1</span>
+    <span class="lesson-icon" aria-hidden="true">🌊</span>
+    <h2>An toàn trong môi trường nước</h2>
+    <p>Nhận biết các nguy cơ và ghi nhớ những nguyên tắc an toàn khi ở gần nước.</p>
+    <span class="lesson-link">Vào bài học <span aria-hidden="true">→</span></span>
+  </a>
+  <a class="card tile lesson-card" href="bai-hoc/bai-hoc-3-nuoc-quanh-nha-cho-nao-nguy-hiem.html">
+    <span class="lesson-number">Bài 2</span>
+    <span class="lesson-icon" aria-hidden="true">🏡</span>
+    <h2>Nước quanh nhà: chỗ nào nguy hiểm?</h2>
+    <p>Quan sát các khu vực quanh nhà và cộng đồng để nhận diện điểm cần đề phòng.</p>
+    <span class="lesson-link">Vào bài học <span aria-hidden="true">→</span></span>
+  </a>
+  <a class="card tile lesson-card" href="bai-hoc/bai-hoc-4-di-do-di-thuyen-nho-mac-ao-phao.html">
+    <span class="lesson-number">Bài 3</span>
+    <span class="lesson-icon" aria-hidden="true">🛶</span>
+    <h2>Đi đò, đi thuyền nhỏ: mặc áo phao</h2>
+    <p>Chuẩn bị đúng cách để an toàn hơn khi di chuyển trên sông, hồ.</p>
+    <span class="lesson-link">Vào bài học <span aria-hidden="true">→</span></span>
+  </a>
+  <a class="card tile lesson-card" href="bai-hoc/bai-hoc-5-mua-bao-lu-lut-o-dau-an-toan.html">
+    <span class="lesson-number">Bài 4</span>
+    <span class="lesson-icon" aria-hidden="true">🌧️</span>
+    <h2>An toàn mùa mưa bão, lũ lụt</h2>
+    <p>Ghi nhớ cách giữ an toàn khi có mưa bão và lũ lụt.</p>
+    <span class="lesson-link">Vào bài học <span aria-hidden="true">→</span></span>
+  </a>
+  <a class="card tile lesson-card" href="bai-hoc/bai-hoc-6-chuot-rut-khi-boi-binh-tinh-noi-ngua.html">
+    <span class="lesson-number">Bài 5</span>
+    <span class="lesson-icon" aria-hidden="true">🏊</span>
+    <h2>Xử lý khi bị chuột rút</h2>
+    <p>Học cách bình tĩnh và nổi ngửa khi bị chuột rút trong lúc bơi.</p>
+    <span class="lesson-link">Vào bài học <span aria-hidden="true">→</span></span>
+  </a>
+  <a class="card tile lesson-card" href="bai-hoc/bai-hoc-7-gap-xoay-nuoc-dung-boi-vao-tam.html">
+    <span class="lesson-number">Bài 6</span>
+    <span class="lesson-icon" aria-hidden="true">🌀</span>
+    <h2>Thoát hiểm khi gặp vùng nước xoáy</h2>
+    <p>Nhận biết vùng nước xoáy và cách ứng phó an toàn.</p>
+    <span class="lesson-link">Vào bài học <span aria-hidden="true">→</span></span>
+  </a>
+  <a class="card tile lesson-card" href="bai-hoc/bai-hoc-8-bi-cuon-ra-xa-bo-dung-boi-nguoc-dong.html">
+    <span class="lesson-number">Bài 7</span>
+    <span class="lesson-icon" aria-hidden="true">🏖️</span>
+    <h2>Dòng chảy cuốn ra xa bờ</h2>
+    <p>Tìm hiểu cách nhận biết và ứng phó khi gặp dòng chảy xa bờ.</p>
+    <span class="lesson-link">Vào bài học <span aria-hidden="true">→</span></span>
+  </a>
+  <a class="card tile lesson-card" href="bai-hoc/bai-hoc-9-ky-nang-cuu-duoi-an-toan-cho-ban-than.html">
+    <span class="lesson-number">Bài 8</span>
+    <span class="lesson-icon" aria-hidden="true">🛟</span>
+    <h2>Kỹ năng cứu đuối</h2>
+    <p>Ghi nhớ cách hỗ trợ người gặp nạn mà vẫn bảo đảm an toàn cho bản thân.</p>
+    <span class="lesson-link">Vào bài học <span aria-hidden="true">→</span></span>
+  </a>
+</div>
+</main>
+<script src="../assets/js/core/dom.js"></script>
+<script src="../assets/js/icons/sprite-line.js"></script>
+<script src="../assets/js/icons/sprite-3d.js"></script>
+<script src="../assets/js/core/icons.js"></script>
+<script src="../assets/js/core/layout.js"></script>
+</body>
+</html>

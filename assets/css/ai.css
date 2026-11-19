@@ -1,0 +1,13 @@
+/* ==========================================================
+   ai.css – Trợ lý AI: khung chat, bong bóng tin nhắn, linh vật
+   ========================================================== */
+
+.chat{height:280px;overflow:auto;display:flex;flex-direction:column;gap:6px;padding:8px}
+.m{padding:8px 12px;border-radius:14px;max-width:80%}
+.m.u{background:var(--pr);color:#fff;align-self:flex-end}
+.m.a{background:var(--bd)}
+.mas{font-size:70px;text-align:center;transition:.3s}
+@media(max-width:760px){
+  .chat{height:240px}
+  .mas{font-size:56px}
+}

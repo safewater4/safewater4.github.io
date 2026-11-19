@@ -1,0 +1,265 @@
+﻿<!DOCTYPE html>
+<html lang="vi" data-root="../" data-nav="khaosat">
+<head>
+<meta charset="utf-8">
+<meta name="referrer" content="no-referrer">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Khảo sát – SafeWater</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/base.css">
+<link rel="stylesheet" href="../assets/css/layout.css">
+<link rel="stylesheet" href="../assets/css/components.css">
+<style>
+/* ================= KHẢO SÁT DUY NHẤT SAU KHI XEM ================= */
+.survey-header-box {
+  background: linear-gradient(135deg, rgba(10, 132, 214, 0.12), rgba(0, 180, 216, 0.05));
+  border: 1px solid rgba(10, 132, 214, 0.2);
+  border-radius: 20px;
+  padding: 20px 24px;
+  margin-bottom: 24px;
+}
+.survey-header-box h1 {
+  margin: 0;
+  font-size: clamp(22px, 3.5vw, 28px);
+  color: var(--tx);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.survey-header-box p {
+  margin: 6px 0 0;
+  color: var(--mu);
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+/* Khung nội dung khảo sát */
+.survey-viewport {
+  background: var(--card);
+  border: 1px solid var(--bd);
+  border-radius: 24px;
+  padding: 26px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+}
+
+.panel-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 18px;
+  border-radius: 14px;
+  font-weight: 700;
+  font-size: 14.5px;
+  margin-bottom: 22px;
+  background: rgba(10, 132, 214, 0.08);
+  color: #0a84d6;
+  border-left: 4px solid #0a84d6;
+}
+
+/* Khối câu hỏi */
+.q-card {
+  background: var(--bg);
+  border: 1px solid var(--bd);
+  border-radius: 18px;
+  padding: 20px;
+  margin-bottom: 18px;
+  transition: border-color 0.2s;
+}
+.q-card:focus-within {
+  border-color: var(--pr);
+}
+.q-card-head {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.q-num {
+  font-family: "Baloo 2", Nunito, sans-serif;
+  font-size: 15px;
+  font-weight: 800;
+  background: var(--card);
+  border: 1px solid var(--bd);
+  border-radius: 8px;
+  padding: 2px 10px;
+  color: var(--pr);
+  flex-shrink: 0;
+}
+.q-card-head b {
+  font-size: 16px;
+  color: var(--tx);
+  line-height: 1.45;
+}
+
+/* Danh sách đáp án */
+.q-options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.q-opt-label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 18px;
+  border-radius: 14px;
+  border: 1.5px solid var(--bd);
+  background: var(--card);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 15px;
+  color: var(--tx);
+  user-select: none;
+}
+.q-opt-label:hover {
+  border-color: var(--pr);
+  background: rgba(10, 132, 214, 0.04);
+  transform: translateX(3px);
+}
+.q-opt-label input[type="radio"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 19px;
+  height: 19px;
+  border: 2px solid var(--bd);
+  border-radius: 50%;
+  margin: 0;
+  display: grid;
+  place-content: center;
+  flex-shrink: 0;
+  transition: 0.2s;
+  cursor: pointer;
+}
+.q-opt-label input[type="radio"]::before {
+  content: "";
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  transform: scale(0);
+  transition: 0.15s transform ease-in-out;
+  box-shadow: inset 1em 1em var(--pr);
+}
+.q-opt-label input[type="radio"]:checked {
+  border-color: var(--pr);
+}
+.q-opt-label input[type="radio"]:checked::before {
+  transform: scale(1);
+}
+.q-opt-label.selected {
+  border-color: var(--pr);
+  background: rgba(10, 132, 214, 0.07);
+  font-weight: 600;
+}
+.q-opt-label.off {
+  pointer-events: none;
+  opacity: 0.75;
+}
+
+/* Khu vực Nút hành động */
+.survey-action-bar {
+  margin-top: 24px;
+  padding-top: 18px;
+  border-top: 1px dashed var(--bd);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+}
+.btn-submit {
+  font-family: "Baloo 2", Nunito, sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  padding: 12px 28px;
+  border-radius: 14px;
+  border: 0;
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: linear-gradient(135deg, #0a84d6, #00b4d8);
+  box-shadow: 0 4px 14px rgba(10, 132, 214, 0.35);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.btn-submit:hover {
+  filter: brightness(1.08);
+  transform: translateY(-2px);
+}
+.btn-redo {
+  font-family: "Baloo 2", Nunito, sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  padding: 10px 20px;
+  border-radius: 12px;
+  background: transparent;
+  border: 1.5px solid var(--bd);
+  color: var(--tx);
+  cursor: pointer;
+  transition: 0.2s;
+}
+.btn-redo:hover {
+  border-color: var(--pr);
+  color: var(--pr);
+}
+
+/* Thẻ kết quả tổng quan */
+#kres {
+  margin-top: 20px;
+  border-radius: 18px;
+  padding: 18px 22px;
+  font-size: 16px;
+  text-align: center;
+  border: 1px solid var(--bd);
+  background: var(--card);
+}
+
+/* Dark mode */
+:root[data-theme=dark] .survey-header-box {
+  background: rgba(77, 179, 255, 0.08);
+  border-color: rgba(77, 179, 255, 0.2);
+}
+:root[data-theme=dark] .q-card {
+  background: rgba(255,255,255,0.02);
+}
+:root[data-theme=dark] .q-opt-label {
+  background: var(--card);
+}
+
+@media (max-width: 720px) {
+  .survey-viewport {
+    padding: 16px;
+    border-radius: 18px;
+  }
+}
+</style>
+</head>
+<body>
+<!-- Header, menu, nút SOS và footer do assets/js/core/layout.js dựng tự động -->
+<main>
+  <div class="survey-header-box">
+    <h1><svg class="i3 hi"><use href="#c-clip"/></svg> Khảo sát cảm nhận & Đánh giá</h1>
+    <p>Chia sẻ nhanh 3 câu cảm nhận về kiến thức, kỹ năng hữu ích đã tích lũy được sau khi trải nghiệm nội dung trên SafeWater.</p>
+  </div>
+
+  <!-- Khung nội dung câu hỏi -->
+  <div class="survey-viewport">
+    <div class="panel-banner">
+      <span>🌟 Hãy chọn các phương án phù hợp nhất với trải nghiệm thực tế của bạn sau khi xem trang web:</span>
+    </div>
+    <div id="survey-form"></div>
+  </div>
+
+  <div id="kres" role="status" hidden></div>
+</main>
+
+<script src="../assets/js/core/dom.js"></script>
+<script src="../assets/js/icons/sprite-line.js"></script>
+<script src="../assets/js/icons/sprite-3d.js"></script>
+<script src="../assets/js/core/icons.js"></script>
+<script src="../assets/js/core/layout.js"></script>
+<script src="../assets/js/data/survey.js"></script>
+<script src="../assets/js/pages/survey.js"></script>
+</body>
+</html>

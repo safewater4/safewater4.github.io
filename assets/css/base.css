@@ -1,0 +1,28 @@
+/* ==========================================================
+   base.css – Nền tảng: biến màu, reset, chữ, nền trang, icon cơ bản
+   ========================================================== */
+
+:root{--bg:#f2f9ff;--card:#fff;--tx:#0b2540;--mu:#4b6580;--pr:#0a84d6;--ac:#ff8a00;--rd:#e5383b;--gn:#1a9f5a;--bd:#cfe3f3;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+:root[data-theme=dark]{--bg:#0a1a2b;--card:#12304a;--tx:#e8f3ff;--mu:#9bb7d1;--pr:#4db3ff;--bd:#25506f}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;font:16px/1.5 system-ui,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--tx)}
+h1,h2,h3{margin:.4em 0}
+.mu{color:var(--mu)}
+body{font-family:Nunito,system-ui,sans-serif;background:linear-gradient(180deg,#dff4ff,#f6fbff 45%,#fff4e2);background-attachment:fixed}
+:root[data-theme=dark] body{background:linear-gradient(#061423,#0a2540)}
+:root[data-theme=dark] body:not(.game-page)::before{background:radial-gradient(circle at 8% 8%,#16436b66,transparent 38%),radial-gradient(circle at 92% 78%,#563c2455,transparent 38%)}
+h1,h2,h3{font-family:"Baloo 2",Nunito,system-ui,sans-serif}
+h1{font-size:clamp(28px,5vw,42px)}
+h2{font-size:26px;margin:30px 0 12px;display:flex;align-items:center;gap:10px}
+h2::after{content:"";flex:1;height:4px;border-radius:4px;background:linear-gradient(90deg,#00b4d8,transparent)}
+html,body{overflow-x:hidden}
+@media(max-width:760px){
+  h1{font-size:26px}
+  h2{font-size:21px;margin:22px 0 10px}
+}
+svg.i{width:1.15em;height:1.15em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;vertical-align:-.2em;flex:none}
+body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(circle at 8% 8%,#b9e7ff99,transparent 38%),radial-gradient(circle at 92% 78%,#ffe3b088,transparent 38%)}
+h1 .hi,h2 .hi,h3 .hi{width:.95em;height:.95em;color:var(--pr);margin-right:6px;stroke-width:2.2}
+.i3{width:1em;height:1em;flex:none;vertical-align:-.15em;filter:drop-shadow(0 3px 3px #0a4a8a2e)}
+.i3.hi{margin-right:8px;vertical-align:-.12em}

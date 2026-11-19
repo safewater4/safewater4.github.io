@@ -1,0 +1,49 @@
+﻿<!DOCTYPE html>
+<html lang="vi" data-root="../" data-nav="trochoi">
+<head>
+<meta charset="utf-8">
+<meta name="referrer" content="no-referrer">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Trò chơi – SafeWater</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Nunito:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/base.css">
+<link rel="stylesheet" href="../assets/css/layout.css">
+<link rel="stylesheet" href="../assets/css/components.css">
+<link rel="stylesheet" href="../assets/css/games.css">
+</head>
+<body class="game-page">
+<!-- Header, menu, nút SOS và footer do assets/js/core/layout.js dựng tự động -->
+<main class="game-lobby">
+<section class="game-hero" aria-labelledby="game-title">
+  <div class="game-hero__copy">
+    <p class="game-eyebrow"><span class="game-eyebrow__dot"></span> SAFEWATER ARCADE</p>
+    <h1 id="game-title">Mỗi giây là <span>một sinh mạng.</span></h1>
+    <p class="game-hero__text">Phản xạ nhanh, quyết định đúng — đây không chỉ là trò chơi. Chinh phục từng màn để trở thành người hùng thực sự khi đối mặt với nguy hiểm dưới nước!</p>
+    <a class="game-start" href="#gl"><span aria-hidden="true">⚡</span> Bắt đầu thử thách <span aria-hidden="true">↓</span></a>
+  </div>
+  <div class="game-hero__art" aria-hidden="true">
+    <img class="game-hero__illustration" src="../assets/img/game-hero.webp" alt="">
+  </div>
+</section>
+<section class="game-library" aria-labelledby="game-library-title">
+  <div class="game-library__heading">
+    <div>
+      <p class="game-section-label">CHỌN MÀN CHƠI</p>
+      <h2 id="game-library-title">Kho thử thách <span>⚡</span></h2>
+    </div>
+    <p class="game-library__note"><span class="game-status-dot"></span> Chọn game và bắt đầu hành trình</p>
+  </div>
+  <div class="game-grid" id="gl" aria-label="Danh sách trò chơi"></div>
+</section>
+</main>
+<script src="../assets/js/core/dom.js"></script>
+<script src="../assets/js/icons/sprite-line.js"></script>
+<script src="../assets/js/icons/sprite-3d.js"></script>
+<script src="../assets/js/core/icons.js"></script>
+<script src="../assets/js/core/layout.js"></script>
+<script src="../assets/js/data/games.js"></script>
+<script src="../assets/js/pages/games.js"></script>
+</body>
+</html>

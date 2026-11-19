@@ -1,0 +1,126 @@
+/* ==========================================================
+   layout.css – Khung trang dùng chung: header, menu, nút SOS, hộp thoại, footer, lưới .grid/.split
+   ========================================================== */
+
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:9;display:flex;align-items:center;gap:8px;padding:8px 14px;background:var(--pr);color:#fff;flex-wrap:wrap}
+.logo{font-weight:800;font-size:20px;cursor:pointer}
+nav{display:flex;gap:2px;flex-wrap:wrap;flex:1}
+nav a{background:none;border:0;color:#fff;padding:6px 10px;border-radius:8px;cursor:pointer;font:inherit;font-size:14px}
+nav a.on,nav a:hover{background:#ffffff33}
+.header-actions{display:flex;align-items:center;gap:8px;flex:none}
+.theme-toggle{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-width:76px;padding:7px 11px;border:1px solid #ffffff55;border-radius:20px;background:#ffffff18;color:#fff;cursor:pointer;font:700 13px "Baloo 2",Nunito,system-ui,sans-serif;transition:background .2s,transform .2s}
+.theme-toggle:hover{transform:translateY(-1px);background:#ffffff30}
+.theme-toggle svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.sos{background:var(--rd);color:#fff;border:0;border-radius:20px;padding:6px 16px;font-weight:800;cursor:pointer;animation:p 1.6s infinite}
+@keyframes p{50%{box-shadow:0 0 0 8px #e5383b44}}
+main{max-width:1000px;margin:auto;padding:16px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}
+.split{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:700px){
+  .split{grid-template-columns:1fr}
+}
+dialog{border:0;border-radius:16px;max-width:420px;background:var(--card);color:var(--tx)}
+footer{text-align:center;padding:20px;background:var(--pr);color:#fff;margin-top:30px}
+.logo,nav a,.sos{font-family:"Baloo 2",Nunito,system-ui,sans-serif}
+header{background:linear-gradient(90deg,#0057b8,#00b4d8);box-shadow:0 6px 22px #0057b866;border-radius:0 0 22px 22px}
+nav a{font-weight:700;border-radius:20px}
+nav a.on{background:#fff;color:#0057b8}
+.logo{font-size:24px;text-shadow:0 2px 6px #0004}
+footer{background:linear-gradient(90deg,#003a80,#0a84d6);border-radius:28px 28px 0 0}
+@media(max-width:760px){
+  header{padding:8px 10px;gap:6px;border-radius:0 0 16px 16px}
+  .logo{font-size:20px;order:1}
+  .header-actions{order:2;margin-left:auto;gap:6px}
+  .theme-toggle{min-width:68px;padding:6px 9px}
+  .sos{padding:6px 14px}
+  nav{order:3;flex:0 0 100%;flex-wrap:nowrap;overflow-x:auto;gap:4px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+  nav::-webkit-scrollbar{display:none}
+  nav a{white-space:nowrap;flex:none;padding:6px 12px}
+  main{padding:12px}
+  .grid{grid-template-columns:1fr}
+  .grid.cols-2-mobile{grid-template-columns:1fr 1fr}
+  dialog{width:calc(100% - 32px)}
+}
+.logo{display:flex;align-items:center;gap:8px}
+.logo .lg{display:grid;place-items:center;width:36px;height:36px;border-radius:50%;background:#fff;color:#0a84d6;box-shadow:0 3px 8px #0003}
+.logo .lg svg{width:20px;height:20px;fill:currentColor;stroke:none}
+nav{background:#ffffff22;border-radius:26px;padding:3px}
+nav a{display:inline-flex;align-items:center;gap:5px}
+nav a.nav-home{padding:6px 10px;justify-content:center}
+nav a.nav-home svg{width:18px;height:18px;margin:0}
+nav a svg{width:16px;height:16px}
+.sos{display:inline-flex;align-items:center;gap:6px}
+.sos svg{width:18px;height:18px}
+@media(max-width:760px){
+  .logo .lg{width:30px;height:30px}
+}
+
+/* --- Bổ sung khi chuyển sang nhiều trang: logo & menu là thẻ <a> --- */
+.logo,nav a{text-decoration:none}
+.logo{color:inherit}
+
+/* Menu trượt bổ sung trên mobile; thanh menu ngang vẫn giữ nguyên. */
+.header-navigation{display:contents}
+.menu-toggle{display:none}
+dialog.mobile-menu{position:fixed;inset:0 auto 0 0;margin:0;width:min(300px,85vw);max-width:none;height:100%;height:100dvh;max-height:none;box-sizing:border-box;padding:24px 16px;padding-top:max(24px,env(safe-area-inset-top));border:0;border-radius:0 24px 24px 0;background:var(--card);color:var(--tx);box-shadow:12px 0 40px #001c4140}
+.mobile-menu[open]{animation:mobile-menu-enter .25s ease-out}
+.mobile-menu::backdrop{background:#00152b80}
+.mobile-menu__heading{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:24px;font-size:24px;color:var(--pr)}
+.mobile-menu__close{display:grid;place-items:center;width:44px;height:44px;border:0;border-radius:50%;background:#0a84d614;color:var(--tx);font-size:30px;cursor:pointer}
+.mobile-menu nav{display:flex;flex-direction:column;flex-wrap:nowrap;gap:8px;padding:0;background:none;border-radius:0;overflow:visible}
+.mobile-menu nav a{width:100%;box-sizing:border-box;gap:12px;padding:12px 16px;border-radius:14px;color:var(--tx);font-size:17px;white-space:normal}
+.mobile-menu nav a.on,.mobile-menu nav a:hover{background:#0a84d618;color:var(--pr)}
+.mobile-menu nav a svg{width:21px;height:21px;flex:none}
+.menu-toggle:focus-visible,.mobile-menu button:focus-visible,.mobile-menu a:focus-visible{outline:3px solid #ffbd45;outline-offset:2px}
+@keyframes mobile-menu-enter{from{transform:translateX(-100%)}to{transform:translateX(0)}}
+@media(max-width:760px){
+  .header-navigation{display:flex;align-items:center;gap:6px;order:3;flex:0 0 100%;min-width:0}
+  .header-navigation>nav{flex:1;min-width:0}
+  .menu-toggle{display:grid;place-items:center;flex:none;width:30px;height:30px;padding:4px;border:0;border-radius:0;background:transparent;color:#fff;cursor:pointer}
+  .menu-toggle svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+}
+@media(prefers-reduced-motion:reduce){.mobile-menu[open]{animation:none}}
+
+/* --- Nút nổi & Cửa sổ Trợ lý AI (SafeBuddy) toàn site --- */
+.ai-fab{position:fixed;bottom:max(20px,env(safe-area-inset-bottom,20px));right:max(20px,env(safe-area-inset-right,20px));z-index:98;display:inline-flex;align-items:center;gap:8px;padding:9px 16px;border:0;border-radius:30px;background:linear-gradient(135deg,#0a84d6,#0057b8);color:#fff;font:700 15px "Baloo 2",Nunito,system-ui,sans-serif;cursor:pointer;box-shadow:0 6px 20px rgba(0,87,184,0.38);transition:transform .2s,box-shadow .2s}
+.ai-fab:hover{transform:scale(1.05) translateY(-2px);box-shadow:0 8px 24px rgba(0,87,184,0.48)}
+.ai-fab__mascot{font-size:20px;line-height:1}
+.ai-widget{position:fixed;bottom:max(76px,calc(env(safe-area-inset-bottom,20px) + 58px));right:max(20px,env(safe-area-inset-right,20px));width:min(380px,calc(100vw - 32px));height:min(500px,calc(100dvh - 120px));z-index:99;background:var(--card);color:var(--tx);border-radius:20px;box-shadow:0 14px 40px rgba(0,28,65,0.28);display:flex;flex-direction:column;overflow:hidden;border:1px solid #0a84d633;animation:ai-popup-enter .22s ease-out}
+.ai-widget[hidden]{display:none}
+@keyframes ai-popup-enter{from{opacity:0;transform:translateY(14px) scale(.96)}to{opacity:1;transform:translateY(0) scale(1)}}
+.ai-widget__header{padding:10px 14px;background:linear-gradient(90deg,#0057b8,#00b4d8);color:#fff;display:flex;align-items:center;justify-content:space-between;flex:none}
+.ai-widget__header-actions{display:flex;align-items:center;gap:6px}
+.ai-widget__btn-icon{background:#ffffff22;border:0;color:#fff;font-size:16px;width:30px;height:30px;border-radius:50%;cursor:pointer;display:grid;place-items:center;line-height:1}
+.ai-widget__btn-icon:hover{background:#ffffff44}
+.ai-widget__title{display:flex;align-items:center;gap:10px}
+.ai-widget__mascot{font-size:24px;line-height:1;background:#ffffff22;border-radius:50%;width:36px;height:36px;display:grid;place-items:center}
+.ai-widget__title strong{display:block;font-size:15px;line-height:1.2;font-family:"Baloo 2",Nunito,sans-serif}
+.ai-widget__status{font-size:11px;opacity:.9}
+.ai-widget__close{background:#ffffff22;border:0;color:#fff;font-size:22px;width:30px;height:30px;border-radius:50%;cursor:pointer;display:grid;place-items:center;line-height:1}
+.ai-widget__close:hover{background:#ffffff44}
+.ai-widget__settings{padding:10px 12px;background:var(--card);border-bottom:1px solid #00000018;box-shadow:0 4px 12px rgba(0,0,0,0.06)}
+.ai-widget__settings[hidden]{display:none}
+.ai-widget__settings-title{font-weight:700;font-size:13px;color:var(--pr)}
+.typing-indicator{font-style:italic;opacity:.8;font-size:13px;display:inline-flex;align-items:center;gap:6px}
+.ai-widget__body{flex:1;min-height:0;display:flex;flex-direction:column;background:var(--bg);overflow:hidden}
+.ai-widget__body .chat{flex:1;min-height:0;height:auto;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px}
+.m{padding:8px 12px;border-radius:14px;max-width:82%;font-size:14px;line-height:1.45}
+.m.u{background:var(--pr);color:#fff;align-self:flex-end}
+.m.a{background:var(--bd);color:var(--tx);align-self:flex-start}
+.ai-widget__quick{display:flex;gap:6px;overflow-x:auto;padding:6px 10px;scrollbar-width:none;flex:none;background:var(--card);border-top:1px solid #0000000d}
+.ai-widget__quick::-webkit-scrollbar{display:none}
+.ai-widget__quick .opt{font-size:12px;padding:5px 9px;border-radius:12px;background:var(--bg);color:var(--pr);border:1px solid #0a84d633;white-space:nowrap;cursor:pointer;font-weight:600;margin:0}
+.ai-widget__quick .opt:hover{background:#0a84d618}
+.ai-widget__footer{padding:8px 10px;background:var(--card);border-top:1px solid #00000010;flex:none}
+.ai-widget__input-row{display:flex;gap:6px}
+.ai-widget__input-row input{flex:1;padding:7px 11px;border-radius:12px;border:1px solid var(--bd);font-size:13px;outline:none;background:var(--bg);color:var(--tx)}
+.ai-widget__input-row input:focus{border-color:var(--pr)}
+.ai-widget__btn-mic, #mic{padding:6px 9px;border-radius:12px;font-size:14px;transition:all .2s ease}
+.ai-widget__btn-mic.is-listening, #mic.is-listening{background:#ef4444!important;color:#fff!important;animation:mic-pulse 1.2s infinite}
+@keyframes mic-pulse{0%{box-shadow:0 0 0 0 rgba(239,68,68,.7)}70%{box-shadow:0 0 0 9px rgba(239,68,68,0)}100%{box-shadow:0 0 0 0 rgba(239,68,68,0)}}
+.ai-widget__options{margin-top:5px;font-size:12px;display:flex;align-items:center}
+@media(max-width:760px){
+  .ai-fab{padding:10px;border-radius:50%;width:48px;height:48px;justify-content:center}
+  .ai-fab__label{display:none}
+  .ai-widget{right:10px;bottom:max(68px,calc(env(safe-area-inset-bottom,16px) + 54px));width:calc(100vw - 20px);height:min(460px,calc(100dvh - 100px))}
+}

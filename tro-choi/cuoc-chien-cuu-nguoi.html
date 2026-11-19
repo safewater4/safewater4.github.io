@@ -1,0 +1,1443 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+<meta name="referrer" content="no-referrer">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Hải Mã 01: Cuộc Chiến Cứu Người Đuối Nước 3D | Standalone Game</title>
+  <meta name="description" content="Game nhập vai 3D hành động cứu nạn cứu hộ đường thủy kịch tính - Bản chạy 1 file HTML duy nhất.">
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Three.js: Local Offline File first with CDN fallback -->
+  <script src="../assets/js/vendor/three.min.js"></script>
+  <script>window.THREE || document.write('<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"><\/script>');</script>
+  <!-- Canvas Confetti: Local Offline File first with CDN fallback -->
+  <script src="../assets/js/vendor/confetti.browser.min.js"></script>
+  <script>window.confetti || document.write('<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.4/dist/confetti.browser.min.js"><\/script>');</script>
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: #020617;
+      user-select: none;
+      -webkit-user-select: none;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    #canvas-container {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+    }
+    .text-glow {
+      text-shadow: 0 0 15px rgba(249, 115, 22, 0.6);
+    }
+    @keyframes spin-slow {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    .animate-spin-slow {
+      animation: spin-slow 8s linear infinite;
+    }
+  </style>
+</head>
+<body class="text-slate-100">
+
+  <!-- 3D WebGL Canvas Container -->
+  <div id="canvas-container"></div>
+
+  <!-- GAME UI ROOT -->
+  <div id="ui-root" class="relative z-10 w-full h-full pointer-events-none">
+    
+    <!-- TOP HEADER -->
+    <header class="absolute top-4 left-4 right-4 flex items-center justify-between pointer-events-auto">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center shadow-lg shadow-orange-500/40 border border-orange-400">
+          <svg class="w-6 h-6 text-white animate-spin-slow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/><line x1="4.93" y1="4.93" x2="9.17" y2="9.17"/><line x1="14.83" y1="14.83" x2="19.07" y2="19.07"/><line x1="14.83" y1="9.17" x2="19.07" y2="4.93"/><line x1="4.93" y1="19.07" x2="9.17" y2="14.83"/>
+          </svg>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+            <span class="text-[10px] font-mono font-black tracking-widest text-emerald-400 uppercase">SAR CO-OPS // BẢN 1 FILE HTML</span>
+          </div>
+          <h1 class="text-sm font-black text-white">HẢI MÃ 01: CỨU NGƯỜI ĐUỐI NƯỚC 3D</h1>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <button id="btn-open-profile" class="px-3 py-1.5 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-orange-500/60 shadow-lg text-xs font-semibold flex items-center gap-2 transition-colors cursor-pointer">
+          <span id="header-mascot-emoji" class="text-base">🐕</span>
+          <div class="text-left leading-tight hidden sm:block">
+            <div class="text-[9px] text-orange-400 font-mono">ĐỘI TRƯỞNG</div>
+            <div id="header-commander-name" class="text-xs font-bold text-white">Đội Trưởng Tuấn Kiệt</div>
+          </div>
+          <span class="text-[10px] text-orange-400 font-mono">ĐỔI</span>
+        </button>
+
+        <button id="btn-open-guide" class="px-3 py-2 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-amber-500/60 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer text-amber-300 shadow-lg">
+          <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          <span class="hidden md:inline">Cẩm Nang Sinh Tồn</span>
+        </button>
+
+        <button id="btn-toggle-sound" class="p-2 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-700 text-slate-300 transition-colors cursor-pointer shadow-lg">
+          <svg id="icon-sound-on" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
+          <svg id="icon-sound-off" class="w-4 h-4 text-red-400 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- TITLE SCREEN STAGE -->
+    <div id="screen-title" class="absolute inset-0 flex flex-col justify-between pt-24 pb-6 px-6 md:px-12 pointer-events-none overflow-y-auto">
+      <div class="w-full max-w-7xl mx-auto my-auto grid grid-cols-1 lg:grid-cols-12 gap-8 items-center pointer-events-auto">
+        <!-- Left Hero Title -->
+        <div class="lg:col-span-7 flex flex-col items-start space-y-5">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-orange-600/30 border-l-4 border-orange-500 text-orange-400 font-mono text-xs font-bold tracking-widest shadow-lg">
+            NHẬP VAI CỨU NẠN 3D CHÂN THỰC // STANDALONE FILE
+          </div>
+          <div class="space-y-1">
+            <h2 class="text-4xl sm:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white via-slate-100 to-orange-400 tracking-tight drop-shadow-2xl">
+              HẢI MÃ 01
+            </h2>
+            <div class="text-2xl sm:text-4xl font-extrabold text-sky-400 tracking-tight">
+              CUỘC CHIẾN CỨU NGƯỜI ĐUỐI NƯỚC
+            </div>
+            <p class="text-xs sm:text-sm text-slate-300 max-w-xl pt-2 leading-relaxed opacity-90 drop-shadow">
+              Lái ca-nô phản lực nước rẽ sóng vượt bão, quăng phao cứu sinh, né dòng xoáy tử thần
+              và thực hiện sơ cứu ép tim ngoài lồng ngực (CPR) chuẩn 100-120 nhịp/phút.
+            </p>
+          </div>
+
+          <!-- BIG PLAY BUTTON -->
+          <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto pt-2">
+            <button id="btn-play-game" class="px-8 py-5 bg-gradient-to-r from-orange-500 via-amber-500 to-orange-600 hover:from-orange-600 hover:to-amber-600 active:scale-95 text-white font-black text-lg rounded-2xl shadow-[0_0_35px_rgba(249,115,22,0.5)] flex items-center justify-center gap-3 transition-all cursor-pointer border border-amber-300/40 hover:scale-105">
+              <div class="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
+                <svg class="w-5 h-5 fill-current text-white" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              </div>
+              <div class="text-left leading-tight">
+                <div class="text-base font-extrabold tracking-wide">XUẤT KÍCH CHIẾN DỊCH</div>
+                <div class="text-[11px] font-mono text-amber-200 opacity-90 font-medium">Nhấn Phím [ SPACE ] hoặc [ ENTER ]</div>
+              </div>
+            </button>
+
+            <button id="btn-edit-profile-hero" class="px-6 py-4 bg-slate-900/90 hover:bg-slate-800 text-white font-bold text-sm rounded-2xl border border-orange-500/60 shadow-xl flex items-center justify-center gap-2.5 transition-all cursor-pointer hover:border-orange-400">
+              <svg class="w-5 h-5 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              <div class="text-left leading-tight">
+                <div>Đổi Tên & Linh Vật</div>
+                <div class="text-[10px] text-slate-400 font-mono">Tùy biến nhân vật</div>
+              </div>
+            </button>
+          </div>
+
+          <!-- Mission Selector Quick Pills -->
+          <div class="w-full max-w-xl pt-2">
+            <div class="text-[11px] font-mono font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+              Chọn Chiến Dịch Xuất Phát:
+            </div>
+            <div id="missions-pill-container" class="grid grid-cols-2 sm:grid-cols-3 gap-2"></div>
+          </div>
+        </div>
+
+        <!-- Right Side: Hero Card & Dossier -->
+        <div class="lg:col-span-5 flex flex-col gap-4">
+          <div class="bg-slate-900/95 border-2 border-orange-500/70 rounded-3xl p-5 shadow-[0_0_40px_rgba(0,0,0,0.8)] relative overflow-hidden">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
+              <span class="text-[11px] font-mono font-bold uppercase tracking-widest text-orange-400">HỒ SƠ TÁC CHIẾN SAR // PILOT ID</span>
+              <span class="text-[10px] font-mono font-bold bg-emerald-950 text-emerald-400 border border-emerald-800 px-2 py-0.5 rounded">CHỈ HUY TRƯỞNG</span>
+            </div>
+
+            <!-- Commander Name & Rank -->
+            <div class="bg-slate-950/90 border border-slate-800 rounded-2xl p-3.5 flex items-center justify-between mb-3">
+              <div class="flex items-center gap-3">
+                <div class="w-12 h-12 rounded-xl bg-sky-600/20 border border-sky-400 flex items-center justify-center text-sky-400">
+                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                </div>
+                <div>
+                  <div class="text-[10px] text-slate-400 font-mono uppercase">Họ & Tên Chỉ Huy</div>
+                  <h3 id="card-commander-name" class="text-base font-black text-white">Đội Trưởng Tuấn Kiệt</h3>
+                  <div class="text-[10px] text-amber-400 font-medium">★ ĐẠI ÚY SAR BỜ BIỂN</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Mascot Card -->
+            <div class="bg-slate-950/90 border border-orange-500/40 rounded-2xl p-3.5 mb-3">
+              <div class="flex items-center justify-between mb-1.5">
+                <span class="text-[10px] font-mono text-slate-400 uppercase">Linh Vật Đồng Hành 3D</span>
+                <button id="btn-mascot-voice-preview" class="text-[11px] text-sky-400 hover:text-sky-300 font-semibold cursor-pointer">🔊 Nghe Giọng</button>
+              </div>
+              <div class="flex items-center gap-3">
+                <div id="card-mascot-emoji" class="w-14 h-14 rounded-2xl bg-orange-500/20 border border-orange-500 flex items-center justify-center text-3xl shrink-0">🐕</div>
+                <div class="min-w-0">
+                  <h4 id="card-mascot-name" class="text-sm font-bold text-white">Rex Cứu Nạn</h4>
+                  <div id="card-mascot-perk" class="text-xs text-amber-300 font-medium mt-0.5">+35% Tốc Độ Nạp Phao</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Vehicle Stats -->
+            <div class="bg-slate-950/80 border border-slate-800 rounded-2xl p-3 space-y-2 text-xs">
+              <div class="flex justify-between text-[11px]">
+                <span class="text-slate-300">Tốc độ tối đa Turbo:</span>
+                <span class="font-mono text-sky-400 font-bold">44 Hải Lý/G (95%)</span>
+              </div>
+              <div class="w-full bg-slate-900 h-1.5 rounded-full overflow-hidden">
+                <div class="h-full bg-sky-400 rounded-full w-[95%]"></div>
+              </div>
+              <div class="flex justify-between text-[11px]">
+                <span class="text-slate-300">Tầm quét Sonar:</span>
+                <span id="card-sonar-val" class="font-mono text-emerald-400 font-bold">160 Mét</span>
+              </div>
+              <div class="w-full bg-slate-900 h-1.5 rounded-full overflow-hidden">
+                <div id="card-sonar-bar" class="h-full bg-emerald-400 rounded-full w-[80%]"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom Control Bar -->
+      <footer class="w-full max-w-7xl mx-auto pt-3 border-t border-slate-800/80 flex flex-col sm:flex-row items-center justify-between text-[11px] text-slate-400 font-medium gap-2 pointer-events-auto">
+        <div class="flex items-center gap-2">
+          <span class="text-emerald-400 font-bold">🛡️ SAR READY</span>
+          <span>BẢN CHẠY TRỰC TIẾP TRÊN TRÌNH DUYỆT KHÔNG CẦN CÀI ĐẶT</span>
+        </div>
+        <div class="font-mono text-slate-200 bg-slate-900/90 border border-slate-800 px-3 py-1 rounded-xl shadow-lg">
+          WASD Lái Tàu · Space Quăng Phao · Shift Tăng Tốc Turbo · E Còi Cứu Nạn · C Đổi Camera
+        </div>
+      </footer>
+    </div>
+
+    <!-- IN-GAME HUD OVERLAY -->
+    <div id="hud-overlay" class="absolute inset-0 pointer-events-none hidden">
+      <!-- Top Left Objectives -->
+      <div class="absolute top-4 left-4 pointer-events-auto flex flex-col gap-2 max-w-xs md:max-w-sm">
+        <div class="bg-slate-900/90 border border-slate-700/80 rounded-xl p-3 shadow-2xl">
+          <div class="flex items-center justify-between border-b border-slate-700 pb-2 mb-2">
+            <span class="text-xs font-bold uppercase tracking-wider text-emerald-400">SAR Đang Hoạt Động</span>
+            <span id="hud-timer" class="text-xs font-mono font-bold px-2 py-0.5 rounded bg-slate-800 text-amber-400">⏱ 02:30</span>
+          </div>
+          <!-- Commander Tag -->
+          <div class="flex items-center justify-between text-[11px] bg-slate-950/80 rounded-lg px-2.5 py-1 mb-2 border border-slate-800">
+            <span id="hud-commander-tag" class="font-semibold text-slate-200 truncate">👤 Đội Trưởng Tuấn Kiệt</span>
+            <button id="hud-cheer-btn" class="text-amber-300 font-bold hover:text-amber-200 cursor-pointer flex items-center gap-1 shrink-0 ml-1.5">
+              <span id="hud-mascot-emoji">🐕</span>
+              <span id="hud-mascot-name" class="truncate max-w-[90px]">Rex</span>
+            </button>
+          </div>
+          <h2 id="hud-mission-title" class="text-sm font-bold text-white truncate">Dòng Chảy Xa Bờ Cửa Biển</h2>
+          <div class="mt-2.5 pt-2 border-t border-slate-800 flex items-center justify-between text-xs">
+            <span class="text-slate-300">Đã Cứu An Toàn:</span>
+            <span id="hud-delivered-count" class="font-mono font-bold text-emerald-400 text-sm">0 / 4 người</span>
+          </div>
+          <div class="mt-2 bg-slate-800/90 rounded-lg p-2 border border-slate-700">
+            <div class="flex justify-between text-[11px] text-slate-300 mb-1">
+              <span>Nạn nhân trên tàu:</span>
+              <span id="hud-capacity-val" class="font-mono font-bold text-sky-300">0 / 4</span>
+            </div>
+            <div id="hud-capacity-bars" class="w-full bg-slate-950 h-2 rounded-full overflow-hidden flex gap-0.5 p-0.5">
+              <div class="flex-1 rounded-sm bg-slate-700"></div>
+              <div class="flex-1 rounded-sm bg-slate-700"></div>
+              <div class="flex-1 rounded-sm bg-slate-700"></div>
+              <div class="flex-1 rounded-sm bg-slate-700"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Top Center Dispatch Message -->
+      <div id="hud-message-box" class="absolute top-4 left-1/2 -translate-x-1/2 max-w-md w-full px-4 pointer-events-none transition-all hidden">
+        <div id="hud-message-content" class="bg-slate-900/95 border border-sky-500 text-sky-100 rounded-xl px-4 py-2.5 shadow-2xl flex items-center gap-3 text-xs font-semibold">
+          <span>📻</span>
+          <span id="hud-message-text">Tín hiệu SOS!</span>
+        </div>
+      </div>
+
+      <!-- Top Right Radar & Quick Toolbar -->
+      <div class="absolute top-4 right-4 pointer-events-auto flex flex-col items-end gap-2">
+        <div class="bg-slate-900/90 border border-slate-700/80 rounded-2xl p-2.5 shadow-2xl flex flex-col items-center">
+          <div id="radar-screen" class="relative w-32 h-32 rounded-full border-2 border-emerald-500/40 bg-slate-950/90 overflow-hidden flex items-center justify-center">
+            <div class="absolute inset-2 rounded-full border border-emerald-500/20"></div>
+            <div class="absolute inset-6 rounded-full border border-emerald-500/20"></div>
+            <div class="w-full h-px bg-emerald-500/20 absolute"></div>
+            <div class="h-full w-px bg-emerald-500/20 absolute"></div>
+            <!-- Center Boat Marker -->
+            <div class="relative z-10 w-2 h-2 rounded-full bg-sky-400 shadow-[0_0_8px_#38bdf8]"></div>
+            <!-- Blips will be placed here -->
+            <div id="radar-blips-container" class="absolute inset-0"></div>
+          </div>
+          <div class="mt-1 text-[10px] font-mono font-bold text-emerald-400 tracking-wider">RADAR GPS</div>
+        </div>
+
+        <div class="flex items-center gap-1.5 bg-slate-900/90 border border-slate-700/80 rounded-xl p-1.5 shadow-xl">
+          <button id="btn-hud-cam" title="Đổi camera (C)" class="p-2 hover:bg-slate-800 text-slate-300 rounded-lg cursor-pointer">📷</button>
+          <button id="btn-hud-mascot" title="Linh vật" class="p-1.5 hover:bg-slate-800 text-amber-400 rounded-lg cursor-pointer text-sm">🐕</button>
+          <button id="btn-hud-siren" title="Còi hú (E)" class="p-2 hover:bg-slate-800 text-slate-300 rounded-lg cursor-pointer">🚨</button>
+          <button id="btn-hud-sound" title="Âm thanh" class="p-2 hover:bg-slate-800 text-slate-300 rounded-lg cursor-pointer">🔊</button>
+          <button id="btn-hud-menu" title="Về Menu" class="p-2 hover:bg-slate-800 text-slate-300 rounded-lg cursor-pointer">🏠</button>
+        </div>
+      </div>
+
+      <!-- Bottom Instrument Dock -->
+      <div class="absolute bottom-5 left-1/2 -translate-x-1/2 pointer-events-auto w-full max-w-xl px-4">
+        <div class="bg-slate-900/95 border border-slate-700/90 rounded-2xl p-3 shadow-2xl flex items-center justify-between gap-4">
+          <div class="flex flex-col items-center min-w-[70px]">
+            <div class="text-[10px] text-slate-400 font-bold uppercase">Tốc độ</div>
+            <div id="hud-speed-val" class="text-2xl font-mono font-bold text-sky-400 leading-none mt-1">0</div>
+            <div class="text-[9px] text-slate-400 font-mono">HẢI LÝ / G</div>
+          </div>
+
+          <div class="flex-1">
+            <div class="flex justify-between items-center text-[11px] font-semibold mb-1">
+              <span class="text-amber-400">⚡ TURBO NITRO (Shift)</span>
+              <span id="hud-nitro-val" class="font-mono text-xs">100%</span>
+            </div>
+            <div class="w-full bg-slate-950 h-2.5 rounded-full overflow-hidden p-0.5 border border-slate-800">
+              <div id="hud-nitro-bar" class="h-full bg-gradient-to-r from-amber-500 to-yellow-400 rounded-full w-full transition-all"></div>
+            </div>
+          </div>
+
+          <button id="btn-hud-throw-buoy" class="px-4 py-3 rounded-xl font-bold text-sm flex items-center gap-2 shadow-lg bg-gradient-to-r from-orange-500 to-amber-500 text-white cursor-pointer active:scale-95">
+            <span>⭕</span>
+            <div class="text-left leading-tight">
+              <div class="text-xs">NÉM PHAO</div>
+              <div id="hud-buoys-count" class="text-[10px] opacity-80 font-mono">(Space) • Còn: 4</div>
+            </div>
+          </button>
+        </div>
+      </div>
+
+      <!-- Mobile On-Screen D-Pad & Controls -->
+      <div class="md:hidden pointer-events-auto">
+        <div class="absolute bottom-24 left-4 grid grid-cols-3 gap-1.5 w-36 h-36">
+          <div></div>
+          <button id="touch-up" class="bg-slate-900/80 border border-slate-600 rounded-xl flex items-center justify-center text-white font-bold active:bg-sky-600">▲</button>
+          <div></div>
+          <button id="touch-left" class="bg-slate-900/80 border border-slate-600 rounded-xl flex items-center justify-center text-white font-bold active:bg-sky-600">◀</button>
+          <div class="bg-slate-950/60 rounded-xl flex items-center justify-center text-slate-500 text-[10px]">LÁI</div>
+          <button id="touch-right" class="bg-slate-900/80 border border-slate-600 rounded-xl flex items-center justify-center text-white font-bold active:bg-sky-600">▶</button>
+          <div></div>
+          <button id="touch-down" class="bg-slate-900/80 border border-slate-600 rounded-xl flex items-center justify-center text-white font-bold active:bg-sky-600">▼</button>
+          <div></div>
+        </div>
+
+        <div class="absolute bottom-24 right-4 flex flex-col gap-2">
+          <button id="touch-turbo" class="w-16 h-14 bg-amber-600/90 active:bg-amber-500 rounded-2xl flex flex-col items-center justify-center text-white font-bold text-xs shadow-lg">⚡ TURBO</button>
+          <button id="touch-throw" class="w-16 h-16 bg-orange-600 active:bg-orange-500 rounded-2xl flex flex-col items-center justify-center text-white font-bold text-xs shadow-xl">⭕ NÉM</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- CPR RHYTHM MINI-GAME MODAL -->
+    <div id="cpr-modal" class="absolute inset-0 bg-slate-950/85 backdrop-blur-none z-50 flex items-center justify-center p-4 pointer-events-auto hidden">
+      <div class="bg-slate-900 border-2 border-red-500 rounded-3xl p-6 max-w-lg w-full shadow-[0_0_50px_rgba(239,68,68,0.3)] flex flex-col items-center">
+        <div class="w-full flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
+          <div>
+            <div class="text-xs font-bold text-red-400 uppercase tracking-widest">CẤP CỨU HỒI SỨC TIM PHỔI (CPR)</div>
+            <h3 id="cpr-victim-name" class="text-lg font-bold text-white">Nạn Nhân: Nguyễn Văn An</h3>
+          </div>
+          <div class="bg-red-950/80 border border-red-500 px-3 py-1 rounded-xl text-center">
+            <div class="text-[10px] text-red-300 font-bold">THỜI GIAN VÀNG</div>
+            <div id="cpr-timer-val" class="text-base font-mono font-bold text-white">25s</div>
+          </div>
+        </div>
+
+        <div class="w-full bg-slate-950 border border-emerald-500/40 rounded-2xl p-4 mb-4">
+          <div class="flex justify-between items-center text-xs font-mono mb-2">
+            <span class="text-emerald-400 font-bold">NHỊP TIM: <span id="cpr-hr-val">30</span> BPM</span>
+            <span class="text-slate-400">CHUẨN: 100-120 BPM</span>
+          </div>
+          <div class="h-10 w-full bg-slate-900 border border-slate-800 rounded-xl relative overflow-hidden flex items-center">
+            <div class="absolute left-[38%] right-[38%] top-0 bottom-0 bg-emerald-500/30 border-x-2 border-emerald-400 flex items-center justify-center">
+              <span class="text-[10px] font-bold text-emerald-300">VÙNG CHUẨN</span>
+            </div>
+            <div id="cpr-beat-marker" class="absolute w-5 h-8 bg-amber-400 rounded-md -translate-x-1/2 shadow-[0_0_12px_#fbbf24]"></div>
+          </div>
+          <div class="mt-3">
+            <div class="flex justify-between text-xs text-slate-300 mb-1">
+              <span>Hồi Phục Sinh Lực:</span>
+              <span id="cpr-progress-val" class="font-mono font-bold text-emerald-400">15%</span>
+            </div>
+            <div class="w-full bg-slate-900 h-3 rounded-full overflow-hidden p-0.5 border border-slate-800">
+              <div id="cpr-progress-bar" class="h-full bg-gradient-to-r from-red-500 via-amber-500 to-emerald-400 rounded-full w-[15%] transition-all"></div>
+            </div>
+          </div>
+        </div>
+
+        <div id="cpr-feedback" class="h-6 text-sm font-bold mb-3 text-slate-400">Ấn Space hoặc nút bên dưới theo đúng nhịp</div>
+
+        <button id="btn-cpr-compress" class="w-full py-5 bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 active:scale-95 text-white font-extrabold text-lg rounded-2xl shadow-2xl cursor-pointer">
+          ❤️ ÉP TIM NGOÀI LỒNG NGỰC (Space)
+        </button>
+      </div>
+    </div>
+
+    <!-- MISSION RESULT MODAL -->
+    <div id="result-modal" class="absolute inset-0 bg-slate-950/85 backdrop-blur-none z-50 flex items-center justify-center p-4 pointer-events-auto hidden">
+      <div class="bg-slate-900 border-2 border-emerald-500 rounded-3xl p-6 md:p-8 max-w-lg w-full shadow-2xl flex flex-col items-center">
+        <div id="result-icon-badge" class="w-16 h-16 rounded-2xl flex items-center justify-center mb-4 text-3xl bg-emerald-600/30 text-emerald-400">🏆</div>
+        <span id="result-subtitle" class="text-xs font-mono font-bold uppercase tracking-widest mb-1 text-emerald-400">CHIẾN DỊCH THÀNH CÔNG</span>
+        <h2 id="result-title" class="text-xl md:text-2xl font-black text-white text-center mb-4">ĐÃ CỨU SỐNG TOÀN BỘ NẠN NHÂN!</h2>
+        
+        <div id="result-stars-row" class="flex items-center gap-2 mb-6 text-2xl text-amber-400">⭐⭐⭐</div>
+
+        <div class="grid grid-cols-2 gap-3 w-full mb-6 text-xs">
+          <div class="bg-slate-950 border border-slate-800 rounded-2xl p-3">
+            <div class="text-[10px] text-slate-400 uppercase">Nạn nhân cứu sống</div>
+            <div id="result-saved-count" class="text-base font-bold text-white font-mono">4 / 4 người</div>
+          </div>
+          <div class="bg-slate-950 border border-slate-800 rounded-2xl p-3">
+            <div class="text-[10px] text-slate-400 uppercase">Thời gian thực hiện</div>
+            <div id="result-time-val" class="text-base font-bold text-white font-mono">48 giây</div>
+          </div>
+        </div>
+
+        <div class="bg-slate-950/80 border border-slate-800 rounded-2xl p-3.5 w-full mb-6 text-xs text-slate-300">
+          <strong class="text-emerald-400 font-bold block mb-0.5">BÀI HỌC SINH TỒN THỰC TẾ:</strong>
+          <span id="result-safety-tip">Luôn chuẩn bị phao và áo phao khi hoạt động đường thủy.</span>
+        </div>
+
+        <div class="flex items-center gap-3 w-full">
+          <button id="btn-result-menu" class="flex-1 py-3 bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs rounded-xl cursor-pointer">Về Menu Chính</button>
+          <button id="btn-result-restart" class="flex-1 py-3 bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs rounded-xl cursor-pointer">Chơi Lại Màn</button>
+          <button id="btn-result-next" class="flex-1 py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl cursor-pointer">Màn Tiếp Theo</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROFILE MODAL -->
+    <div id="profile-modal" class="absolute inset-0 bg-slate-950/85 backdrop-blur-none z-50 flex items-center justify-center p-4 pointer-events-auto hidden overflow-y-auto">
+      <div class="bg-slate-900 border-2 border-orange-500 rounded-3xl p-6 md:p-8 max-w-2xl w-full shadow-2xl relative my-auto">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
+          <h2 class="text-xl font-black text-white">Đăng Ký Hồ Sơ Đội Trưởng & Linh Vật</h2>
+          <button id="btn-close-profile" class="p-2 text-slate-400 hover:text-white rounded-xl bg-slate-800 cursor-pointer">✕</button>
+        </div>
+
+        <div class="space-y-4">
+          <div>
+            <label class="text-xs font-bold text-white block mb-1">1. Tên Nhân Vật / Đội Trưởng Cứu Nạn:</label>
+            <input id="input-commander-name" type="text" value="Đội Trưởng Tuấn Kiệt" class="w-full bg-slate-950 border-2 border-slate-700 focus:border-orange-500 rounded-xl px-4 py-2.5 text-white font-bold text-sm outline-none">
+            <div class="flex flex-wrap gap-1.5 mt-2">
+              <button class="name-chip text-[11px] bg-slate-800 text-sky-300 px-2 py-1 rounded-lg border border-slate-700">Đội Trưởng Tuấn Kiệt</button>
+              <button class="name-chip text-[11px] bg-slate-800 text-sky-300 px-2 py-1 rounded-lg border border-slate-700">Đội Trưởng Hải Đăng</button>
+              <button class="name-chip text-[11px] bg-slate-800 text-sky-300 px-2 py-1 rounded-lg border border-slate-700">Đội Trưởng Hồng Ngọc</button>
+              <button class="name-chip text-[11px] bg-slate-800 text-sky-300 px-2 py-1 rounded-lg border border-slate-700">Chỉ Huy Bảo Long</button>
+            </div>
+          </div>
+
+          <div>
+            <label class="text-xs font-bold text-white block mb-1">2. Chọn Linh Vật Đồng Hành 3D:</label>
+            <div class="grid grid-cols-2 gap-2.5" id="mascot-selection-container">
+              <!-- Mascots injected by JS -->
+            </div>
+          </div>
+
+          <div>
+            <label class="text-xs font-bold text-white block mb-1">3. Tên Riêng Của Linh Vật:</label>
+            <input id="input-mascot-name" type="text" value="Rex Cứu Nạn" class="w-full bg-slate-950 border-2 border-slate-700 focus:border-orange-500 rounded-xl px-4 py-2 text-white font-bold text-sm outline-none">
+          </div>
+
+          <div class="pt-2 border-t border-slate-800">
+            <button id="btn-save-profile" class="w-full py-3.5 bg-gradient-to-r from-orange-500 to-amber-500 text-white font-extrabold text-sm rounded-xl shadow-lg cursor-pointer">
+              XÁC NHẬN HỒ SƠ & BƯỚC VÀO CHIẾN DỊCH
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- WATER SAFETY GUIDE MODAL -->
+    <div id="guide-modal" class="absolute inset-0 bg-slate-950/85 backdrop-blur-none z-50 flex items-center justify-center p-4 pointer-events-auto hidden">
+      <div class="bg-slate-900 border-2 border-sky-500 rounded-3xl p-6 md:p-8 max-w-2xl w-full shadow-2xl max-h-[85vh] flex flex-col">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
+          <h2 class="text-lg font-bold text-white">Cẩm Nang Phòng Chống Đuối Nước & Sơ Cứu</h2>
+          <button id="btn-close-guide" class="p-2 text-slate-400 hover:text-white rounded-xl bg-slate-800 cursor-pointer">✕</button>
+        </div>
+        <div class="space-y-3 overflow-y-auto pr-2 flex-1 text-xs text-slate-300 leading-relaxed">
+          <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800">
+            <h3 class="font-bold text-sky-400 text-sm mb-1">1. Nguyên tắc "Với - Ném - Chèo - Không Ôm"</h3>
+            <p>Tuyệt đối không nhảy xuống ôm nạn nhân đang hoảng loạn vì phản xạ sinh tồn của họ sẽ dìm bạn xuống. Luôn dùng sào dài, dây thừng hoặc ném can rỗng/phao cứu sinh.</p>
+          </div>
+          <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800">
+            <h3 class="font-bold text-sky-400 text-sm mb-1">2. Cách thoát khỏi Dòng Chảy Xa Bờ (Rip Current)</h3>
+            <p>Không bơi ngược dòng về bờ! Hãy bình tĩnh thả nổi hoặc bơi NGANG song song với đường bờ biển để thoát khỏi hành lang dòng chảy trước khi bơi chéo vào bờ.</p>
+          </div>
+          <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800">
+            <h3 class="font-bold text-sky-400 text-sm mb-1">3. Kỹ thuật Hồi Sức Tim Phổi CPR chuẩn</h3>
+            <p>Ép tim liên tục tần số 100-120 lần/phút (khoảng 2 nhịp/giây), ấn sâu 5-6cm giữa xương ức. Tuyệt đối không dốc ngược nạn nhân chạy xóc nước!</p>
+          </div>
+        </div>
+        <div class="pt-3 border-t border-slate-800 flex justify-end">
+          <button id="btn-close-guide-ok" class="px-5 py-2.5 bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs rounded-xl cursor-pointer">Đã Hiểu Kiến Thức</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Three.js Offline-Compatible Vanilla Script (Runs flawlessly on file:// and all browsers) -->
+  <script>
+    // Ensure THREE is bound
+    if (!window.THREE) {
+      document.body.innerHTML = `
+        <div style="display:flex;height:100vh;align-items:center;justify-content:center;flex-direction:column;color:#fff;background:#020617;font-family:sans-serif;text-align:center;padding:20px">
+          <h2 style="color:#f97316;margin-bottom:8px">Không thể nạp thư viện 3D (Three.js)</h2>
+          <p style="color:#94a3b8;max-width:500px">Vui lòng kiểm tra lại kết nối mạng hoặc tệp assets/js/vendor/three.min.js.</p>
+          <a href="index.html" style="margin-top:16px;padding:10px 20px;background:#ea580c;color:#fff;border-radius:8px;text-decoration:none;font-weight:bold">← Quay lại Trò chơi</a>
+        </div>
+      `;
+      throw new Error('THREE is undefined');
+    }
+    const THREE = window.THREE;
+
+    // 1. PROCEDURAL SOUND SYNTHESIZER
+    class SoundEngine {
+      constructor() {
+        this.ctx = null;
+        this.isMuted = false;
+        this.masterGain = null;
+        this.engineOsc = null;
+        this.engineGain = null;
+        this.sirenOsc = null;
+        this.sirenGain = null;
+        this.isSirenOn = false;
+      }
+      init() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          this.ctx = new AudioContext();
+          this.masterGain = this.ctx.createGain();
+          this.masterGain.gain.setValueAtTime(this.isMuted ? 0 : 0.7, this.ctx.currentTime);
+          this.masterGain.connect(this.ctx.destination);
+          this.setupEngine();
+        }
+        if (this.ctx.state === 'suspended') this.ctx.resume();
+      }
+      setMuted(m) {
+        this.isMuted = m;
+        if (this.masterGain && this.ctx) {
+          this.masterGain.gain.setTargetAtTime(m ? 0 : 0.7, this.ctx.currentTime, 0.05);
+        }
+      }
+      setupEngine() {
+        try {
+          this.engineOsc = this.ctx.createOscillator();
+          this.engineOsc.type = 'sawtooth';
+          this.engineOsc.frequency.setValueAtTime(55, this.ctx.currentTime);
+          this.engineFilter = this.ctx.createBiquadFilter();
+          this.engineFilter.type = 'lowpass';
+          this.engineFilter.frequency.setValueAtTime(220, this.ctx.currentTime);
+          this.engineGain = this.ctx.createGain();
+          this.engineGain.gain.setValueAtTime(0, this.ctx.currentTime);
+          this.engineOsc.connect(this.engineFilter);
+          this.engineFilter.connect(this.engineGain);
+          this.engineGain.connect(this.masterGain);
+          this.engineOsc.start();
+        } catch(e) {}
+      }
+      updateEngine(ratio, boosting) {
+        this.init();
+        if (!this.engineOsc || !this.engineGain) return;
+        const freq = 50 + ratio * 90 + (boosting ? 45 : 0);
+        const targetVol = Math.min(0.22, 0.04 + ratio * 0.18 + (boosting ? 0.06 : 0));
+        this.engineOsc.frequency.setTargetAtTime(freq, this.ctx.currentTime, 0.08);
+        this.engineGain.gain.setTargetAtTime(targetVol, this.ctx.currentTime, 0.08);
+      }
+      playClick() {
+        this.init();
+        if (!this.ctx || !this.masterGain) return;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.frequency.setValueAtTime(800, this.ctx.currentTime);
+        gain.gain.setValueAtTime(0.1, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.05);
+        osc.connect(gain);
+        gain.connect(this.masterGain);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.05);
+      }
+      playHover() {
+        this.init();
+        if (!this.ctx || !this.masterGain) return;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.frequency.setValueAtTime(1400, this.ctx.currentTime);
+        gain.gain.setValueAtTime(0.04, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.035);
+        osc.connect(gain);
+        gain.connect(this.masterGain);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.04);
+      }
+      playLaunch() {
+        this.init();
+        if (!this.ctx || !this.masterGain) return;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(120, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(440, this.ctx.currentTime + 0.4);
+        gain.gain.setValueAtTime(0.4, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.6);
+        osc.connect(gain);
+        gain.connect(this.masterGain);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.6);
+      }
+      playThrow() {
+        this.init();
+        if (!this.ctx) return;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.frequency.setValueAtTime(320, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(80, this.ctx.currentTime + 0.28);
+        gain.gain.setValueAtTime(0.4, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.3);
+        osc.connect(gain);
+        gain.connect(this.masterGain);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.3);
+      }
+      playSplash() {
+        this.init();
+        if (!this.ctx) return;
+        const bufferSize = Math.floor(this.ctx.sampleRate * 0.3);
+        const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (this.ctx.sampleRate * 0.08));
+        const noise = this.ctx.createBufferSource();
+        noise.buffer = buffer;
+        const gain = this.ctx.createGain();
+        gain.gain.setValueAtTime(0.35, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.3);
+        noise.connect(gain);
+        gain.connect(this.masterGain);
+        noise.start();
+      }
+      playSuccess() {
+        this.init();
+        if (!this.ctx) return;
+        [523.25, 659.25, 783.99, 1046.50].forEach((freq, idx) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'triangle';
+          const t = this.ctx.currentTime + idx * 0.08;
+          osc.frequency.setValueAtTime(freq, t);
+          gain.gain.setValueAtTime(0.3, t);
+          gain.gain.exponentialRampToValueAtTime(0.001, t + 0.5);
+          osc.connect(gain);
+          gain.connect(this.masterGain);
+          osc.start(t);
+          osc.stop(t + 0.55);
+        });
+      }
+      playHeartBeat(critical) {
+        this.init();
+        if (!this.ctx) return;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.frequency.setValueAtTime(critical ? 1200 : 960, this.ctx.currentTime);
+        gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.15);
+        osc.connect(gain);
+        gain.connect(this.masterGain);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.16);
+      }
+      playMascot(type) {
+        this.init();
+        if (!this.ctx) return;
+        if (type === 'dog') {
+          [0, 0.15].forEach(d => {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            const t = this.ctx.currentTime + d;
+            osc.frequency.setValueAtTime(320, t);
+            osc.frequency.exponentialRampToValueAtTime(180, t + 0.12);
+            gain.gain.setValueAtTime(0.3, t);
+            gain.gain.exponentialRampToValueAtTime(0.01, t + 0.13);
+            osc.connect(gain);
+            gain.connect(this.masterGain);
+            osc.start(t);
+            osc.stop(t + 0.14);
+          });
+        } else if (type === 'dolphin') {
+          for (let i = 0; i < 3; i++) {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            const t = this.ctx.currentTime + i * 0.06;
+            osc.frequency.setValueAtTime(2000 + i * 300, t);
+            gain.gain.setValueAtTime(0.15, t);
+            gain.gain.exponentialRampToValueAtTime(0.001, t + 0.05);
+            osc.connect(gain);
+            gain.connect(this.masterGain);
+            osc.start(t);
+            osc.stop(t + 0.055);
+          }
+        } else if (type === 'seagull') {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(900, this.ctx.currentTime);
+          osc.frequency.linearRampToValueAtTime(1400, this.ctx.currentTime + 0.12);
+          gain.gain.setValueAtTime(0.25, this.ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.3);
+          osc.connect(gain);
+          gain.connect(this.masterGain);
+          osc.start();
+          osc.stop(this.ctx.currentTime + 0.3);
+        } else {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.frequency.setValueAtTime(440, this.ctx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(220, this.ctx.currentTime + 0.4);
+          gain.gain.setValueAtTime(0.3, this.ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.45);
+          osc.connect(gain);
+          gain.connect(this.masterGain);
+          osc.start();
+          osc.stop(this.ctx.currentTime + 0.45);
+        }
+      }
+      toggleSiren() {
+        this.init();
+        if (!this.ctx) return false;
+        this.isSirenOn = !this.isSirenOn;
+        if (this.isSirenOn) {
+          this.sirenOsc = this.ctx.createOscillator();
+          this.sirenGain = this.ctx.createGain();
+          this.sirenOsc.type = 'sawtooth';
+          this.sirenOsc.frequency.setValueAtTime(750, this.ctx.currentTime);
+          this.sirenGain.gain.setValueAtTime(0.15, this.ctx.currentTime);
+          this.sirenOsc.connect(this.sirenGain);
+          this.sirenGain.connect(this.masterGain);
+          this.sirenOsc.start();
+        } else if (this.sirenOsc) {
+          try { this.sirenOsc.stop(); } catch(e){}
+        }
+        return this.isSirenOn;
+      }
+    }
+    const sound = new SoundEngine();
+
+    // 2. MISSIONS & DATA
+    const MISSIONS = [
+      {
+        id: 'm1', level: 1, title: 'Dòng Chảy Xa Bờ Cửa Biển',
+        desc: '4 du khách bị dòng rip cuốn trôi nhanh ra vùng nước sâu.',
+        tip: 'Thả nổi hoặc bơi song song với bờ biển để thoát khỏi hành lang dòng rip!',
+        victims: 4, time: 150, waveAmp: 0.5, currentAngle: Math.PI * 0.5, speed: 0.35,
+        waterColor: '#006994', skyColor: '#fdba74', fogColor: '#fde047', hasWhirlpool: false, hasStorm: false,
+      },
+      {
+        id: 'm2', level: 2, title: 'Bão Đêm & Tàu Đắm Sóng Dữ',
+        desc: 'Bão cấp 7 làm đắm thuyền câu du lịch, 5 người trôi dạt trong giông gió sấm chớp.',
+        tip: 'Giữ chặt áo phao, co hai gối áp ngực (tư thế HELP) để chống hạ thân nhiệt.',
+        victims: 5, time: 180, waveAmp: 1.2, currentAngle: -Math.PI * 0.3, speed: 0.6,
+        waterColor: '#082f49', skyColor: '#030712', fogColor: '#0f172a', hasWhirlpool: false, hasStorm: true,
+      },
+      {
+        id: 'm3', level: 3, title: 'Thác Ghềnh & Dòng Xoáy Tử Thần',
+        desc: 'Nước lũ tạo 3 xoáy nước khổng lồ cuốn trôi 5 người về phía rìa thác đá.',
+        tip: 'Nín thở lặn xuôi xuống đáy xoáy nước rồi đạp chân phóng ngang sang bên để thoát!',
+        victims: 5, time: 200, waveAmp: 0.8, currentAngle: Math.PI * 0.9, speed: 1.0,
+        waterColor: '#1e3a5f', skyColor: '#64748b', fogColor: '#94a3b8', hasWhirlpool: true, hasStorm: false,
+      },
+      {
+        id: 'm4', level: 4, title: 'Vùng Biển Tử Thần',
+        desc: 'Nhóm thám hiểm lạc trôi ở rạn san hô sâu có cá mập vây quanh.',
+        tip: 'Tuyệt đối không nhảy ôm nạn nhân hoảng loạn. Áp dụng quy tắc "Ném - Đưa - Kéo"!',
+        victims: 6, time: 210, waveAmp: 0.65, currentAngle: 0.2, speed: 0.45,
+        waterColor: '#0c4a6e', skyColor: '#0284c7', fogColor: '#38bdf8', hasWhirlpool: false, hasStorm: false,
+      },
+      {
+        id: 'm5', level: 5, title: 'Tuần Tra Cứu Hộ Bất Tận',
+        desc: 'Hải trình tự do dọc quần đảo nhiệt đới 3D, tiếp nhận SOS liên tục.',
+        tip: 'Hồi sức tim phổi CPR: 100-120 lần/phút, độ sâu ép 5-6cm giữa ngực.',
+        victims: 8, time: 0, waveAmp: 0.6, currentAngle: 0, speed: 0.4,
+        waterColor: '#0284c7', skyColor: '#38bdf8', fogColor: '#bae6fd', hasWhirlpool: true, hasStorm: false,
+      }
+    ];
+
+    const MASCOTS = {
+      dog: { emoji: '🐕', name: 'Rex Cứu Nạn', species: 'Chó Cứu Hộ Biển (Golden Retriever)', perk: '+35% Tốc Độ Nạp Phao', bonusTag: '+35% Tốc Độ Phao' },
+      dolphin: { emoji: '🐬', name: 'Bình Minh', species: 'Cá Heo Cứu Nạn Đại Dương', perk: 'Sonar Mở Rộng Radar 210m', bonusTag: 'Sonar Radar 210m' },
+      seagull: { emoji: '🦅', name: 'Tia Chớp', species: 'Hải Âu Trinh Sát Biển Khơi', perk: 'Tăng Cường Đèn Pha Xuyên Bão', bonusTag: 'Tầm Nhìn Xuyên Bão' },
+      turtle: { emoji: '🐢', name: 'Thần Tốc', species: 'Rùa Biển Hộ Mệnh Bất Tử', perk: 'Kháng 40% Lực Hút Xoáy Nước', bonusTag: 'Kháng Xoáy Nước' },
+    };
+
+    let playerProfile = {
+      characterName: 'Đội Trưởng Tuấn Kiệt',
+      mascotType: 'dog',
+      mascotName: 'Rex Cứu Nạn'
+    };
+
+    try {
+      const saved = localStorage.getItem('sar_standalone_profile');
+      if (saved) playerProfile = JSON.parse(saved);
+    } catch(e){}
+
+    // 3. ANALYTICAL OCEAN WAVES
+    function getWaterHeight(x, z, time, amp = 0.6) {
+      const w1 = Math.sin(x * 0.08 + time * 1.8) * Math.cos(z * 0.08 + time * 1.5) * amp;
+      const w2 = Math.sin(x * 0.18 - z * 0.12 + time * 2.6) * (amp * 0.45);
+      return w1 + w2;
+    }
+
+    // 4. THREE.JS 3D WORLD SETUP
+    const container = document.getElementById('canvas-container');
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(MISSIONS[0].skyColor);
+    scene.fog = new THREE.FogExp2(MISSIONS[0].fogColor, 0.005);
+
+    const camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.5, 600);
+    let renderer;
+    try {
+      renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
+    } catch(err) {
+      document.body.innerHTML = `
+        <div style="display:flex;height:100vh;align-items:center;justify-content:center;flex-direction:column;color:#fff;background:#020617;font-family:sans-serif;text-align:center;padding:20px">
+          <h2 style="color:#f97316;margin-bottom:8px">Trình duyệt chưa bật WebGL</h2>
+          <p style="color:#94a3b8;max-width:500px">Để chơi game 3D, bạn vui lòng kích hoạt tính năng "Sử dụng chế độ tăng tốc đồ họa" (Hardware Acceleration) trong Cài đặt của trình duyệt nhé!</p>
+          <a href="index.html" style="margin-top:16px;padding:10px 20px;background:#ea580c;color:#fff;border-radius:8px;text-decoration:none;font-weight:bold">← Quay lại Trò chơi</a>
+        </div>
+      `;
+      throw err;
+    }
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.15;
+    container.appendChild(renderer.domElement);
+
+    // Dynamic realistic lighting for standalone ocean & craft
+    const sun = new THREE.DirectionalLight(0xfffbeb, 2.8);
+    sun.position.set(40, 60, -30);
+    scene.add(sun);
+    const hemi = new THREE.HemisphereLight(0xffffff, 0x006994, 1.1);
+    scene.add(hemi);
+    const ambient = new THREE.AmbientLight(0xffffff, 0.45);
+    scene.add(ambient);
+
+    // Ocean Surface
+    const oceanGeom = new THREE.PlaneGeometry(400, 400, 60, 60);
+    oceanGeom.rotateX(-Math.PI / 2);
+    const oceanMat = new THREE.MeshStandardMaterial({ color: 0x006994, roughness: 0.2, metalness: 0.2, transparent: true, opacity: 0.88 });
+    const oceanMesh = new THREE.Mesh(oceanGeom, oceanMat);
+    scene.add(oceanMesh);
+
+    // Lighthouse Base
+    const lighthouseGroup = new THREE.Group();
+    const rock = new THREE.Mesh(new THREE.CylinderGeometry(14, 18, 4.5, 16), new THREE.MeshStandardMaterial({ color: 0x475569, roughness: 0.9 }));
+    rock.position.y = 1.0;
+    lighthouseGroup.add(rock);
+    const tower = new THREE.Mesh(new THREE.CylinderGeometry(1.8, 3.0, 18, 16), new THREE.MeshStandardMaterial({ color: 0xdc2626, roughness: 0.4 }));
+    tower.position.y = 12;
+    lighthouseGroup.add(tower);
+    const lantern = new THREE.Mesh(new THREE.CylinderGeometry(2.2, 2.2, 2.5, 14), new THREE.MeshStandardMaterial({ color: 0xfef08a, emissive: 0xfef08a, emissiveIntensity: 0.8 }));
+    lantern.position.y = 22;
+    lighthouseGroup.add(lantern);
+    const safeRing = new THREE.Mesh(new THREE.RingGeometry(22, 23.5, 32), new THREE.MeshBasicMaterial({ color: 0x22c55e, side: THREE.DoubleSide }));
+    safeRing.rotateX(-Math.PI / 2);
+    safeRing.position.y = 0.2;
+    lighthouseGroup.add(safeRing);
+    lighthouseGroup.position.set(0, 0, -10);
+    scene.add(lighthouseGroup);
+
+    // Rescue Jetboat
+    const boatGroup = new THREE.Group();
+    const hullShape = new THREE.Shape();
+    hullShape.moveTo(0, 2.8);
+    hullShape.lineTo(0.9, 1.2);
+    hullShape.lineTo(0.9, -2.4);
+    hullShape.lineTo(-0.9, -2.4);
+    hullShape.lineTo(-0.9, 1.2);
+    hullShape.closePath();
+    const hullExtrude = new THREE.ExtrudeGeometry(hullShape, { depth: 0.65, bevelEnabled: true, bevelSegments: 2, bevelSize: 0.15, bevelThickness: 0.2 });
+    hullExtrude.rotateX(Math.PI / 2);
+    const hull = new THREE.Mesh(hullExtrude, new THREE.MeshStandardMaterial({ color: 0xee220c, roughness: 0.25, metalness: 0.35 }));
+    hull.position.y = 0.2;
+    boatGroup.add(hull);
+
+    const cabin = new THREE.Mesh(new THREE.BoxGeometry(1.3, 0.85, 1.8), new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.3 }));
+    cabin.position.set(0, 0.98, -0.3);
+    boatGroup.add(cabin);
+
+    const windshield = new THREE.Mesh(new THREE.BoxGeometry(1.24, 0.45, 0.2), new THREE.MeshStandardMaterial({ color: 0x38bdf8, roughness: 0.1, transparent: true, opacity: 0.8 }));
+    windshield.position.set(0, 1.25, 0.6);
+    windshield.rotation.x = -0.35;
+    boatGroup.add(windshield);
+
+    const beaconLight = new THREE.PointLight(0x3b82f6, 3, 15);
+    beaconLight.position.set(0, 1.6, -0.3);
+    boatGroup.add(beaconLight);
+
+    const beaconMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.09, 0.14, 10), new THREE.MeshStandardMaterial({ color: 0x3b82f6, emissive: 0x3b82f6, emissiveIntensity: 2 }));
+    beaconMesh.position.set(0, 1.55, -0.3);
+    boatGroup.add(beaconMesh);
+
+    boatGroup.position.set(0, 0.5, 15);
+    scene.add(boatGroup);
+
+    // 3D Mascot Companion creation
+    let mascotGroup = new THREE.Group();
+    boatGroup.add(mascotGroup);
+
+    function buildMascot(type) {
+      while (mascotGroup.children.length > 0) {
+        mascotGroup.remove(mascotGroup.children[0]);
+      }
+      if (type === 'dog') {
+        const body = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.22, 0.5, 10), new THREE.MeshStandardMaterial({ color: 0xea580c }));
+        body.rotation.x = Math.PI / 3;
+        body.position.set(0, 0.25, 0);
+        mascotGroup.add(body);
+        const head = new THREE.Mesh(new THREE.SphereGeometry(0.16, 12, 12), new THREE.MeshStandardMaterial({ color: 0xd97706 }));
+        head.position.set(0, 0.52, 0.18);
+        mascotGroup.add(head);
+        mascotGroup.position.set(0, 0.52, 1.4);
+      } else if (type === 'dolphin') {
+        const body = new THREE.Mesh(new THREE.ConeGeometry(0.28, 1.4, 12), new THREE.MeshStandardMaterial({ color: 0x0284c7, roughness: 0.2 }));
+        body.rotation.x = -Math.PI / 2;
+        mascotGroup.add(body);
+        mascotGroup.position.set(2.4, -0.2, 0.4);
+      } else if (type === 'seagull') {
+        const body = new THREE.Mesh(new THREE.ConeGeometry(0.14, 0.7, 10), new THREE.MeshStandardMaterial({ color: 0xffffff }));
+        body.rotation.x = -Math.PI / 2;
+        mascotGroup.add(body);
+        mascotGroup.position.set(0, 3.6, 1.8);
+      } else {
+        const shell = new THREE.Mesh(new THREE.SphereGeometry(0.32, 12, 10, 0, Math.PI * 2, 0, Math.PI * 0.5), new THREE.MeshStandardMaterial({ color: 0x15803d }));
+        shell.scale.set(1.0, 0.5, 1.3);
+        mascotGroup.add(shell);
+        mascotGroup.position.set(-2.4, -0.2, 0.4);
+      }
+    }
+    buildMascot(playerProfile.mascotType);
+
+    // Game Simulation State
+    let currentScreen = 'title'; // 'title' | 'playing' | 'cpr' | 'result'
+    let cameraMode = 'orbit'; // 'orbit' | 'chase' | 'cockpit'
+    let currentMission = MISSIONS[0];
+    let boatPos = new THREE.Vector3(0, 0.5, 15);
+    let boatHeading = 0;
+    let boatSpeed = 0;
+    let boatSteer = 0;
+    let nitroRemaining = 100;
+    let buoysReady = 4;
+    let carryingVictims = 0;
+    let buoyReloadTimer = 0;
+    let missionTime = 180;
+    let victims = [];
+    let activeBuoys = [];
+    const keys = {};
+
+    function initMission(mission) {
+      currentMission = mission;
+      missionTime = mission.time || 999;
+      scene.background = new THREE.Color(mission.skyColor);
+      scene.fog.color = new THREE.Color(mission.fogColor);
+      oceanMat.color = new THREE.Color(mission.waterColor);
+
+      // Clean old victims
+      victims.forEach(v => scene.remove(v.mesh));
+      victims = [];
+
+      for (let i = 0; i < mission.victims; i++) {
+        const angle = (i / mission.victims) * Math.PI * 1.5 - Math.PI * 0.75;
+        const dist = 45 + Math.random() * 50 + i * 15;
+        const x = Math.sin(angle) * dist;
+        const z = Math.cos(angle) * dist + 20;
+
+        const vGroup = new THREE.Group();
+        const head = new THREE.Mesh(new THREE.SphereGeometry(0.22, 10, 10), new THREE.MeshStandardMaterial({ color: 0xf5d0b5 }));
+        head.position.y = 0.55;
+        vGroup.add(head);
+        const torso = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.2, 0.6, 8), new THREE.MeshStandardMaterial({ color: 0x0284c7 }));
+        torso.position.y = 0.15;
+        vGroup.add(torso);
+        const armL = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.5, 6), new THREE.MeshStandardMaterial({ color: 0xf5d0b5 }));
+        armL.position.set(-0.28, 0.35, 0);
+        vGroup.add(armL);
+        const armR = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.5, 6), new THREE.MeshStandardMaterial({ color: 0xf5d0b5 }));
+        armR.position.set(0.28, 0.35, 0);
+        vGroup.add(armR);
+
+        vGroup.position.set(x, 0, z);
+        scene.add(vGroup);
+
+        victims.push({
+          id: i, name: `Nạn nhân số ${i + 1}`,
+          x, z, stamina: 90, isRescued: false, isOnBoard: false, isDelivered: false,
+          needsCPR: false, mesh: vGroup, armL, armR, flail: Math.random() * 5
+        });
+      }
+
+      boatPos.set(0, 0.5, 15);
+      boatHeading = 0;
+      boatSpeed = 0;
+      carryingVictims = 0;
+      buoysReady = 4;
+      nitroRemaining = 100;
+    }
+
+    initMission(MISSIONS[0]);
+
+    // Throw Lifebuoy
+    function throwBuoy() {
+      if (buoysReady <= 0) return;
+      buoysReady--;
+      sound.playThrow();
+
+      const geom = new THREE.TorusGeometry(0.4, 0.12, 8, 16);
+      const mat = new THREE.MeshStandardMaterial({ color: 0xf97316 });
+      const bMesh = new THREE.Mesh(geom, mat);
+      bMesh.rotation.x = Math.PI / 2;
+
+      const launchPos = boatPos.clone().add(new THREE.Vector3(Math.sin(boatHeading) * 2.8, 1.2, Math.cos(boatHeading) * 2.8));
+      bMesh.position.copy(launchPos);
+      scene.add(bMesh);
+
+      const vel = new THREE.Vector3(Math.sin(boatHeading) * 22, 10, Math.cos(boatHeading) * 22);
+      activeBuoys.push({ mesh: bMesh, pos: launchPos, vel, alive: 0 });
+    }
+
+    // CPR Mini-game logic
+    let cprActive = false;
+    let cprProgress = 15;
+    let cprBeatPhase = 0;
+    let cprTimer = 25;
+    let cprTargetVictim = null;
+
+    function startCPR(vic) {
+      cprActive = true;
+      currentScreen = 'cpr';
+      cprProgress = 15;
+      cprTimer = 25;
+      cprTargetVictim = vic;
+      document.getElementById('cpr-modal').classList.remove('hidden');
+      document.getElementById('cpr-victim-name').innerText = `Nạn Nhân: ${vic.name}`;
+      sound.playHeartBeat(true);
+    }
+
+    function doCPRCompress() {
+      if (!cprActive) return;
+      const dist = Math.abs(cprBeatPhase - 0.5);
+      if (dist < 0.15) {
+        cprProgress = Math.min(100, cprProgress + 15);
+        document.getElementById('cpr-feedback').innerText = 'CHUẨN XÁC! (Ép sâu 5cm - 110 bpm)';
+        document.getElementById('cpr-feedback').className = 'h-6 text-sm font-bold mb-3 text-emerald-400';
+        sound.playSuccess();
+      } else {
+        cprProgress = Math.max(10, cprProgress - 3);
+        document.getElementById('cpr-feedback').innerText = 'CHỆCH NHỊP! Căn vạch vàng ở giữa';
+        document.getElementById('cpr-feedback').className = 'h-6 text-sm font-bold mb-3 text-red-400';
+      }
+      document.getElementById('cpr-progress-val').innerText = `${cprProgress}%`;
+      document.getElementById('cpr-progress-bar').style.width = `${cprProgress}%`;
+
+      if (cprProgress >= 100) {
+        setTimeout(() => {
+          cprActive = false;
+          currentScreen = 'playing';
+          document.getElementById('cpr-modal').classList.add('hidden');
+          showMessage(`HỒI SỨC THÀNH CÔNG! Nạn nhân đã thở lại!`);
+        }, 1200);
+      }
+    }
+
+    function showMessage(text) {
+      const box = document.getElementById('hud-message-box');
+      document.getElementById('hud-message-text').innerText = text;
+      box.classList.remove('hidden');
+      setTimeout(() => box.classList.add('hidden'), 3500);
+    }
+
+    // 5. ANIMATION TICK & GAME LOOP
+    const clock = new THREE.Clock();
+    function tick() {
+      requestAnimationFrame(tick);
+      const dt = Math.min(clock.getDelta(), 0.05);
+      const time = clock.getElapsedTime();
+
+      // Update ocean vertices
+      const pos = oceanMesh.geometry.attributes.position;
+      for (let i = 0; i < pos.count; i++) {
+        const u = pos.getX(i);
+        const v = pos.getZ(i);
+        pos.setY(i, getWaterHeight(u, v, time, currentMission.waveAmp));
+      }
+      pos.needsUpdate = true;
+
+      // Animate Beacon
+      beaconMesh.rotation.y += dt * 8;
+      beaconLight.intensity = 2 + Math.sin(time * 12) * 1.5;
+
+      // In-game controls & physics
+      if (currentScreen === 'playing') {
+        const forward = keys['KeyW'] || keys['ArrowUp'];
+        const backward = keys['KeyS'] || keys['ArrowDown'];
+        const left = keys['KeyA'] || keys['ArrowLeft'];
+        const right = keys['KeyD'] || keys['ArrowRight'];
+        const boost = (keys['ShiftLeft'] || keys['ShiftRight']) && nitroRemaining > 0;
+
+        if (boost && forward) {
+          nitroRemaining = Math.max(0, nitroRemaining - dt * 25);
+        } else {
+          nitroRemaining = Math.min(100, nitroRemaining + dt * 10);
+        }
+
+        const reloadRate = playerProfile.mascotType === 'dog' ? 1.35 : 1.0;
+        if (buoysReady < 4) {
+          buoyReloadTimer += dt * reloadRate;
+          if (buoyReloadTimer >= 3.5) {
+            buoysReady++;
+            buoyReloadTimer = 0;
+          }
+        }
+
+        const targetSpeed = forward ? (boost ? 44 : 28) : (backward ? -8 : 0);
+        boatSpeed += (targetSpeed - boatSpeed) * dt * (forward ? 3 : 2);
+        const steerTarget = (left ? 1 : 0) - (right ? 1 : 0);
+        boatSteer += (steerTarget - boatSteer) * dt * 5;
+        boatHeading += boatSteer * 1.8 * (0.35 + Math.abs(boatSpeed) / 28 * 0.65) * dt;
+
+        sound.updateEngine(Math.abs(boatSpeed) / 28, boost);
+
+        boatPos.x += (Math.sin(boatHeading) * boatSpeed + Math.cos(currentMission.currentAngle) * currentMission.speed * 3) * dt;
+        boatPos.z += (Math.cos(boatHeading) * boatSpeed + Math.sin(currentMission.currentAngle) * currentMission.speed * 3) * dt;
+
+        const wH = getWaterHeight(boatPos.x, boatPos.z, time, currentMission.waveAmp);
+        boatPos.y += (wH + 0.35 - boatPos.y) * dt * 10;
+        boatGroup.position.copy(boatPos);
+        boatGroup.rotation.y = boatHeading;
+        boatGroup.rotation.z = -boatSteer * 0.2;
+
+        // Thrown buoys
+        for (let i = activeBuoys.length - 1; i >= 0; i--) {
+          const b = activeBuoys[i];
+          b.alive += dt;
+          b.vel.y -= 18 * dt;
+          b.pos.addScaledVector(b.vel, dt);
+          b.mesh.position.copy(b.pos);
+
+          const bwH = getWaterHeight(b.pos.x, b.pos.z, time, currentMission.waveAmp);
+          if (b.pos.y <= bwH) {
+            sound.playSplash();
+            victims.forEach(vic => {
+              if (!vic.isRescued && !vic.isOnBoard && Math.hypot(b.pos.x - vic.x, b.pos.z - vic.z) < 6) {
+                vic.isRescued = true;
+                vic.isOnBoard = true;
+                carryingVictims++;
+                sound.playSuccess();
+                sound.playMascot(playerProfile.mascotType);
+                showMessage(`ĐÃ QUĂNG PHAO TRÚNG ${vic.name}!`);
+                if (vic.stamina < 30) startCPR(vic);
+              }
+            });
+            scene.remove(b.mesh);
+            activeBuoys.splice(i, 1);
+          }
+        }
+
+        // Victims drift & rescue
+        let deliveredCount = 0;
+        victims.forEach(vic => {
+          if (vic.isDelivered) { deliveredCount++; return; }
+          if (vic.isOnBoard) {
+            vic.mesh.visible = false;
+            return;
+          }
+
+          vic.stamina -= dt * 1.2;
+          const vH = getWaterHeight(vic.x, vic.z, time, currentMission.waveAmp);
+          vic.mesh.position.set(vic.x, vH - 0.2, vic.z);
+          vic.flail += dt * 6;
+          vic.armL.rotation.z = 0.5 + Math.sin(vic.flail) * 0.7;
+          vic.armR.rotation.z = -0.5 - Math.cos(vic.flail) * 0.7;
+
+          const distToBoat = Math.hypot(boatPos.x - vic.x, boatPos.z - vic.z);
+          if (distToBoat < 4.2 && carryingVictims < 4) {
+            vic.isRescued = true;
+            vic.isOnBoard = true;
+            carryingVictims++;
+            sound.playSuccess();
+            sound.playMascot(playerProfile.mascotType);
+            showMessage(`ĐÃ KÉO ${vic.name} LÊN TÀU!`);
+            if (vic.stamina < 30) startCPR(vic);
+          }
+        });
+
+        // Safe zone unload
+        const distToBase = Math.hypot(boatPos.x - 0, boatPos.z - (-10));
+        if (distToBase < 24 && carryingVictims > 0) {
+          victims.forEach(v => {
+            if (v.isOnBoard && !v.isDelivered) v.isDelivered = true;
+          });
+          carryingVictims = 0;
+          sound.playSuccess();
+          showMessage('ĐÃ ĐƯA NẠN NHÂN VÀO TRẠM CỨU HỘ AN TOÀN!');
+        }
+
+        // Victory check
+        if (deliveredCount >= victims.length && victims.length > 0) {
+          currentScreen = 'result';
+          document.getElementById('hud-overlay').classList.add('hidden');
+          document.getElementById('result-modal').classList.remove('hidden');
+          document.getElementById('result-saved-count').innerText = `${deliveredCount} / ${victims.length} người`;
+          document.getElementById('result-time-val').innerText = `${Math.round(time)}s`;
+          document.getElementById('result-safety-tip').innerText = currentMission.tip;
+          sound.playSuccess();
+          confetti({ particleCount: 90, spread: 70, origin: { y: 0.6 } });
+        }
+
+        // Update HUD display
+        document.getElementById('hud-speed-val').innerText = Math.round(Math.abs(boatSpeed));
+        document.getElementById('hud-nitro-val').innerText = `${Math.round(nitroRemaining)}%`;
+        document.getElementById('hud-nitro-bar').style.width = `${nitroRemaining}%`;
+        document.getElementById('hud-buoys-count').innerText = `(Space) • Còn: ${buoysReady}`;
+        document.getElementById('hud-capacity-val').innerText = `${carryingVictims} / 4`;
+        document.getElementById('hud-delivered-count').innerText = `${deliveredCount} / ${victims.length} người`;
+
+        const capBars = document.getElementById('hud-capacity-bars').children;
+        for (let i = 0; i < 4; i++) {
+          capBars[i].className = i < carryingVictims ? 'flex-1 rounded-sm bg-amber-400' : 'flex-1 rounded-sm bg-slate-700';
+        }
+
+        // Radar Blips
+        const blipsContainer = document.getElementById('radar-blips-container');
+        blipsContainer.innerHTML = '';
+        victims.forEach(v => {
+          if (!v.isDelivered && !v.isOnBoard) {
+            const dx = v.x - boatPos.x;
+            const dz = v.z - boatPos.z;
+            const dist = Math.hypot(dx, dz);
+            const angle = Math.atan2(dx, dz) - boatHeading;
+            const r = Math.min(54, (dist / 160) * 54);
+            const px = Math.sin(angle) * r;
+            const py = -Math.cos(angle) * r;
+            const blip = document.createElement('div');
+            blip.className = 'absolute w-2 h-2 -translate-x-1/2 -translate-y-1/2 bg-red-500 rounded-full border border-white shadow-[0_0_6px_#ef4444]';
+            blip.style.left = `calc(50% + ${px}px)`;
+            blip.style.top = `calc(50% + ${py}px)`;
+            blipsContainer.appendChild(blip);
+          }
+        });
+      }
+
+      // CPR Heart rhythm phase
+      if (currentScreen === 'cpr') {
+        cprBeatPhase = (Date.now() % 545) / 545;
+        document.getElementById('cpr-beat-marker').style.left = `${cprBeatPhase * 100}%`;
+      }
+
+      // Camera Rig
+      if (cameraMode === 'orbit') {
+        const t = time * 0.22;
+        camera.position.set(boatPos.x + Math.sin(t) * 11, boatPos.y + 4.2 + Math.sin(t * 0.8) * 0.5, boatPos.z + Math.cos(t) * 11);
+        camera.lookAt(boatPos.x, boatPos.y + 1.2, boatPos.z);
+      } else if (cameraMode === 'chase') {
+        const targetCam = boatPos.clone().add(new THREE.Vector3(-Math.sin(boatHeading) * 11, 5.2, -Math.cos(boatHeading) * 11));
+        camera.position.lerp(targetCam, dt * 7.5);
+        camera.lookAt(boatPos.x, boatPos.y + 1.2, boatPos.z);
+      } else if (cameraMode === 'cockpit') {
+        camera.position.set(boatPos.x + Math.sin(boatHeading) * 1.8, boatPos.y + 1.6, boatPos.z + Math.cos(boatHeading) * 1.8);
+        camera.lookAt(boatPos.x + Math.sin(boatHeading) * 20, boatPos.y + 0.8, boatPos.z + Math.cos(boatHeading) * 20);
+      }
+
+      renderer.render(scene, camera);
+    }
+    tick();
+
+    // 6. UI INTERACTION LISTENERS
+    function updateProfileUI() {
+      document.getElementById('header-commander-name').innerText = playerProfile.characterName;
+      document.getElementById('header-mascot-emoji').innerText = MASCOTS[playerProfile.mascotType].emoji;
+      document.getElementById('card-commander-name').innerText = playerProfile.characterName;
+      document.getElementById('card-mascot-name').innerText = playerProfile.mascotName;
+      document.getElementById('card-mascot-emoji').innerText = MASCOTS[playerProfile.mascotType].emoji;
+      document.getElementById('card-mascot-perk').innerText = MASCOTS[playerProfile.mascotType].perk;
+      document.getElementById('hud-commander-tag').innerText = `👤 ${playerProfile.characterName}`;
+      document.getElementById('hud-mascot-name').innerText = playerProfile.mascotName;
+      document.getElementById('hud-mascot-emoji').innerText = MASCOTS[playerProfile.mascotType].emoji;
+      document.getElementById('btn-hud-mascot').innerText = MASCOTS[playerProfile.mascotType].emoji;
+      buildMascot(playerProfile.mascotType);
+    }
+    updateProfileUI();
+
+    // Render Missions selection pills
+    const pillContainer = document.getElementById('missions-pill-container');
+    MISSIONS.forEach((m, idx) => {
+      const btn = document.createElement('button');
+      btn.className = `p-2.5 rounded-xl border text-left transition-all cursor-pointer ${idx === 0 ? 'bg-orange-600/90 border-amber-400 text-white shadow-lg' : 'bg-slate-900/80 border-slate-800 text-slate-300'}`;
+      btn.innerHTML = `<div class="font-mono font-bold text-xs">MÀN ${m.level}</div><div class="text-xs font-bold truncate">${m.title}</div>`;
+      btn.onclick = () => {
+        sound.playClick();
+        Array.from(pillContainer.children).forEach((c, i) => {
+          c.className = i === idx ? 'p-2.5 rounded-xl border text-left transition-all cursor-pointer bg-orange-600/90 border-amber-400 text-white shadow-lg' : 'p-2.5 rounded-xl border text-left transition-all cursor-pointer bg-slate-900/80 border-slate-800 text-slate-300';
+        });
+        initMission(m);
+      };
+      pillContainer.appendChild(btn);
+    });
+
+    // Populate Mascots inside profile modal
+    const mascotBox = document.getElementById('mascot-selection-container');
+    Object.keys(MASCOTS).forEach(type => {
+      const info = MASCOTS[type];
+      const card = document.createElement('div');
+      card.className = `p-3 rounded-xl border-2 transition-all cursor-pointer ${type === playerProfile.mascotType ? 'border-orange-500 bg-slate-800' : 'border-slate-800 bg-slate-950'}`;
+      card.innerHTML = `<div class="text-2xl mb-1">${info.emoji}</div><div class="text-xs font-bold text-white">${info.species.split('(')[0]}</div><div class="text-[10px] text-amber-300">${info.bonusTag}</div>`;
+      card.onclick = () => {
+        sound.playClick();
+        playerProfile.mascotType = type;
+        document.getElementById('input-mascot-name').value = info.name;
+        Array.from(mascotBox.children).forEach((c, idx) => {
+          c.className = Object.keys(MASCOTS)[idx] === type ? 'p-3 rounded-xl border-2 transition-all cursor-pointer border-orange-500 bg-slate-800' : 'p-3 rounded-xl border-2 transition-all cursor-pointer border-slate-800 bg-slate-950';
+        });
+        sound.playMascot(type);
+      };
+      mascotBox.appendChild(card);
+    });
+
+    // Profile Modal Open/Close
+    const profileModal = document.getElementById('profile-modal');
+    document.getElementById('btn-open-profile').onclick = () => { sound.playClick(); profileModal.classList.remove('hidden'); };
+    document.getElementById('btn-edit-profile-hero').onclick = () => { sound.playClick(); profileModal.classList.remove('hidden'); };
+    document.getElementById('btn-close-profile').onclick = () => { sound.playClick(); profileModal.classList.add('hidden'); };
+    document.getElementById('btn-save-profile').onclick = () => {
+      sound.playSuccess();
+      playerProfile.characterName = document.getElementById('input-commander-name').value.trim() || 'Đội Trưởng Tuấn Kiệt';
+      playerProfile.mascotName = document.getElementById('input-mascot-name').value.trim() || MASCOTS[playerProfile.mascotType].name;
+      try { localStorage.setItem('sar_standalone_profile', JSON.stringify(playerProfile)); } catch(e){}
+      updateProfileUI();
+      profileModal.classList.add('hidden');
+    };
+
+    document.querySelectorAll('.name-chip').forEach(chip => {
+      chip.onclick = () => {
+        sound.playClick();
+        document.getElementById('input-commander-name').value = chip.innerText;
+      };
+    });
+
+    // Guide Modal
+    const guideModal = document.getElementById('guide-modal');
+    document.getElementById('btn-open-guide').onclick = () => { sound.playClick(); guideModal.classList.remove('hidden'); };
+    document.getElementById('btn-close-guide').onclick = () => { sound.playClick(); guideModal.classList.add('hidden'); };
+    document.getElementById('btn-close-guide-ok').onclick = () => { sound.playClick(); guideModal.classList.add('hidden'); };
+
+    // Play button
+    function startGamePlay() {
+      sound.playLaunch();
+      currentScreen = 'playing';
+      cameraMode = 'chase';
+      document.getElementById('screen-title').classList.add('hidden');
+      document.getElementById('hud-overlay').classList.remove('hidden');
+      document.getElementById('hud-mission-title').innerText = currentMission.title;
+      showMessage(`CHIẾN DỊCH: ${currentMission.title} - BẮT ĐẦU!`);
+    }
+
+    document.getElementById('btn-play-game').onclick = startGamePlay;
+    document.getElementById('btn-mascot-voice-preview').onclick = () => sound.playMascot(playerProfile.mascotType);
+
+    // In-game HUD buttons
+    document.getElementById('btn-hud-throw-buoy').onclick = throwBuoy;
+    document.getElementById('btn-hud-cam').onclick = () => {
+      cameraMode = cameraMode === 'chase' ? 'cockpit' : 'chase';
+      showMessage(`Camera: ${cameraMode === 'chase' ? 'Đuổi sau tàu' : 'Buồng lái'}`);
+    };
+    document.getElementById('btn-hud-mascot').onclick = () => {
+      sound.playMascot(playerProfile.mascotType);
+      showMessage(`🐾 ${playerProfile.mascotName} đang cổ vũ tinh thần cho Đội trưởng!`);
+    };
+    document.getElementById('hud-cheer-btn').onclick = () => {
+      sound.playMascot(playerProfile.mascotType);
+      showMessage(`🐾 ${playerProfile.mascotName} đang sẵn sàng cứu hộ!`);
+    };
+    document.getElementById('btn-hud-siren').onclick = () => {
+      const on = sound.toggleSiren();
+      showMessage(on ? 'Còi cứu nạn: BẬT' : 'Còi cứu nạn: TẮT');
+    };
+    document.getElementById('btn-hud-sound').onclick = () => {
+      sound.setMuted(!sound.isMuted);
+    };
+    document.getElementById('btn-hud-menu').onclick = () => {
+      currentScreen = 'title';
+      cameraMode = 'orbit';
+      document.getElementById('hud-overlay').classList.add('hidden');
+      document.getElementById('screen-title').classList.remove('hidden');
+    };
+
+    // CPR Actions
+    document.getElementById('btn-cpr-compress').onclick = doCPRCompress;
+
+    // Result Actions
+    document.getElementById('btn-result-menu').onclick = () => {
+      currentScreen = 'title';
+      cameraMode = 'orbit';
+      document.getElementById('result-modal').classList.add('hidden');
+      document.getElementById('screen-title').classList.remove('hidden');
+    };
+    document.getElementById('btn-result-restart').onclick = () => {
+      document.getElementById('result-modal').classList.add('hidden');
+      initMission(currentMission);
+      startGamePlay();
+    };
+    document.getElementById('btn-result-next').onclick = () => {
+      document.getElementById('result-modal').classList.add('hidden');
+      const nextIdx = (currentMission.level % MISSIONS.length);
+      initMission(MISSIONS[nextIdx]);
+      startGamePlay();
+    };
+
+    // Keyboard controls
+    window.addEventListener('keydown', e => {
+      keys[e.code] = true;
+      if (e.code === 'Space') {
+        e.preventDefault();
+        if (currentScreen === 'title') startGamePlay();
+        else if (currentScreen === 'playing') throwBuoy();
+        else if (currentScreen === 'cpr') doCPRCompress();
+      } else if (e.code === 'Enter') {
+        if (currentScreen === 'title') startGamePlay();
+      } else if (e.code === 'KeyE' && currentScreen === 'playing') {
+        sound.toggleSiren();
+      } else if (e.code === 'KeyC' && currentScreen === 'playing') {
+        cameraMode = cameraMode === 'chase' ? 'cockpit' : 'chase';
+      }
+    });
+    window.addEventListener('keyup', e => keys[e.code] = false);
+    window.addEventListener('blur', () => { Object.keys(keys).forEach(k => keys[k] = false); });
+
+    // Touch controls
+    const bindTouch = (id, key) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.ontouchstart = (e) => { e.preventDefault(); keys[key] = true; };
+      el.ontouchend = (e) => { e.preventDefault(); keys[key] = false; };
+      el.ontouchcancel = (e) => { keys[key] = false; };
+    };
+    bindTouch('touch-up', 'KeyW');
+    bindTouch('touch-down', 'KeyS');
+    bindTouch('touch-left', 'KeyA');
+    bindTouch('touch-right', 'KeyD');
+    bindTouch('touch-turbo', 'ShiftLeft');
+    const touchThrowEl = document.getElementById('touch-throw');
+    if (touchThrowEl) touchThrowEl.onclick = throwBuoy;
+
+    // Window resize
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+  </script>
+</body>
+</html>

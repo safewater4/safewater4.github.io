@@ -1,0 +1,59 @@
+/* ==========================================================
+   components.css – Thành phần dùng lại: thẻ .card/.tile, nút .b, đáp án .opt, thanh .bar, khung .ph, input
+   ========================================================== */
+
+.card{background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:14px}
+.tile{cursor:pointer;transition:.2s}
+.tile:hover{transform:translateY(-3px);border-color:var(--pr)}
+.big{font-size:38px}
+.b{background:var(--pr);color:#fff;border:0;border-radius:10px;padding:8px 14px;cursor:pointer;font:inherit}
+.b.o{background:none;color:var(--pr);border:1px solid var(--pr)}
+.bar{height:16px;background:var(--bd);border-radius:9px;overflow:hidden}
+.bar i{display:block;height:100%;width:100%;background:linear-gradient(90deg,var(--gn),var(--ac),var(--rd));transition:.4s;background-size:var(--w,100%) 100%}
+.opt{display:block;width:100%;text-align:left;margin:6px 0;padding:9px 12px;border:1px solid var(--bd);border-radius:10px;background:var(--card);color:var(--tx);cursor:pointer;font:inherit}
+.opt:hover{border-color:var(--pr)}
+.ok{background:#1a9f5a33!important}
+.no{background:#e5383b33!important}
+.ph{aspect-ratio:16/9;background:#123;color:#fff;display:flex;align-items:center;justify-content:center;border-radius:12px;font-size:40px}
+input,textarea{font:inherit;padding:8px;border:1px solid var(--bd);border-radius:10px;background:var(--card);color:var(--tx)}
+.b{font-family:"Baloo 2",Nunito,system-ui,sans-serif}
+.card{border:0;box-shadow:0 8px 26px #0a4a8a22;border-radius:24px}
+.tile:hover{transform:translateY(-6px) rotate(-.7deg);box-shadow:0 16px 34px #0a84d655}
+.tile .big{width:68px;height:68px;display:grid;place-items:center;border-radius:20px;font-size:34px;background:linear-gradient(135deg,#ffe29f,#ff9a3c);margin-bottom:6px;box-shadow:0 6px 14px #ff8a0044}
+.grid>.tile:nth-child(4n+2) .big{background:linear-gradient(135deg,#a8edea,#4facfe)}
+.grid>.tile:nth-child(4n+3) .big{background:linear-gradient(135deg,#d4fc79,#38c172)}
+.grid>.tile:nth-child(4n+4) .big{background:linear-gradient(135deg,#fbc2eb,#a18cd1)}
+.b{border-radius:22px;font-weight:700;background:linear-gradient(90deg,#0a84d6,#00b4d8);box-shadow:0 4px 12px #0a84d655}
+.opt{border-radius:14px;border:2px solid var(--bd)}
+.opt:hover{transform:translateX(4px)}
+.fs{bottom:26px;left:-10%;animation:sw 16s linear infinite}
+.lb{bottom:84px;font-size:44px;animation:bob 3s ease-in-out infinite}
+.tr{bottom:100px;font-size:30px}
+@media(max-width:760px){
+  .lb{font-size:36px}
+  .grid>.tile{display:grid;grid-template-columns:60px 1fr;column-gap:12px;align-items:center}
+  .grid>.tile .big{grid-row:span 2;width:56px;height:56px;margin:0;font-size:28px}
+  .grid>.tile h3{margin:0;font-size:17px}
+  .opt{padding:12px;min-height:44px}
+  .card{padding:12px;border-radius:20px}
+}
+.msg-speak-btn{display:inline-flex;align-items:center;justify-content:center;background:rgba(14,165,233,0.12);border:1px solid rgba(14,165,233,0.3);border-radius:999px;width:26px;height:26px;font-size:13px;cursor:pointer;margin-left:8px;vertical-align:middle;transition:transform .15s,background .15s;outline:none}
+.msg-speak-btn:hover{background:rgba(14,165,233,0.25);transform:scale(1.1)}
+
+.b{transition:.2s}
+.b:hover{filter:brightness(1.08);transform:translateY(-1px)}
+.tile .big,.grid>.tile:nth-child(n) .big{color:#fff;background:linear-gradient(135deg,#ffb347,#ff5e62);box-shadow:0 8px 16px #ff5e6244}
+.grid>.tile:nth-child(4n+2) .big{background:linear-gradient(135deg,#36d1dc,#5b86e5);box-shadow:0 8px 16px #5b86e544}
+.grid>.tile:nth-child(4n+3) .big{background:linear-gradient(135deg,#43e97b,#12b886);box-shadow:0 8px 16px #12b88644}
+.grid>.tile:nth-child(4n+4) .big{background:linear-gradient(135deg,#c471ed,#7950f2);box-shadow:0 8px 16px #7950f244}
+.big svg{width:1em;height:1em;stroke-width:2.1}
+.tile .big svg{width:34px;height:34px}
+.tile .big,.grid>.tile:nth-child(n) .big,.grid>.tile:nth-child(4n+2) .big,.grid>.tile:nth-child(4n+3) .big,.grid>.tile:nth-child(4n+4) .big{background:none;box-shadow:none;width:auto;height:auto;justify-content:start;margin-bottom:4px}
+.tile .big svg.i3{width:60px;height:60px}
+@media(max-width:760px){
+  .tile .big svg.i3{width:48px;height:48px}
+}
+
+/* --- Bổ sung khi chuyển sang nhiều trang: thẻ & nút có thể là <a> --- */
+a.card,a.tile{display:block;color:inherit;text-decoration:none}
+a.b{display:inline-block;text-decoration:none}

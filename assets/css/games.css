@@ -1,0 +1,617 @@
+/* ==========================================================
+   games.css – Trò chơi & cảnh tương tác: .scene, .hs, .zone, .item
+   ========================================================== */
+
+body.game-page{
+  --arcade-bg:#080d1b;
+  --arcade-panel:#121a2d;
+  --arcade-panel-hi:#19243c;
+  --arcade-line:#ffffff17;
+  --arcade-text:#f3f6ff;
+  --arcade-muted:#9aa8c3;
+  color:var(--arcade-text);
+  background:radial-gradient(ellipse at 75% 0%,#22235a 0,transparent 38%),radial-gradient(ellipse at 12% 42%,#0c3445 0,transparent 30%),var(--arcade-bg);
+  background-size:170% 170%,170% 170%,auto;
+  animation:game-space-drift 20s ease-in-out infinite alternate;
+  background-attachment:fixed;
+}
+body.game-page::before{opacity:.12;background-image:radial-gradient(#a8b6ff 1px,transparent 1px);background-size:34px 34px}
+body.game-page .sos{box-shadow:0 5px 18px #e5383b4d}
+.game-page main{max-width:1120px;padding:clamp(20px,4vw,48px) 20px 24px}
+.game-lobby{position:relative}
+.game-hero{position:relative;isolation:isolate;display:grid;grid-template-columns:1fr 1fr;align-items:center;min-height:320px;overflow:hidden;padding:clamp(28px,5vw,56px);border:1px solid #ffffff22;border-radius:30px;background:radial-gradient(ellipse at 82% 46%,#4c55b849 0,transparent 42%),radial-gradient(ellipse at 14% 92%,#086c8c36 0,transparent 38%),linear-gradient(115deg,#171b36 0%,#171c33 52%,#263064 100%);background-size:150% 150%;box-shadow:0 24px 70px #0004,0 0 36px #5e58d41c;animation:game-nebula 12s ease-in-out infinite alternate}
+.game-hero::before,.game-hero::after{position:absolute;inset:-2px;z-index:0;pointer-events:none;content:""}
+.game-hero::before{opacity:.42;background-image:radial-gradient(2px 2px at 18px 24px,#dce8ff 45%,transparent 100%),radial-gradient(1px 1px at 72px 83px,#83fbff 45%,transparent 100%),radial-gradient(1.5px 1.5px at 126px 41px,#fff 45%,transparent 100%),radial-gradient(1px 1px at 42px 142px,#c3a7ff 45%,transparent 100%),radial-gradient(ellipse at 78% 42%,#a28cff24,transparent 34%);background-size:170px 170px,130px 130px,210px 210px,190px 190px,100% 100%;animation:game-star-drift 24s linear infinite}
+.game-hero::after{opacity:.34;background:linear-gradient(115deg,transparent 20%,#ffffff20 50%,transparent 75%);background-size:220% 100%;animation:game-sheen 8s ease-in-out infinite}
+.game-hero__copy{position:relative;z-index:1;max-width:600px}
+.game-eyebrow,.game-section-label{margin:0;color:#a99aff;font-size:12px;font-weight:900;letter-spacing:.19em}
+.game-eyebrow{display:flex;align-items:center;gap:9px}
+.game-eyebrow__dot,.game-status-dot{width:8px;height:8px;border-radius:50%;background:#57e3bb;box-shadow:0 0 14px #57e3bb;animation:game-pulse 1.8s ease-in-out infinite}
+.game-hero .game-eyebrow__dot{animation:none}
+.game-hero h1{margin:15px 0 8px;color:#fff;font-size:clamp(36px,5vw,58px);line-height:1.05;letter-spacing:-.025em}
+.game-hero h1 span{color:#a99aff;text-shadow:0 0 30px #8066ff55}
+.game-hero__text{max-width:500px;margin:12px 0 24px;color:#b6c0d8;font-size:17px}
+.game-start{display:inline-flex;align-items:center;gap:12px;padding:11px 18px;border:1px solid #ffffff27;border-radius:14px;background:linear-gradient(100deg,#7658ff,#9a65ff);box-shadow:0 8px 24px #7658ff55;color:white;font-family:"Baloo 2",Nunito,system-ui,sans-serif;font-weight:800;text-decoration:none;transition:transform .2s,box-shadow .2s}
+.game-start:hover{transform:translateY(-3px);box-shadow:0 12px 32px #7658ff88}
+.game-hero__art{position:relative;z-index:1;display:grid;place-items:center;min-height:240px}
+.game-hero__art::before,.game-hero__art::after{position:absolute;content:"";border-radius:50%;pointer-events:none;mask:radial-gradient(ellipse,transparent 0 67%,#000 68% 70%,transparent 71%)}
+.game-hero__art::before{inset:0;background:conic-gradient(from 0deg,transparent 0deg 35deg,#45eaff 55deg,#fff 62deg,#a477ff 75deg,transparent 95deg 180deg,transparent 225deg,#ff74d5 245deg,#fff 252deg,#5df5ff 265deg,transparent 285deg);filter:drop-shadow(0 0 5px #55eaff) drop-shadow(0 0 15px #55caff) drop-shadow(0 0 28px #925cff);opacity:1;animation:game-light-orbit 5s linear infinite}
+.game-hero__art::after{inset:6% -2%;background:conic-gradient(from 180deg,transparent 0deg 95deg,#a477ff 112deg,#fff 117deg,#5df5ff 128deg,transparent 145deg 285deg,#ff74d5 302deg,#fff 307deg,#45eaff 318deg,transparent 335deg);filter:drop-shadow(0 0 7px #a477ff) drop-shadow(0 0 20px #45eaff);opacity:.9;animation:game-light-orbit-reverse 8s linear infinite}
+.game-hero__illustration{position:relative;z-index:1;display:block;width:100%;height:auto;max-height:310px;object-fit:contain;animation:game-image-heartbeat 3.2s ease-in-out infinite}
+.game-library{padding:38px 2px 0}
+.game-library__heading{display:flex;align-items:end;justify-content:space-between;gap:18px;margin-bottom:18px}
+.game-section-label{color:#7183a5}
+.game-library h2{margin:2px 0 0;color:#f4f5ff;font-size:clamp(25px,3vw,34px)}
+.game-library h2::after{display:none}
+.game-library h2 span{color:#ffd56a;font-size:.7em}
+.game-library__note{display:flex;align-items:center;gap:9px;margin:0 0 5px;color:#9eabc5;font-size:13px}
+.game-status-dot{width:7px;height:7px}
+/* ── Grid desktop: 2 cột ── */
+.game-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
+
+/* ── Base card: horizontal layout ── */
+.game-card{
+  position:relative;display:flex;flex-direction:row;min-height:200px;overflow:hidden;
+  border:1px solid color-mix(in srgb,var(--game-glow,#7865ff) 35%,transparent);
+  border-radius:24px;
+  background:linear-gradient(135deg,color-mix(in srgb,var(--game-glow,#7865ff) 14%,#171c31),#111827 88%);
+  box-shadow:0 14px 38px #0004, inset 0 1px #ffffff18, 0 0 0 0 color-mix(in srgb,var(--game-glow,#7865ff) 0%,transparent);
+  color:var(--arcade-text);text-decoration:none;
+  transition:transform .28s cubic-bezier(.2,.8,.4,1),border-color .28s,box-shadow .28s,background .28s;
+  animation:game-card-in .55s both;
+  cursor:pointer;
+}
+.game-card:nth-child(2){animation-delay:90ms}.game-card:nth-child(3){animation-delay:180ms}
+.game-card:nth-child(4){animation-delay:270ms}.game-card:nth-child(5){animation-delay:360ms}
+.game-card:nth-child(6){animation-delay:450ms}.game-card:nth-child(7){animation-delay:540ms}
+
+/* Glow sweep on hover */
+.game-card::after{
+  position:absolute;inset:0;content:"";pointer-events:none;
+  background:linear-gradient(110deg,transparent 30%,color-mix(in srgb,var(--game-glow,#7865ff) 18%,transparent) 50%,transparent 70%);
+  background-size:200% 100%;background-position:100% 0;
+  transition:background-position .65s ease;border-radius:inherit;z-index:2;
+}
+.game-card:hover::after,.game-card:focus-visible::after{background-position:-20% 0}
+
+.game-card:hover,.game-card:focus-visible{
+  z-index:3;transform:translateY(-6px) scale(1.012);
+  border-color:color-mix(in srgb,var(--game-glow,#a99aff) 75%,white);
+  box-shadow:0 24px 52px #0006,
+    0 0 32px color-mix(in srgb,var(--game-glow,#7865ff) 28%,transparent),
+    0 0 0 1.5px color-mix(in srgb,var(--game-glow,#7865ff) 50%,transparent);
+  outline:none;
+}
+
+/* ── Color-per-card glows ── */
+.game-card:nth-child(7n+1){--game-glow:#38bdf8}
+.game-card:nth-child(7n+2){--game-glow:#4ade80}
+.game-card:nth-child(7n+3){--game-glow:#fbbf24}
+.game-card:nth-child(7n+4){--game-glow:#fb923c}
+.game-card:nth-child(7n+5){--game-glow:#fb7185}
+.game-card:nth-child(7n+6){--game-glow:#c084fc}
+.game-card:nth-child(7n)  {--game-glow:#2dd4bf}
+
+/* ── Art panel (left side) ── */
+.game-card__art{
+  position:relative;isolation:isolate;flex:0 0 238px;min-height:220px;overflow:hidden;
+  border-radius:22px 0 0 22px;
+  background:radial-gradient(ellipse at 50% 100%,color-mix(in srgb,var(--game-glow) 55%,#12314d),transparent 70%),linear-gradient(145deg,color-mix(in srgb,var(--game-glow) 34%,#18254b),#10223b 78%);
+}
+.game-card__art::before{position:absolute;inset:0;z-index:0;content:"";pointer-events:none;background:radial-gradient(circle at 16% 24%,#fff9 0 1px,transparent 2px),radial-gradient(circle at 78% 19%,#fff8 0 1px,transparent 2px),radial-gradient(circle at 88% 62%,#fff7 0 1px,transparent 2px),linear-gradient(145deg,transparent 35%,#ffffff0c);background-size:71px 63px,89px 77px,97px 83px,100% 100%;opacity:.8}
+.game-card__art svg{
+  position:absolute;inset:0;z-index:1;width:100%;height:100%;display:block;
+  transition:transform .55s cubic-bezier(.2,.8,.4,1),filter .35s;
+}
+.game-card:hover .game-card__art svg,.game-card:focus-visible .game-card__art svg{transform:scale(1.09) translateY(-2px);filter:saturate(1.16)}
+
+/* Status badge over art */
+.game-card__status{
+  position:absolute;top:14px;right:12px;z-index:3;
+  display:inline-flex;align-items:center;gap:6px;
+  padding:5px 10px;border:1px solid #ffffff20;border-radius:20px;
+  background:#00000055;backdrop-filter:blur(6px);
+  color:#e8f0ff;font-size:11px;font-weight:800;white-space:nowrap;
+}
+.game-card__status i{
+  width:6px;height:6px;border-radius:50%;
+  background:#5be0b4;box-shadow:0 0 10px #5be0b4;
+  animation:game-pulse 1.8s ease-in-out infinite;
+}
+.game-card.is-soon .game-card__status i{background:#ffc857;box-shadow:0 0 10px #ffc857}
+
+/* Game tag (top-left of art) */
+.game-card__tag{
+  position:absolute;top:14px;left:12px;z-index:3;
+  padding:4px 9px;border-radius:8px;
+  background:color-mix(in srgb,var(--game-glow) 70%,#0a0a1a);
+  color:#fff;font-size:9px;font-weight:900;letter-spacing:.14em;
+  text-shadow:0 1px 3px #0005;
+}
+
+/* Neon border strip on art right edge */
+.game-card__art::after{
+  content:"";position:absolute;top:10%;right:0;width:2px;height:80%;
+  background:linear-gradient(to bottom,transparent,color-mix(in srgb,var(--game-glow,#7865ff) 70%,transparent),transparent);
+  border-radius:2px;z-index:2;opacity:.7;
+  transition:opacity .28s;
+}
+.game-card:hover .game-card__art::after{opacity:1}
+
+/* ── Body (right side) ── */
+.game-card__body{
+  flex:1;display:flex;flex-direction:column;
+  padding:22px 22px 18px;min-width:0;
+  position:relative;z-index:1;
+}
+.game-card__level{color:#7b8db2;font-size:10px;font-weight:900;letter-spacing:.2em;margin-bottom:4px}
+.game-card__title{
+  color:#f5f6ff;font-family:"Baloo 2",Nunito,system-ui,sans-serif;
+  font-size:clamp(17px,1.6vw,22px);font-weight:800;line-height:1.25;
+  margin:0 0 8px;
+  transition:color .25s;
+}
+.game-card:hover .game-card__title{color:color-mix(in srgb,var(--game-glow) 60%,white)}
+.game-card__sub{color:#8294b4;font-size:13px;line-height:1.55;margin-bottom:auto;padding-bottom:14px}
+.game-card__action{
+  display:flex;align-items:center;justify-content:space-between;
+  padding-top:14px;
+  border-top:1px solid color-mix(in srgb,var(--game-glow,#7865ff) 18%,#ffffff10);
+  color:color-mix(in srgb,var(--game-glow,#7865ff) 70%,white);
+  font-size:12px;font-weight:900;letter-spacing:.05em;
+}
+.game-card__action span{
+  display:grid;place-items:center;width:30px;height:30px;
+  border:1px solid color-mix(in srgb,var(--game-glow,#7865ff) 40%,#ffffff1c);
+  border-radius:50%;
+  background:color-mix(in srgb,var(--game-glow,#7865ff) 12%,#ffffff08);
+  font-size:16px;
+  transition:transform .2s,background .2s;
+}
+.game-card:hover .game-card__action span{
+  transform:translate(3px,-3px);
+  background:color-mix(in srgb,var(--game-glow,#7865ff) 25%,#ffffff16);
+}
+/* ── Light mode ── */
+:root[data-theme=light] body.game-page{color:#18243d;background:radial-gradient(ellipse at 75% 0%,#e5dfff 0,transparent 38%),radial-gradient(ellipse at 12% 42%,#d8f8f4 0,transparent 30%),linear-gradient(180deg,#f5f7ff,#edf5ff)}
+:root[data-theme=light] body.game-page::before{opacity:.2;background-image:radial-gradient(#7888b8 1px,transparent 1px)}
+:root[data-theme=light] .game-hero{border-color:#ffffff;background:linear-gradient(115deg,#fff 0%,#f0efff 52%,#dcecff 100%);box-shadow:0 24px 70px #344b7a20}
+:root[data-theme=light] .game-hero__copy .game-eyebrow{color:#7254dc}
+:root[data-theme=light] .game-hero h1{color:#18243d}
+:root[data-theme=light] .game-hero h1 span{color:#7454e7;text-shadow:none}
+:root[data-theme=light] .game-hero__text{color:#51617c}
+:root[data-theme=light] .game-hero__caption{color:#586789}
+:root[data-theme=light] .game-library h2{color:#202a44}
+:root[data-theme=light] .game-library__note{color:#53627d}
+:root[data-theme=light] .game-section-label{color:#687899}
+:root[data-theme=light] .game-card{background:linear-gradient(135deg,color-mix(in srgb,var(--game-glow) 15%,white),color-mix(in srgb,var(--game-glow) 6%,#f4f6ff) 88%);box-shadow:0 12px 28px color-mix(in srgb,var(--game-glow) 14%,transparent),inset 0 1px #fff}
+:root[data-theme=light] .game-card:hover,:root[data-theme=light] .game-card:focus-visible{background:linear-gradient(135deg,color-mix(in srgb,var(--game-glow) 28%,white),color-mix(in srgb,var(--game-glow) 10%,#f0f4ff) 88%)}
+:root[data-theme=light] .game-card__level{color:#68748e}
+:root[data-theme=light] .game-card__title{color:#202a44}
+:root[data-theme=light] .game-card__sub{color:#53627d}
+:root[data-theme=light] .game-card__status{border-color:#2432531c;background:#ffffffa8;color:#384560}
+:root[data-theme=light] .game-card__action{color:color-mix(in srgb,var(--game-glow) 78%,#293050);border-top-color:color-mix(in srgb,var(--game-glow) 20%,#e0e4f0)}
+:root[data-theme=light] .game-card__action span{border-color:#28335425;background:#ffffffa8}
+
+/* ── Keyframes ── */
+@keyframes game-pulse{50%{opacity:.45;box-shadow:0 0 4px #57e3bb}}
+@keyframes game-sheen{0%,45%{background-position:100% 0}70%,100%{background-position:-100% 0}}
+@keyframes game-card-in{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+@keyframes game-nebula{0%{background-position:0% 50%}100%{background-position:100% 50%;box-shadow:0 24px 70px #0004,0 0 52px #685bf333}}
+@keyframes game-space-drift{from{background-position:0% 0%,100% 100%,0 0}to{background-position:100% 60%,0% 40%,0 0}}
+@keyframes game-copy-in{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes game-image-heartbeat{0%,48%,100%{filter:drop-shadow(0 8px 18px #3b8dff33) drop-shadow(0 0 14px #42d9ff33);transform:scale(1)}58%{filter:drop-shadow(0 10px 24px #795cff66) drop-shadow(0 0 24px #41dfff66);transform:scale(1.04)}68%{filter:drop-shadow(0 8px 18px #ff62c044) drop-shadow(0 0 16px #4ce9ff44);transform:scale(1)}78%{filter:drop-shadow(0 9px 21px #ff62c055) drop-shadow(0 0 20px #7c69ff55);transform:scale(1.025)}88%{filter:drop-shadow(0 8px 18px #48cfff44) drop-shadow(0 0 16px #7c69ff44);transform:scale(1)}}
+@keyframes game-light-orbit{to{transform:rotate(360deg)}}
+@keyframes game-light-orbit-reverse{to{transform:rotate(-360deg)}}
+@media(prefers-reduced-motion:reduce){.game-hero__art::before,.game-hero__art::after{animation:none}}
+@keyframes game-star-drift{from{background-position:0 0,0 0,0 0,0 0,0 0}to{background-position:170px 85px,-130px 130px,210px -105px,-190px 190px,0 0}}
+
+/* ── Mini-game scene elements ── */
+.scene{position:relative;height:300px;border-radius:16px;overflow:hidden;border:1px solid var(--bd)}
+.hs{position:absolute;font-size:34px;border:0;background:none;cursor:pointer;transform:translate(-50%,-50%)}
+.zone{position:absolute;width:76px;height:60px;border:2px dashed #fff;border-radius:10px;transform:translate(-50%,-50%);font-size:11px;color:#fff;text-align:center;background:#0006;display:flex;align-items:center;justify-content:center}
+.item{font-size:30px;padding:6px 10px;margin:3px;border:1px solid var(--bd);border-radius:10px;background:var(--card);cursor:grab}
+.item.sel{outline:3px solid var(--ac)}
+.scene{box-shadow:inset 0 0 40px #0003}
+.hs:hover{transform:translate(-50%,-50%) scale(1.3)}
+
+/* ── Responsive ── */
+@media(max-width:900px){
+  .game-card__art{flex:0 0 195px}
+}
+@media(max-width:760px){
+  .game-page main{padding:22px 14px}
+  .game-hero{grid-template-columns:1fr;min-height:0;padding:30px 24px 18px}
+  .game-hero__art{min-height:205px}
+  .game-library{padding-top:30px}
+  /* Tablet: 1 cột, card ngang */
+  .game-grid{grid-template-columns:1fr;gap:14px}
+  .game-card{min-height:160px}
+  .game-card__art{flex:0 0 180px;min-height:180px;border-radius:20px 0 0 20px}
+  .game-card__body{padding:16px 18px 14px}
+  .game-card__title{font-size:17px}
+  .scene{height:280px}
+  .hs{font-size:30px;padding:8px}
+  .zone{width:64px;height:52px}
+  .item{font-size:34px;padding:8px 14px}
+}
+@media(max-width:520px){
+  .game-hero{padding:26px 20px 14px;border-radius:24px}
+  .game-hero h1{font-size:38px}
+  .game-hero__text{font-size:15px}
+  .game-hero__art{min-height:185px}
+  .game-library__heading{align-items:start;flex-direction:column;gap:7px}
+  /* Mobile: card đứng dọc */
+  .game-card{flex-direction:column;min-height:auto}
+  .game-card__art{flex:0 0 auto;min-height:190px;border-radius:22px 22px 0 0}
+  .game-card__body{padding:16px 16px 14px}
+}
+
+/* ==========================================================
+   SAFEWATER GAME LOBBY — 3D ART / PREMIUM VISUAL UPGRADE
+   Ghi đè phần giao diện thẻ trò chơi; không thay đổi HTML/JS.
+   ========================================================== */
+
+body.game-page {
+  --arcade-bg: #070b19;
+  background:
+    radial-gradient(ellipse at 50% -12%, #3b3d86 0, transparent 42%),
+    radial-gradient(ellipse at 4% 38%, #07556a66 0, transparent 32%),
+    radial-gradient(ellipse at 100% 72%, #6b2e8650 0, transparent 30%),
+    #070b19;
+}
+
+.game-page main {
+  max-width: 1320px;
+}
+
+.game-hero {
+  min-height: 350px;
+  border: 1px solid #9feaff45;
+  border-radius: 32px;
+  background:
+    radial-gradient(ellipse at 78% 42%, #5a68ff60 0, transparent 36%),
+    radial-gradient(ellipse at 12% 100%, #00d4ff32 0, transparent 42%),
+    linear-gradient(120deg, #10152f 0%, #17234a 48%, #251b50 100%);
+  box-shadow:
+    0 30px 80px #0007,
+    0 0 0 1px #ffffff08 inset,
+    0 0 55px #4b76ff22;
+}
+
+.game-hero::after {
+  opacity: .45;
+  background: linear-gradient(115deg, transparent 20%, #ffffff25 50%, transparent 75%);
+  background-size: 220% 100%;
+}
+
+.game-hero__copy {
+  animation: game-copy-in .7s both;
+}
+
+.game-hero h1 {
+  text-shadow: 0 8px 32px #0008, 0 0 32px #7c8dff35;
+}
+
+.game-hero h1 span {
+  color: #69f1ff;
+  text-shadow: 0 0 24px #39dcff70;
+}
+
+.game-start {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid #ffffff70;
+  border-radius: 15px;
+  background: linear-gradient(115deg, #21d4fd, #6c63ff 55%, #bd58f6);
+  box-shadow: 0 7px 0 #2a3185, 0 14px 30px #574eff65, inset 0 1px #ffffff80;
+  transition: transform .22s ease, box-shadow .22s ease, filter .22s ease;
+}
+
+.game-start::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(110deg, transparent 25%, #ffffff55 48%, transparent 68%);
+  transform: translateX(-130%);
+  transition: transform .6s ease;
+}
+
+.game-start:hover {
+  transform: translateY(-4px);
+  filter: saturate(1.15);
+  box-shadow: 0 10px 0 #2a3185, 0 22px 38px #574eff80, inset 0 1px #ffffff90;
+}
+
+.game-start:hover::after {
+  transform: translateX(130%);
+}
+
+.game-hero__art {
+  perspective: 1000px;
+}
+
+.game-hero__illustration {
+  filter: drop-shadow(0 18px 18px #0006) drop-shadow(0 0 24px #52dfff35);
+  transform-style: preserve-3d;
+}
+
+/* Tiêu đề khu trò chơi */
+.game-library {
+  padding-top: 48px;
+}
+
+.game-library__heading {
+  margin-bottom: 24px;
+}
+
+.game-section-label {
+  color: #72eaff;
+  text-shadow: 0 0 16px #34cfff40;
+}
+
+.game-library h2 {
+  color: #f7f8ff;
+  letter-spacing: -.035em;
+  text-shadow: 0 5px 22px #0005;
+}
+
+.game-library__note {
+  padding: 9px 13px;
+  border: 1px solid #ffffff17;
+  border-radius: 999px;
+  background: #ffffff08;
+  backdrop-filter: blur(12px);
+}
+
+/* Thẻ game có chiều sâu, ánh sáng và chuyển động 3D */
+.game-grid {
+  gap: 24px;
+  perspective: 1400px;
+}
+
+.game-card {
+  min-height: 228px;
+  border: 1px solid color-mix(in srgb, var(--game-glow, #7865ff) 48%, #ffffff18);
+  border-radius: 25px;
+  background:
+    linear-gradient(135deg,
+      color-mix(in srgb, var(--game-glow, #7865ff) 38%, #192139),
+      color-mix(in srgb, var(--game-glow, #7865ff) 20%, #0e1426) 88%);
+  box-shadow:
+    0 10px 0 #050916,
+    0 20px 38px #0005,
+    inset 0 1px #ffffff20,
+    inset 0 -1px #0005;
+  transform: translateY(0) rotateX(0deg);
+  transform-style: preserve-3d;
+  will-change: transform, box-shadow;
+}
+
+.game-card::before {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  background: linear-gradient(135deg, #ffffff10, transparent 32%, transparent 72%, #ffffff05);
+}
+
+.game-card::after {
+  z-index: 4;
+  background: linear-gradient(112deg, transparent 25%,
+    color-mix(in srgb, var(--game-glow, #7865ff) 34%, #ffffff18) 50%,
+    transparent 72%);
+  background-size: 240% 100%;
+  background-position: 130% 0;
+}
+
+.game-card:hover,
+.game-card:focus-visible {
+  transform: translateY(-9px) rotateX(1.5deg) rotateY(-1deg) scale(1.012);
+  border-color: color-mix(in srgb, var(--game-glow, #a99aff) 80%, white);
+  box-shadow:
+    0 12px 0 color-mix(in srgb, var(--game-glow, #7865ff) 25%, #080c19),
+    0 32px 58px #0009,
+    0 0 34px color-mix(in srgb, var(--game-glow, #7865ff) 30%, transparent),
+    inset 0 1px #ffffff30;
+}
+
+.game-card:hover::after,
+.game-card:focus-visible::after {
+  background-position: -35% 0;
+}
+
+.game-card__art {
+  flex-basis: 248px;
+  min-height: 228px;
+  border-radius: 23px 0 0 23px;
+  background:
+    radial-gradient(ellipse at 50% 105%,
+      color-mix(in srgb, var(--game-glow) 80%, #ffffff) 0,
+      transparent 55%),
+    radial-gradient(circle at 50% 35%,
+      color-mix(in srgb, var(--game-glow) 48%, #18284b) 0,
+      transparent 58%),
+    linear-gradient(145deg,
+      color-mix(in srgb, var(--game-glow) 38%, #19264a),
+      #0a142b 82%);
+  box-shadow: inset -1px 0 #ffffff18, inset 0 1px #ffffff20;
+}
+
+.game-card__art::before {
+  opacity: .95;
+  background:
+    radial-gradient(circle at 16% 24%, #fff 0 1px, transparent 2px),
+    radial-gradient(circle at 78% 19%, #aafaff 0 1px, transparent 2px),
+    radial-gradient(circle at 88% 62%, #fff 0 1px, transparent 2px),
+    radial-gradient(circle at 24% 78%, #ffffffc9 0 1px, transparent 2px),
+    radial-gradient(ellipse at 50% 110%, #ffffff24, transparent 65%),
+    linear-gradient(145deg, transparent 35%, #ffffff0c);
+  background-size: 71px 63px, 89px 77px, 97px 83px, 123px 103px, 100% 100%, 100% 100%;
+  animation: game-star-drift 28s linear infinite;
+}
+
+.game-card__art svg {
+  filter: drop-shadow(0 12px 8px #0008) drop-shadow(0 0 12px color-mix(in srgb, var(--game-glow) 40%, transparent));
+  transform-origin: 50% 58%;
+}
+
+.game-card:hover .game-card__art svg,
+.game-card:focus-visible .game-card__art svg {
+  transform: scale(1.12) translateY(-5px) rotate(-1.5deg);
+  filter: saturate(1.2) drop-shadow(0 18px 12px #0009)
+    drop-shadow(0 0 18px color-mix(in srgb, var(--game-glow) 65%, transparent));
+}
+
+.game-card__tag {
+  border: 1px solid #ffffff35;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--game-glow) 76%, #10152d);
+  box-shadow: 0 5px 15px #0004, inset 0 1px #ffffff40;
+  backdrop-filter: blur(8px);
+}
+
+.game-card__status {
+  border: 1px solid #ffffff30;
+  background: #080d1bcc;
+  box-shadow: 0 5px 16px #0003;
+  backdrop-filter: blur(10px);
+}
+
+.game-card__body {
+  padding: 24px 23px 19px;
+  background: linear-gradient(110deg, color-mix(in srgb, var(--game-glow) 12%, transparent), transparent 85%);
+}
+
+.game-card__level {
+  color: color-mix(in srgb, var(--game-glow) 65%, #c6d5f5);
+}
+
+.game-card__title {
+  text-shadow: 0 3px 12px #0004;
+}
+
+.game-card__sub {
+  color: #a3b1cc;
+}
+
+.game-card__action {
+  margin-top: 5px;
+  color: color-mix(in srgb, var(--game-glow) 65%, #ffffff);
+}
+
+.game-card__action span {
+  width: 34px;
+  height: 34px;
+  border-color: color-mix(in srgb, var(--game-glow) 55%, #ffffff30);
+  background: color-mix(in srgb, var(--game-glow) 20%, #ffffff08);
+  box-shadow: inset 0 1px #ffffff20, 0 4px 10px #0003;
+}
+
+.game-card:hover .game-card__action span {
+  transform: translate(3px, -3px) scale(1.06);
+  box-shadow: 0 0 18px color-mix(in srgb, var(--game-glow) 40%, transparent);
+}
+
+/* Light theme: giữ tương phản và hiệu ứng nổi */
+:root[data-theme=light] body.game-page {
+  background:
+    radial-gradient(ellipse at 50% -12%, #d8d7ff 0, transparent 42%),
+    radial-gradient(ellipse at 4% 38%, #d2f7ff 0, transparent 32%),
+    linear-gradient(180deg, #f6f8ff, #eaf3ff);
+}
+
+:root[data-theme=light] .game-hero {
+  background:
+    radial-gradient(ellipse at 78% 42%, #9caaff70 0, transparent 36%),
+    radial-gradient(ellipse at 12% 100%, #79eaff55 0, transparent 42%),
+    linear-gradient(120deg, #ffffff 0%, #e8edff 48%, #e4dcff 100%);
+  box-shadow: 0 26px 65px #3b4f8025, inset 0 1px #ffffff;
+}
+
+:root[data-theme=light] .game-hero h1 {
+  color: #182343;
+  text-shadow: 0 5px 22px #4a5b8720;
+}
+
+:root[data-theme=light] .game-hero__text {
+  color: #4b5b7b;
+}
+
+:root[data-theme=light] .game-start {
+  color: #fff;
+  box-shadow: 0 7px 0 #383a9b, 0 14px 28px #574eff40, inset 0 1px #ffffff70;
+}
+
+:root[data-theme=light] .game-library h2 {
+  color: #182343;
+}
+
+:root[data-theme=light] .game-card {
+  background: linear-gradient(135deg,
+    color-mix(in srgb, var(--game-glow) 30%, #ffffff),
+    color-mix(in srgb, var(--game-glow) 16%, #f1f4ff) 88%);
+  box-shadow: 0 8px 0 #d9e2f4, 0 18px 32px #344c791c, inset 0 1px #ffffff;
+}
+
+:root[data-theme=light] .game-card:hover,
+:root[data-theme=light] .game-card:focus-visible {
+  box-shadow: 0 10px 0 color-mix(in srgb, var(--game-glow) 18%, #d9e2f4),
+    0 28px 46px #344c7930,
+    0 0 26px color-mix(in srgb, var(--game-glow) 20%, transparent);
+}
+
+:root[data-theme=light] .game-card__sub {
+  color: #52627f;
+}
+
+:root[data-theme=light] .game-card__status {
+  background: #ffffffd9;
+  color: #273451;
+  border-color: #ffffff;
+}
+
+:root[data-theme=light] .game-card__action {
+  color: color-mix(in srgb, var(--game-glow) 38%, #18243d);
+}
+
+/* Màn hình nhỏ và người dùng hạn chế chuyển động */
+@media (max-width: 900px) {
+  .game-card__art { flex-basis: 205px; }
+  .game-card__body { padding: 20px 18px 16px; }
+}
+
+@media (max-width: 760px) {
+  .game-hero { border-radius: 26px; }
+  .game-card { min-height: 175px; }
+  .game-card__art { flex-basis: 180px; min-height: 180px; }
+  .game-card__body { padding: 16px 17px 14px; }
+}
+
+@media (max-width: 520px) {
+  .game-card { transform: none; }
+  .game-card:hover,
+  .game-card:focus-visible { transform: translateY(-4px) scale(1.005); }
+  .game-card__art { min-height: 195px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body.game-page,
+  .game-hero,
+  .game-hero::before,
+  .game-hero::after,
+  .game-card,
+  .game-card__art::before,
+  .game-card__art svg,
+  .game-start {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* Illustrated thumbnails; card layout and gameplay remain unchanged. */
+.game-card__art .game-card__image{position:absolute;inset:0;z-index:1;display:block;width:100%;height:100%;object-fit:cover;object-position:center;transition:transform .55s cubic-bezier(.2,.8,.4,1),filter .35s}
+.game-card:hover .game-card__image,.game-card:focus-visible .game-card__image{transform:scale(1.07);filter:saturate(1.08)}
+@media(prefers-reduced-motion:reduce){.game-card__art .game-card__image{transition:none}}

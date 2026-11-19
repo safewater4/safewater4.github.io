@@ -1,0 +1,543 @@
+﻿<!DOCTYPE html>
+<html lang="vi" data-root="../" data-nav="kiemtra">
+<head>
+<meta charset="utf-8">
+<meta name="referrer" content="no-referrer">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kiểm tra kiến thức – SafeWater</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/base.css">
+<link rel="stylesheet" href="../assets/css/layout.css">
+<link rel="stylesheet" href="../assets/css/components.css">
+<style>
+/* ================= BỐ CỤC 2 CỘT ================= */
+.two-col-layout {
+  display: grid;
+  grid-template-columns: 1fr 420px;
+  gap: 28px;
+  align-items: start;
+}
+
+.quiz-header-banner {
+  background: linear-gradient(135deg, rgba(10, 132, 214, 0.12), rgba(0, 180, 216, 0.05));
+  border: 1px solid rgba(10, 132, 214, 0.2);
+  border-radius: 24px;
+  padding: 20px 24px;
+  margin-bottom: 24px;
+}
+.quiz-header-banner h1 {
+  margin: 0;
+  font-size: clamp(22px, 3.5vw, 28px);
+  color: var(--tx);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.quiz-header-banner p {
+  margin: 4px 0 0;
+  color: var(--mu);
+  font-size: 14.5px;
+}
+
+.quiz-box {
+  background: var(--card);
+  border: 1.5px solid var(--bd);
+  border-radius: 24px;
+  padding: 24px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+}
+
+/* Form */
+.form-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 22px;
+}
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.form-group label {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--tx);
+}
+.form-group input {
+  padding: 12px 16px;
+  border-radius: 14px;
+  border: 1.5px solid var(--bd);
+  background: var(--bg);
+  font-size: 15px;
+  transition: all 0.2s;
+}
+.form-group input:focus {
+  outline: none;
+  border-color: var(--pr);
+  background: var(--card);
+  box-shadow: 0 0 0 4px rgba(10, 132, 214, 0.1);
+}
+
+/* Thanh điều khiển bài thi */
+.quiz-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--bg);
+  border: 1px solid var(--bd);
+  border-radius: 16px;
+  padding: 12px 18px;
+  margin-bottom: 20px;
+  font-weight: 700;
+  font-size: 15px;
+}
+.timer-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  background: #fff;
+  border: 1.5px solid var(--bd);
+  color: #0a84d6;
+  font-family: monospace;
+  font-size: 17px;
+  font-weight: 800;
+}
+.timer-pill.urgent {
+  color: #e5383b;
+  border-color: #e5383b;
+  animation: pulse 1s infinite;
+}
+@keyframes pulse { 50% { transform: scale(1.05); } }
+
+/* Thẻ câu hỏi */
+.q-card {
+  background: var(--bg);
+  border: 1px solid var(--bd);
+  border-radius: 18px;
+  padding: 20px;
+  margin-bottom: 18px;
+}
+.q-badge {
+  font-size: 12px;
+  font-weight: 800;
+  padding: 3px 10px;
+  border-radius: 8px;
+  display: inline-block;
+  margin-bottom: 8px;
+}
+.q-badge.nb { background: #e3f2fd; color: #0a84d6; }
+.q-badge.th { background: #fff3e0; color: #e65100; }
+.q-badge.vd { background: #e8f5e9; color: #1a9f5a; }
+
+.q-card-head {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.q-num {
+  font-family: "Baloo 2", Nunito, sans-serif;
+  font-size: 14px;
+  font-weight: 800;
+  background: var(--card);
+  border: 1px solid var(--bd);
+  border-radius: 8px;
+  padding: 2px 8px;
+  color: var(--pr);
+  flex-shrink: 0;
+}
+.q-card-head b {
+  font-size: 16px;
+  color: var(--tx);
+  line-height: 1.45;
+}
+
+.q-options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.q-opt-label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 18px;
+  border-radius: 14px;
+  border: 1.5px solid var(--bd);
+  background: var(--card);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 14.5px;
+}
+.q-opt-label:hover {
+  border-color: var(--pr);
+  transform: translateX(4px);
+}
+.q-opt-label.selected {
+  border-color: var(--pr);
+  background: rgba(10, 132, 214, 0.08);
+  font-weight: 700;
+}
+
+/* ================= BẢNG VÀNG & BỤC PODIUM THỂ THAO ĐỈNH CAO ================= */
+.sidebar-leaderboard {
+  position: sticky;
+  top: 86px;
+}
+.leaderboard-card-premium {
+  background: #ffffff;
+  border: 2px solid #cfe3f3;
+  border-radius: 26px;
+  padding: 22px 18px;
+  box-shadow: 0 16px 44px rgba(10, 132, 214, 0.09);
+}
+.lb-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 14px;
+  border-bottom: 2px solid #f0f4f8;
+  margin-bottom: 16px;
+}
+.lb-header h3 {
+  margin: 0;
+  font-size: 19px;
+  font-family: "Baloo 2", Nunito, sans-serif;
+  font-weight: 800;
+  color: var(--tx);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.live-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 800;
+  color: #1a9f5a;
+  background: #e8f5e9;
+  padding: 3px 9px;
+  border-radius: 12px;
+}
+.live-badge::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #1a9f5a;
+  animation: blink 1.2s infinite;
+}
+@keyframes blink { 50% { opacity: 0.3; } }
+
+/* KHỐI BỤC PODIUM 3D ĐẲNG CẤP */
+.podium-stage {
+  display: grid;
+  grid-template-columns: 1fr 1.15fr 1fr;
+  gap: 8px;
+  align-items: end;
+  margin-bottom: 24px;
+  padding: 10px 4px 0;
+}
+
+.podium-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+/* Thẻ thí sinh trên bục */
+.podium-avatar-wrap {
+  position: relative;
+  margin-bottom: 6px;
+}
+.podium-crown {
+  font-size: 34px;
+  line-height: 1;
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.15));
+  transition: transform 0.2s;
+}
+.podium-col:hover .podium-crown {
+  transform: scale(1.15) rotate(-5deg);
+}
+
+.podium-user-name {
+  font-family: "Baloo 2", Nunito, sans-serif;
+  font-size: 13.5px;
+  font-weight: 800;
+  color: var(--tx);
+  line-height: 1.25;
+  margin-bottom: 3px;
+  word-break: break-word;
+  max-width: 110px;
+}
+
+.podium-user-class {
+  display: inline-block;
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 1px 7px;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  background: rgba(0,0,0,0.05);
+  color: var(--mu);
+}
+
+/* Trụ Bục Đứng (Podium Base) */
+.podium-base {
+  width: 100%;
+  border-radius: 14px 14px 6px 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-family: "Baloo 2", Nunito, sans-serif;
+  font-weight: 800;
+  box-shadow: 0 8px 18px rgba(0,0,0,0.12);
+  position: relative;
+  border: 2px solid #ffffff;
+}
+.podium-base .rank-num {
+  font-size: 26px;
+  line-height: 1;
+}
+.podium-base .score-val {
+  font-size: 13px;
+  font-weight: 700;
+  background: rgba(0,0,0,0.25);
+  padding: 2px 8px;
+  border-radius: 10px;
+  margin-top: 4px;
+}
+
+/* Chiều cao & Màu sắc từng Bục */
+.podium-col.rank-2 { order: 1; }
+.podium-col.rank-2 .podium-base {
+  height: 95px;
+  background: linear-gradient(145deg, #a0aec0, #718096);
+  border-color: #e2e8f0;
+}
+.podium-col.rank-2 .podium-crown { font-size: 32px; }
+
+.podium-col.rank-1 { order: 2; }
+.podium-col.rank-1 .podium-base {
+  height: 125px;
+  background: linear-gradient(145deg, #fbbf24, #d97706);
+  border-color: #fef3c7;
+  box-shadow: 0 10px 24px rgba(217, 119, 6, 0.35);
+}
+.podium-col.rank-1 .podium-crown { font-size: 42px; }
+.podium-col.rank-1 .podium-user-name {
+  font-size: 14.5px;
+  color: #b45309;
+}
+
+.podium-col.rank-3 { order: 3; }
+.podium-col.rank-3 .podium-base {
+  height: 80px;
+  background: linear-gradient(145deg, #fb923c, #c2410c);
+  border-color: #ffedd5;
+}
+.podium-col.rank-3 .podium-crown { font-size: 30px; }
+
+/* DANH SÁCH THỨ HẠNG TỪ TOP 4 TRỞ ĐI (KHÔNG TRÙNG LẶP, KHÔNG SCROLL) */
+.lb-section-title {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--mu);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.lb-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.lb-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 12px;
+  border-radius: 12px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  transition: all 0.2s;
+}
+.lb-item:hover {
+  background: #ffffff;
+  border-color: var(--pr);
+  transform: translateX(3px);
+  box-shadow: 0 4px 12px rgba(10, 132, 214, 0.08);
+}
+.lb-item-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  overflow: hidden;
+}
+.lb-rank {
+  font-weight: 800;
+  font-size: 12.5px;
+  color: var(--mu);
+  min-width: 20px;
+  text-align: center;
+  background: #edf2f7;
+  padding: 2px 6px;
+  border-radius: 6px;
+}
+.lb-info {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.lb-name {
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--tx);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.lb-meta {
+  font-size: 11px;
+  color: var(--mu);
+}
+.lb-score-tag {
+  font-weight: 800;
+  color: var(--pr);
+  font-size: 13.5px;
+  flex-shrink: 0;
+  text-align: right;
+  line-height: 1.2;
+}
+
+.hp-field { opacity: 0; position: absolute; top: 0; left: 0; height: 0; width: 0; z-index: -1; }
+
+@media (max-width: 960px) {
+  .two-col-layout { grid-template-columns: 1fr; }
+  .sidebar-leaderboard { position: static; }
+}
+</style>
+</head>
+<body>
+<main>
+  <div class="quiz-header-banner">
+    <div>
+      <h1><svg class="i3 hi"><use href="#i-shield"/></svg> Thử thách Kiến thức An toàn Dưới nước</h1>
+      <p>Tranh tài 10 câu hỏi ngẫu nhiên trong 3 phút – Ghi danh Bảng vàng vinh danh SafeWater!</p>
+    </div>
+  </div>
+
+  <div class="two-col-layout">
+    <!-- CỘT TRÁI: BÀI THI -->
+    <div class="main-column">
+      
+      <!-- BƯỚC 1: FORM THÍ SINH -->
+      <div id="step-start" class="quiz-box">
+        <h2 style="margin-top:0">🎯 Thông tin Thí sinh</h2>
+        <p class="mu" style="margin-bottom:18px">Nhập Họ tên và Lớp để bắt đầu tính giờ và ghi nhận thành tích.</p>
+        
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="inp-name">Họ và tên thí sinh *</label>
+            <input type="text" id="inp-name" placeholder="Ví dụ: Nguyễn Văn An" autofocus required>
+          </div>
+          <div class="form-group">
+            <label for="inp-class">Lớp *</label>
+            <input type="text" id="inp-class" placeholder="Ví dụ: 5A, 6B..." required>
+          </div>
+          <div class="form-group">
+            <label for="inp-school">Trường học</label>
+            <input type="text" id="inp-school" value="Trường TH&THCS Nguyễn Du">
+          </div>
+          <div class="form-group">
+            <label for="inp-ward">Xã / Phường</label>
+            <input type="text" id="inp-ward" value="Thuận Hạnh">
+          </div>
+          <div class="form-group">
+            <label for="inp-prov">Tỉnh / Thành phố</label>
+            <input type="text" id="inp-prov" value="Lâm Đồng">
+          </div>
+          <input type="text" id="inp-website" class="hp-field" tabindex="-1" autocomplete="off">
+        </div>
+
+        <div style="text-align:right">
+          <button class="b" id="btn-start" style="font-size:16px;padding:12px 32px">Bắt đầu làm bài 🚀</button>
+        </div>
+      </div>
+
+      <!-- BƯỚC 2: KHUNG ĐỀ THI -->
+      <div id="step-exam" class="quiz-box" style="display:none">
+        <div class="quiz-topbar">
+          <div>Thí sinh: <span id="lbl-student" style="color:var(--pr)"></span> (<span id="lbl-class"></span>)</div>
+          <div class="timer-pill" id="box-timer">⏱️ <span id="lbl-time">03:00</span></div>
+        </div>
+
+        <div id="quiz-container"></div>
+
+        <div style="text-align:right;margin-top:20px">
+          <button class="b" id="btn-submit-exam" style="font-size:16px;padding:12px 36px">Nộp bài ngay 🎯</button>
+        </div>
+      </div>
+
+      <!-- BƯỚC 3: KẾT QUẢ -->
+      <div id="step-result" class="quiz-box" style="display:none;text-align:center">
+        <div style="font-size:46px;margin-bottom:6px">🎉</div>
+        <h2 id="res-title" style="margin:0 0 8px">Hoàn thành bài kiểm tra!</h2>
+        <div style="font-size:17px;margin-bottom:12px">
+          Tổng điểm: <b id="res-score" style="font-size:28px;color:var(--pr)">0</b> điểm
+        </div>
+        <p id="res-detail" style="color:var(--mu);margin-bottom:20px;font-size:14.5px;line-height:1.5"></p>
+
+        <button class="b" id="btn-retry" style="font-size:15px;padding:10px 24px">Thử sức đề khác 🔄</button>
+      </div>
+
+    </div>
+
+    <!-- CỘT PHẢI: BẢNG VÀNG PODIUM THỂ THAO ĐẲNG CẤP -->
+    <div class="sidebar-leaderboard">
+      <div class="leaderboard-card-premium">
+        <div class="lb-header">
+          <h3>🏆 Bảng Vàng Vinh Danh</h3>
+          <span class="live-badge">Trực tiếp</span>
+        </div>
+
+        <!-- Bục Vinh Quang 1 - 2 - 3 Giật Cấp -->
+        <div class="podium-stage" id="podium-area"></div>
+
+        <!-- Danh sách thứ hạng từ Top 4 trở đi (Không lặp Top 3) -->
+        <div class="lb-section-title">
+          <span>Bảng Xếp Hạng Tiếp Theo</span>
+        </div>
+        <div class="lb-list" id="lb-table-body"></div>
+
+        <div style="text-align:center;margin-top:16px">
+          <button class="b o" id="btn-expand-lb" style="font-size:12.5px;padding:7px 16px;border-radius:12px;width:100%">
+            Xem toàn bộ bảng xếp hạng 📋
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script src="../assets/js/core/dom.js"></script>
+<script src="../assets/js/icons/sprite-line.js"></script>
+<script src="../assets/js/icons/sprite-3d.js"></script>
+<script src="../assets/js/core/icons.js"></script>
+<script src="../assets/js/core/layout.js"></script>
+<script src="../assets/js/data/quiz-bank.js"></script>
+<script src="../assets/js/pages/kiem-tra.js"></script>
+</body>
+</html>

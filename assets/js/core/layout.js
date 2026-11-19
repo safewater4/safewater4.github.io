@@ -181,7 +181,18 @@
   /* Khóa Gemini API tích hợp sẵn (mã hóa Base64 để tránh scanner của GitHub cảnh báo) */
   const _0xsec = 'QVEuQWI4Uk42STRvNGhVbFhzRjE1YWJ2N0RrZ194R0pEQ2QyTzZ3bkxVTkFGS0NCWkxMemc=';
   const GEMINI_API_KEY = (()=>{ try{ return atob(_0xsec); }catch(e){ return ''; } })();
-  const getGeminiKey=()=>localStorage.getItem('safewater-gemini-key')||GEMINI_API_KEY;
+  const getGeminiKey=()=>{
+    try{
+      const local = localStorage.getItem('safewater-gemini-key');
+      if(local && (local.includes('LzS7fQM8e2') || local.trim()==='')){
+        localStorage.removeItem('safewater-gemini-key');
+        return GEMINI_API_KEY;
+      }
+      return local || GEMINI_API_KEY;
+    }catch(e){
+      return GEMINI_API_KEY;
+    }
+  };
   window.SW=window.SW||{};
   window.SW.GEMINI_API_KEY=GEMINI_API_KEY;
   window.SW.getGeminiKey=getGeminiKey;
@@ -207,6 +218,8 @@ PHẠM VI HỖ TRỢ ĐA LĨNH VỰC TOÀN DIỆN:
 
   const defaultChatbot={
     rules:[
+      {pattern:/đau|bệnh|sốt|chấn thương|gãy|vết thương|y tế/i,answer:'Khi bị đau hoặc chấn thương: 1. Hãy ngồi nghỉ ngơi ở tư thế thoải mái, tránh cử động mạnh vùng bị đau; 2. Báo ngay cho thầy cô, cha mẹ hoặc nhân viên y tế trường học; 3. Nếu đau dữ dội, sưng phù, biến dạng hoặc chảy máu nhiều, cần đến ngay trạm y tế hoặc bệnh viện gần nhất.',mood:'🩹'},
+      {pattern:/học|toán|lý|hóa|sinh|văn|sử|địa|tiếng anh|tin học/i,answer:'SafeBuddy luôn sẵn sàng hỗ trợ các bạn học tập! Bạn có thể đặt câu hỏi cụ thể về bài tập, định lý khoa học, ngữ pháp hay phương pháp ôn thi hiệu quả nhé.',mood:'📚'},
       {pattern:/tàu|thuyền|máy bay|biển|chìm|sóng thần/i,answer:'Khi gặp tai nạn trên biển hoặc chìm tàu, điều sống còn là: 1. Giữ bình tĩnh, mặc áo phao ngay lập tức; 2. Bám chặt vào bất kỳ vật nổi nào (can nhựa, mảnh ván); 3. Áp dụng tư thế cuộn tròn giữ nhiệt (H.E.L.P) nếu nước lạnh để chống hạ thân nhiệt; 4. Báo hiệu vị trí bằng còi, phản quang hoặc giơ tay khi thấy tàu cứu hộ.',mood:'🆘'},
       {pattern:/sơ cứu|bất tỉnh|không thở|cpr|ép tim/i,answer:'Quy trình CPR cấp cứu: 1. Đưa nạn nhân lên mặt phẳng khô ráo, an toàn; 2. Kiểm tra nhịp thở trong 5-10 giây; 3. Nếu ngừng thở, lập tức gọi 115 và ép tim ngoài lồng ngực 30 lần (sâu 4-5cm, tốc độ 100-120 nhịp/phút) kết hợp 2 lần thổi ngạt kiên trì cho đến khi y tế đến.',mood:'😮'},
       {pattern:/đuối|cứu|thấy bạn/i,answer:'Nguyên tắc cứu đuối gián tiếp HÔ - NÉM - CHÌA: 1. HÔ to gọi người lớn ngay lập tức; 2. NÉM phao, can nhựa rỗng, vật nổi cho bạn; 3. CHÌA gậy dài, sào hoặc dây thừng từ trên bờ. Tuyệt đối KHÔNG tự ý nhảy xuống nước nếu chưa được huấn luyện cứu sinh!',mood:'😟'},
@@ -409,7 +422,7 @@ PHẠM VI HỖ TRỢ ĐA LĨNH VỰC TOÀN DIỆN:
       try{
         chatHistory.push({role:'user',parts:[{text:q}]});
         if(chatHistory.length>6)chatHistory.splice(0,chatHistory.length-6);
-        const candidateModels=['gemini-3.5-flash','gemini-3.5-flash-lite','gemini-3.8-flash'];
+        const candidateModels=['gemini-3.5-flash','gemini-3.5-flash-lite','gemini-3.8-flash','gemini-3.6-flash'];
         let data=null;
         for(const m of candidateModels){
           try{
@@ -430,6 +443,8 @@ PHẠM VI HỖ TRỢ ĐA LĨNH VỰC TOÀN DIỆN:
             if(res.ok){
               data=await res.json();
               if(data?.candidates?.[0]?.content?.parts?.[0]?.text)break;
+            }else{
+              console.warn(`Model ${m} trả về HTTP ${res.status}`);
             }
           }catch(e){
             console.warn(`Model ${m} timeout hoặc bận:`,e.message);

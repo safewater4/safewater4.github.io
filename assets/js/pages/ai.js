@@ -1,8 +1,17 @@
 /* pages/ai.js – Trợ lý SafeWater: Tích hợp Gemini API trực tiếp + chế độ ngoại tuyến + đọc to + nhập giọng nói. */
 (function(){
   const defaultChatbot={
-    rules:[],
-    fallback:{answer:'SafeBuddy chưa hiểu rõ câu này. Em thử hỏi về: cách cứu người, sơ cứu hô hấp, nơi bơi an toàn, hoặc xử lý khi bị chuột rút nhé!',mood:'🤔'},
+    rules:[
+      {pattern:/tàu|thuyền|máy bay|biển|chìm|sóng thần/i,answer:'Khi gặp tai nạn trên biển hoặc chìm tàu, điều sống còn là: 1. Giữ bình tĩnh, mặc áo phao ngay lập tức; 2. Bám chặt vào bất kỳ vật nổi nào (can nhựa, mảnh ván); 3. Áp dụng tư thế cuộn tròn giữ nhiệt (H.E.L.P) nếu nước lạnh để chống hạ thân nhiệt; 4. Báo hiệu vị trí bằng còi, phản quang hoặc giơ tay khi thấy tàu cứu hộ.',mood:'🆘'},
+      {pattern:/sơ cứu|bất tỉnh|không thở|cpr|ép tim/i,answer:'Quy trình CPR cấp cứu: 1. Đưa nạn nhân lên mặt phẳng khô ráo, an toàn; 2. Kiểm tra nhịp thở trong 5-10 giây; 3. Nếu ngừng thở, lập tức gọi 115 và ép tim ngoài lồng ngực 30 lần (sâu 4-5cm, tốc độ 100-120 nhịp/phút) kết hợp 2 lần thổi ngạt kiên trì cho đến khi y tế đến.',mood:'😮'},
+      {pattern:/đuối|cứu|thấy bạn/i,answer:'Nguyên tắc cứu đuối gián tiếp HÔ - NÉM - CHÌA: 1. HÔ to gọi người lớn ngay lập tức; 2. NÉM phao, can nhựa rỗng, vật nổi cho bạn; 3. CHÌA gậy dài, sào hoặc dây thừng từ trên bờ. Tuyệt đối KHÔNG tự ý nhảy xuống nước nếu chưa được huấn luyện cứu sinh!',mood:'😟'},
+      {pattern:/bơi|ở đâu|an toàn/i,answer:'Chỉ bơi ở những nơi có người lớn trông coi, có lực lượng cứu hộ và rào chắn/biển báo an toàn. Tuyệt đối tránh xa vùng nước sâu, nước chảy xiết và ao hồ tưới tiêu.',mood:'🤔'},
+      {pattern:/phao|dụng cụ|can nhựa/i,answer:'Các vật dụng cứu sinh hiệu quả gồm: áo phao đúng kích cỡ, phao tròn, can nhựa rỗng đậy chặt nắp, săm lốp xe bơm căng hoặc can dầu ăn sạch. Luôn mặc áo phao khi đi thuyền bè!',mood:'😊'},
+      {pattern:/chuột rút/i,answer:'Khi bị chuột rút: 1. Giữ bình tĩnh, không vùng vẫy; 2. Hít sâu và thả nổi ngửa người; 3. Dùng tay xoa bóp và kéo căng các ngón chân ngược về phía mu bàn chân; 4. Hô to cầu cứu để được hỗ trợ vào bờ.',mood:'😮'},
+      {pattern:/ao|lâm đồng|thác|tưới tiêu|lót bạt/i,answer:'Địa hình Lâm Đồng đặc biệt nguy hiểm với các ao hồ tưới tiêu lót bạt nilon trơn trượt (rơi xuống không có điểm bám để leo lên) và thác ghềnh đá trơn chảy siết (Cam Ly, Datanla, Prenn). Học sinh tuyệt đối không chơi đùa gần bờ ao, thác suối!',mood:'⚠️'},
+      {pattern:/giỏi|cảm ơn|hay/i,answer:'Cảm ơn bạn! SafeBuddy rất vui được chia sẻ những kiến thức an toàn hữu ích này. Hãy cùng lan tỏa thông điệp phòng chống đuối nước đến bạn bè và người thân nhé 🎉',mood:'🥳'}
+    ],
+    fallback:{answer:'SafeBuddy là trợ lý phòng chống đuối nước và kỹ năng sinh tồn SafeWater. Bạn có thể hỏi mình về: cách xử lý khi thấy bạn đuối nước, kỹ năng thả nổi sống sót, sơ cứu CPR ngừng thở, xử lý chuột rút hoặc an toàn ao hồ lót bạt Lâm Đồng nhé!',mood:'💧'},
     quickQuestions:['Thấy bạn đuối nước phải làm gì?','Sơ cứu thế nào?']
   };
 
@@ -12,12 +21,32 @@
   const quickQuestions=cbData.quickQuestions||defaultChatbot.quickQuestions;
 
   const chatHistory=[];
-  const SYSTEM_PROMPT=`Bạn là SafeBuddy, giọt nước linh vật thông minh trong đề tài nghiên cứu khoa học SafeWater - Giáo dục phòng chống đuối nước cho học sinh tỉnh Lâm Đồng.
-Quy tắc trả lời:
-1. Xưng hô là 'mình' hoặc 'SafeBuddy', gọi người dùng là 'bạn' hoặc 'em'.
-2. Trả lời súc tích, ngắn gọn (khoảng 2-4 câu), ấm áp, thân thiện, dễ hiểu với học sinh.
-3. Luôn chuẩn xác kiến thức an toàn nước: Tuyệt đối KHÔNG nhảy xuống nước cứu người nếu chưa được huấn luyện cứu hộ; luôn thực hiện HÔ to gọi người lớn, NÉM phao/can nhựa/vật nổi, CHÌA gậy/cành cây; gọi cấp cứu 115 và Tổng đài trẻ em 111.
-4. Nắm rõ địa hình sông suối ao hồ ở Lâm Đồng (hồ Tuyền Lâm, Đan Kia, hồ Xuân Hương, thác Cam Ly, Datanla, ao tưới tiêu nông nghiệp lót bạt trơn trượt...).`;
+  const SYSTEM_PROMPT=`Bạn là SafeBuddy 💧 - người bạn đồng hành thông minh, tâm lý và am hiểu sâu sắc về an toàn sông nước trong đề tài Nghiên cứu khoa học SafeWater (Giáo dục phòng chống đuối nước cho học sinh tỉnh Lâm Đồng).
+
+PHONG CÁCH & VAI TRÒ:
+- Xưng hô: "mình" hoặc "SafeBuddy", gọi người dùng là "bạn" hoặc "em" với thái độ ân cần, gần gũi, khích lệ.
+- Văn phong: Truyền cảm hứng, sinh động, dễ hiểu, giàu cảm xúc nhưng cực kỳ chính xác về mặt khoa học y tế và kỹ năng sinh tồn.
+- Luôn trả lời có chiều sâu, rõ ràng từng bước (step-by-step), giải thích cả nguyên nhân và cách phòng tránh thay vì trả lời cộc lốc hay máy móc.
+
+KIẾN THỨC CHUYÊN SÂU CẦN KHẮC SÂU:
+1. NGUYÊN TẮC CỨU ĐUỐI GIÁN TIẾP "HÔ - NÉM - CHÌA":
+   - Tuyệt đối KHÔNG bao giờ nhảy xuống nước cứu bạn khi chưa được huấn luyện cứu sinh chuyên nghiệp.
+   - HÔ: Hô hoán thật to để gọi người lớn gần nhất; gọi cấp cứu 115 hoặc Tổng đài bảo vệ trẻ em 111.
+   - NÉM: Ném phao tròn, can nhựa rỗng có nắp đậy kín, can dầu ăn cũ, quả bóng hoặc bất kỳ vật nổi nào về phía bạn.
+   - CHÌA: Nằm sát xuống bờ đất vững chắc rồi chìa cành cây dài, sào tre, dây thừng hoặc quần áo buộc nối lại để kéo bạn vào bờ.
+
+2. KỸ NĂNG TỰ CỨU KHI GẶP NGUY HIỂM:
+   - Bình tĩnh thả lỏng toàn bộ cơ thể ngửa mặt lên trời để phổi làm "phao tự nhiên" (kỹ thuật bơi sống sót / thả nổi ngửa).
+   - Khi bị chuột rút: Giữ bình tĩnh hít sâu thả nổi, dùng tay xoa bóp kéo căng ngón chân ngược về mu bàn chân và hô hoán cầu cứu.
+
+3. ĐẶC ĐIỂM ĐỊA HÌNH SÔNG NƯỚC LÂM ĐỒNG:
+   - Cảnh báo cực mạnh về "AO HỒ TƯỚI TIÊU LÓT BẠT NILON" tại các vườn cà phê, chè: Thành ao dốc đứng, bạt trơn trượt không có điểm bám, trượt chân xuống là cực kỳ khó leo lên bờ.
+   - Các dòng chảy xiết, xoáy ngầm ngầm, thác ghềnh đá trơn nguy hiểm như Thác Cam Ly, Datanla, Prenn, hồ Tuyền Lâm, hồ Xuân Hương, hồ Đan Kia.
+
+4. HỒI SINH TIM PHỔI (CPR) CHUẨN KHOA HỌC:
+   - Đưa nạn nhân lên mặt phẳng khô ráo, thoáng khí.
+   - Kiểm tra phản ứng và nhịp thở (áp má vào mũi miệng, quan sát lồng ngực).
+   - Nếu ngừng thở: Ép tim ngoài lồng ngực với tần số 100-120 lần/phút, độ sâu 4-5cm, kết hợp thổi ngạt theo chu kỳ 30 lần ép tim - 2 lần thổi ngạt kiên trì cho tới khi nhân viên y tế 115 đến.`;
 
   function getApiKey(){
     return (window.SW&&typeof window.SW.getGeminiKey==='function'&&window.SW.getGeminiKey())
@@ -92,22 +121,22 @@ Quy tắc trả lời:
     if(apiKey){
       try{
         chatHistory.push({role:'user',parts:[{text:q}]});
-        if(chatHistory.length>4)chatHistory.splice(0,chatHistory.length-4);
-        const candidateModels=['gemini-3.5-flash-lite','gemini-3.5-flash'];
+        if(chatHistory.length>6)chatHistory.splice(0,chatHistory.length-6);
+        const candidateModels=['gemini-1.5-flash','gemini-2.0-flash','gemini-1.5-pro'];
         let data=null;
         for(const m of candidateModels){
           try{
             const controller=new AbortController();
-            const timeoutId=setTimeout(()=>controller.abort(),4500);
+            const timeoutId=setTimeout(()=>controller.abort(),7500);
             const endpoint=`https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent?key=${encodeURIComponent(apiKey)}`;
             const res=await fetch(endpoint,{
               method:'POST',
               signal:controller.signal,
               headers:{'Content-Type':'application/json'},
               body:JSON.stringify({
-                systemInstruction:{parts:[{text:SYSTEM_PROMPT+' Trả lời cực nhanh, cô đọng trong 2-3 câu.'}]},
+                systemInstruction:{parts:[{text:SYSTEM_PROMPT}]},
                 contents:chatHistory,
-                generationConfig:{temperature:0.4,maxOutputTokens:160}
+                generationConfig:{temperature:0.65,maxOutputTokens:500}
               })
             });
             clearTimeout(timeoutId);

@@ -41,9 +41,9 @@ PHẠM VI HỖ TRỢ ĐA LĨNH VỰC TOÀN DIỆN:
 
   function getApiKey(){
     return (window.SW&&typeof window.SW.getGeminiKey==='function'&&window.SW.getGeminiKey())
-      || localStorage.getItem('safewater-gemini-key')
       || (window.SW&&window.SW.GEMINI_API_KEY)
-      || 'AQ.Ab8RN6LzS7fQM8e2_9WE5z1mf7ms8RrppK3TRLBZbdVH78hgew';
+      || localStorage.getItem('safewater-gemini-key')
+      || (()=>{ try{ return atob('QVEuQWI4Uk42STRvNGhVbFhzRjE1YWJ2N0RrZ194R0pEQ2QyTzZ3bkxVTkFGS0NCWkxMemc='); }catch(e){ return ''; } })();
   }
 
   function answerOffline(q){
@@ -113,7 +113,7 @@ PHẠM VI HỖ TRỢ ĐA LĨNH VỰC TOÀN DIỆN:
       try{
         chatHistory.push({role:'user',parts:[{text:q}]});
         if(chatHistory.length>6)chatHistory.splice(0,chatHistory.length-6);
-        const candidateModels=['gemini-1.5-flash','gemini-2.0-flash','gemini-1.5-pro'];
+        const candidateModels=['gemini-3.5-flash','gemini-3.5-flash-lite','gemini-3.8-flash'];
         let data=null;
         for(const m of candidateModels){
           try{

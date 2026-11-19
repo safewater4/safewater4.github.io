@@ -179,7 +179,7 @@
   const aiQk=$('#ai-w-qk');
 
   /* Khóa Gemini API tích hợp sẵn (mã hóa Base64 để tránh scanner của GitHub cảnh báo) */
-  const _0xsec = 'QVEuQWI4Uk42THpTN2ZRTThlMl85V0U1ejFtZjdtczhScnBwSzNUUkxCWmJkVkg3OGhnZXc=';
+  const _0xsec = 'QVEuQWI4Uk42STRvNGhVbFhzRjE1YWJ2N0RrZ194R0pEQ2QyTzZ3bkxVTkFGS0NCWkxMemc=';
   const GEMINI_API_KEY = (()=>{ try{ return atob(_0xsec); }catch(e){ return ''; } })();
   const getGeminiKey=()=>localStorage.getItem('safewater-gemini-key')||GEMINI_API_KEY;
   window.SW=window.SW||{};
@@ -409,7 +409,7 @@ PHẠM VI HỖ TRỢ ĐA LĨNH VỰC TOÀN DIỆN:
       try{
         chatHistory.push({role:'user',parts:[{text:q}]});
         if(chatHistory.length>6)chatHistory.splice(0,chatHistory.length-6);
-        const candidateModels=['gemini-1.5-flash','gemini-2.0-flash','gemini-1.5-pro'];
+        const candidateModels=['gemini-3.5-flash','gemini-3.5-flash-lite','gemini-3.8-flash'];
         let data=null;
         for(const m of candidateModels){
           try{

@@ -11,12 +11,46 @@
 <link rel="stylesheet" href="../assets/css/base.css">
 <link rel="stylesheet" href="../assets/css/layout.css">
 <link rel="stylesheet" href="../assets/css/components.css">
+<style>
+.about-cards .card{display:flex;flex-direction:column;gap:8px;line-height:1.6}
+.about-cards .card p{margin:0}
+.about-cards .card a{color:var(--pr);word-break:break-all}
+.qr-card{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;text-align:center;padding:16px}
+.qr-wrap{background:#fff;padding:8px;border-radius:12px;box-shadow:0 3px 10px rgba(0,0,0,0.06);display:inline-flex}
+.qr-title{font-weight:700;font-size:15px;color:var(--tx);text-decoration:none}
+.qr-title:hover{color:var(--pr)}
+</style>
 </head>
 <body>
 <!-- Header, menu, nút SOS và footer do assets/js/core/layout.js dựng tự động -->
 <main>
-<h1><svg class="i3 hi"><use href="#c-info"/></svg> Giới thiệu</h1><div class="grid"><div class="card"><h3><svg class="i3 hi"><use href="#c-user"/></svg> Tác giả</h3>[Họ tên nhóm tác giả] · [Lớp/Trường] · GVHD: [Tên]</div><div class="card"><h3><svg class="i3 hi"><use href="#c-phone"/></svg> Liên hệ</h3>Email: [email] · Điện thoại: [số]</div><div class="card"><h3><svg class="i3 hi"><use href="#c-target"/></svg> Mục đích</h3>Trang bị kiến thức, kỹ năng phòng chống đuối nước cho học sinh qua trải nghiệm tương tác.</div></div><h2><svg class="i3 hi"><use href="#c-qr"/></svg> Chia sẻ – mỗi QR mở một trang</h2><div class="grid cols-2-mobile" id="qrs"></div>
+  <h1><svg class="i3 hi"><use href="#c-info"/></svg> Giới thiệu</h1>
+  
+  <div class="grid about-cards">
+    <div class="card">
+      <h3><svg class="i3 hi"><use href="#c-user"/></svg> Tác giả</h3>
+      <p><b>Học sinh:</b> Đàm Minh Nhật</p>
+      <p><b>GVHD:</b> Thầy Nguyễn Quang Chính · Thầy Trần Trọng Minh</p>
+      <p class="mu">Trường TH & THCS Nguyễn Du</p>
+    </div>
+
+    <div class="card">
+      <h3><svg class="i3 hi"><use href="#c-phone"/></svg> Liên hệ</h3>
+      <p><b>Đơn vị:</b> Trường TH & THCS Nguyễn Du</p>
+      <p><b>Địa chỉ:</b> Xã Thuận Hạnh, tỉnh Đắk Nông</p>
+      <p><b>Email:</b> <a href="mailto:damminhnhat.vietnam@gmail.com">damminhnhat.vietnam@gmail.com</a></p>
+    </div>
+
+    <div class="card">
+      <h3><svg class="i3 hi"><use href="#c-target"/></svg> Mục đích</h3>
+      <p>Đề tài NCKH học sinh năm 2026: Trang bị kiến thức, kỹ năng phòng chống đuối nước cho học sinh qua trải nghiệm tương tác trực quan.</p>
+    </div>
+  </div>
+
+  <h2><svg class="i3 hi"><use href="#c-qr"/></svg> Chia sẻ – mỗi QR mở một trang</h2>
+  <div class="grid cols-2-mobile" id="qrs"></div>
 </main>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="../assets/js/core/dom.js"></script>
 <script src="../assets/js/icons/sprite-line.js"></script>

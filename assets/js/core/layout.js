@@ -119,6 +119,16 @@
   };
 
   /* --- Nút nổi & Cửa sổ Trợ lý SafeBuddy AI toàn site --- */
+  if(!document.querySelector('link[rel~="icon"]')){
+    try{
+      const fav=document.createElement('link');
+      fav.rel='icon';
+      fav.type='image/svg+xml';
+      fav.href=SW.url('assets/img/favicon.svg');
+      document.head.appendChild(fav);
+    }catch(e){}
+  }
+
   if(!document.querySelector('meta[name="referrer"]')){
     try{
       const metaRef=document.createElement('meta');

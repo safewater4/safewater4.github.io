@@ -18,6 +18,8 @@
     theme=document.documentElement.dataset.nav==='trochoi'?'dark':'light';
   }
   document.documentElement.dataset.theme=theme;
+  document.documentElement.setAttribute('translate','no');
+  document.documentElement.classList.add('notranslate');
 
   /* [khóa data-nav, icon, nhãn, đường dẫn từ thư mục gốc] */
   const NAV=[
@@ -106,6 +108,8 @@
   themeToggle.onclick=()=>{
     theme=document.documentElement.dataset.theme==='dark'?'light':'dark';
     document.documentElement.dataset.theme=theme;
+  document.documentElement.setAttribute('translate','no');
+  document.documentElement.classList.add('notranslate');
     updateThemeToggle();
     try{
       localStorage.setItem(themeKey,theme);
@@ -660,4 +664,12 @@ PHẠM VI HỖ TRỢ ĐA LĨNH VỰC TOÀN DIỆN:
 
   /* Trên điện thoại, cuộn menu để mục đang chọn nằm giữa màn hình */
   const on=$('nav a.on');on&&on.scrollIntoView({inline:'center',block:'nearest'});
+
+  /* Nạp Trợ lý ảo Giọt nước SafeBuddy dùng chung cho toàn website */
+  if(!window.SafeBuddy && !document.querySelector('script[src*="safebuddy.js"]')){
+    const sbScript=document.createElement('script');
+    sbScript.src=SW.url('assets/js/safebuddy.js');
+    sbScript.defer=true;
+    document.body.appendChild(sbScript);
+  }
 })();

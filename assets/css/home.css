@@ -32,10 +32,7 @@
 @keyframes spin{to{transform:rotate(360deg)}}
 .cl{position:absolute;font-size:56px;opacity:.9;left:-90px;animation:dr 45s linear infinite}
 @keyframes dr{to{transform:translateX(1300px)}}
-.stage{display:grid;grid-template-columns:210px 1fr;gap:14px;align-items:center;margin-top:12px}
-@media(max-width:760px){
-  .stage{grid-template-columns:1fr}
-}
+.stage{display:block;margin-top:14px}
 .mc{text-align:center;cursor:pointer;user-select:none}
 .dol{font-size:104px;line-height:1;animation:bob 2.5s ease-in-out infinite;filter:drop-shadow(0 8px 6px #0a4a8a55)}
 @keyframes bob{50%{transform:translateY(-12px) rotate(-6deg)}}

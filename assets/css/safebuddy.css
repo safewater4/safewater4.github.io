@@ -1,0 +1,419 @@
+/* ============================================================
+   assets/css/safebuddy.css
+   Giao diện Trợ lý ảo Giọt nước SafeBuddy – SafeWater 4.0
+   ============================================================ */
+
+:root {
+  --sb-primary: #0a84d6;
+  --sb-primary-hover: #0284c7;
+  --sb-accent: #ff8a00;
+  --sb-accent-hover: #ea580c;
+  --sb-bg: #ffffff;
+  --sb-text: #0f172a;
+  --sb-sub: #475569;
+  --sb-border: #bae6fd;
+  --sb-shadow: 0 10px 25px -5px rgba(10, 132, 214, 0.22), 0 8px 10px -6px rgba(10, 132, 214, 0.15);
+}
+
+[data-theme="dark"] {
+  --sb-bg: #1e293b;
+  --sb-text: #f8fafc;
+  --sb-sub: #cbd5e1;
+  --sb-border: #0369a1;
+  --sb-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+}
+
+/* Khung chứa toàn bộ Trợ lý (cố định góc dưới bên trái) */
+.safebuddy-container {
+  position: fixed;
+  bottom: 24px;
+  left: 24px;
+  z-index: 998;
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  pointer-events: none; /* Chỉ cho phép tương tác với nhân vật & bong bóng */
+  font-family: 'Nunito', system-ui, -apple-system, sans-serif;
+  user-select: none;
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
+}
+
+.safebuddy-container * {
+  box-sizing: border-box;
+  pointer-events: auto;
+}
+
+/* ================= BONG BÓNG CHAT ================= */
+.safebuddy-bubble {
+  position: relative;
+  background: var(--sb-bg);
+  border: 2px solid var(--sb-border);
+  color: var(--sb-text);
+  border-radius: 20px;
+  padding: 12px 14px 10px 14px;
+  box-shadow: var(--sb-shadow);
+  max-width: 280px;
+  min-width: 220px;
+  transform-origin: bottom left;
+  animation: sb-pop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  transition: all 0.25s ease;
+}
+
+/* Đuôi bóng chat chỉ về phía nhân vật */
+.safebuddy-bubble::after {
+  content: "";
+  position: absolute;
+  bottom: 18px;
+  left: -9px;
+  width: 0;
+  height: 0;
+  border-top: 8px solid transparent;
+  border-bottom: 8px solid transparent;
+  border-right: 9px solid var(--sb-bg);
+  filter: drop-shadow(-2px 0 0 var(--sb-border));
+}
+
+/* Nút thu nhỏ / đóng bong bóng */
+.safebuddy-bubble-close {
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  background: transparent;
+  border: none;
+  font-size: 16px;
+  line-height: 1;
+  color: var(--sb-sub);
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: 50%;
+  opacity: 0.6;
+  transition: opacity 0.2s, transform 0.2s;
+}
+
+.safebuddy-bubble-close:hover {
+  opacity: 1;
+  transform: scale(1.15);
+  color: #ef4444;
+}
+
+/* Nội dung văn bản câu thoại */
+.safebuddy-text {
+  font-size: 14.5px;
+  line-height: 1.45;
+  font-weight: 700;
+  color: var(--sb-text);
+  margin-right: 14px;
+  margin-bottom: 8px;
+}
+
+/* Hiệu ứng nổi bật lấp lánh (dùng cho giới thiệu đầu tiên ở trang chủ) */
+.safebuddy-bubble.sb-highlight {
+  border-color: #38bdf8;
+  box-shadow: 0 0 25px rgba(56, 189, 248, 0.55), var(--sb-shadow);
+  animation: sb-pop 0.35s ease, sb-glow 2.5s infinite alternate;
+}
+.safebuddy-bubble.sb-highlight .safebuddy-text {
+  font-size: 15.5px;
+  color: #0369a1;
+}
+[data-theme="dark"] .safebuddy-bubble.sb-highlight .safebuddy-text {
+  color: #38bdf8;
+}
+
+/* Danh sách nút bấm hành động */
+.safebuddy-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.sb-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border-radius: 12px;
+  font-size: 13.5px;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  border: none;
+  transition: transform 0.15s, box-shadow 0.15s, background-color 0.2s;
+}
+
+.sb-btn:hover {
+  transform: translateY(-1.5px);
+}
+
+.sb-btn:active {
+  transform: translateY(0);
+}
+
+/* Nút chính nổi bật (xanh dương) */
+.sb-btn-primary {
+  background: linear-gradient(135deg, #0a84d6, #0284c7);
+  color: #ffffff !important;
+  box-shadow: 0 4px 10px rgba(10, 132, 214, 0.3);
+}
+.sb-btn-primary:hover {
+  background: linear-gradient(135deg, #0284c7, #0369a1);
+  box-shadow: 0 6px 14px rgba(10, 132, 214, 0.4);
+}
+
+/* Nút đặc biệt / nhấn mạnh (cam vàng) */
+.sb-btn-accent {
+  background: linear-gradient(135deg, #ff8a00, #ea580c);
+  color: #ffffff !important;
+  box-shadow: 0 4px 10px rgba(255, 138, 0, 0.35);
+}
+.sb-btn-accent:hover {
+  background: linear-gradient(135deg, #f97316, #c2410c);
+  box-shadow: 0 6px 14px rgba(255, 138, 0, 0.45);
+}
+
+/* Nút phụ / lựa chọn thứ 2 */
+.sb-btn-secondary {
+  background: #f1f5f9;
+  color: #334155 !important;
+  border: 1px solid #cbd5e1;
+}
+.sb-btn-secondary:hover {
+  background: #e2e8f0;
+}
+[data-theme="dark"] .sb-btn-secondary {
+  background: #334155;
+  color: #f1f5f9 !important;
+  border-color: #475569;
+}
+[data-theme="dark"] .sb-btn-secondary:hover {
+  background: #475569;
+}
+
+/* ================= NHÂN VẬT GIỌT NƯỚC ================= */
+.safebuddy-avatar {
+  width: 76px;
+  height: 90px;
+  cursor: pointer;
+  filter: drop-shadow(0 8px 12px rgba(6, 96, 158, 0.25));
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  flex-shrink: 0;
+  position: relative;
+}
+
+.safebuddy-avatar:hover {
+  transform: scale(1.1) translateY(-4px);
+}
+
+.safebuddy-avatar svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+/* Nhún nhảy nhẹ */
+.safebuddy-avatar.sb-anim-bob {
+  animation: sb-bob 3s ease-in-out infinite;
+}
+
+/* Chớp mắt */
+.sb-eye {
+  transform-origin: center;
+  animation: sb-blink 4s infinite;
+}
+
+/* Vẫy phao cứu sinh */
+.sb-lifebuoy {
+  transform-origin: 60px 126px;
+  transition: transform 0.3s ease;
+}
+.safebuddy-avatar:hover .sb-lifebuoy {
+  animation: sb-wiggle 0.8s ease-in-out infinite alternate;
+}
+
+/* Biểu cảm ăn mừng khi hoàn thành */
+.safebuddy-avatar.sb-celebrating {
+  animation: sb-jump 0.6s ease infinite alternate;
+}
+
+/* ================= TRẠNG THÁI THU NHỎ (MINIMIZED) ================= */
+.safebuddy-container.sb-minimized .safebuddy-bubble {
+  display: none !important;
+}
+
+.safebuddy-container.sb-minimized .safebuddy-avatar {
+  width: 52px;
+  height: 60px;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+}
+
+/* Huy hiệu gợi ý khi đang thu nhỏ */
+.sb-mini-badge {
+  display: none;
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 14px;
+  height: 14px;
+  background: #ff5a5f;
+  border: 2px solid #ffffff;
+  border-radius: 50%;
+  animation: sb-pulse 1.5s infinite;
+}
+.safebuddy-container.sb-minimized .sb-mini-badge {
+  display: block;
+}
+
+/* ================= ẨN HOÀN TOÀN ================= */
+.safebuddy-hidden {
+  display: none !important;
+}
+
+/* ================= HIỆU ỨNG BAY TỪ TRÊN XUỐNG LIÊN TỤC KHÔNG DỪNG ================= */
+.safebuddy-container.safebuddy-flying {
+  will-change: transform, opacity;
+  animation: sb-drop-down 1.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  pointer-events: none !important;
+}
+
+.safebuddy-container.safebuddy-flying .safebuddy-avatar {
+  will-change: transform;
+  animation: sb-drop-squash 1.8s ease-out forwards !important;
+}
+
+.safebuddy-container.safebuddy-flying .sb-lifebuoy {
+  animation: sb-wiggle 0.2s ease-in-out infinite alternate !important;
+}
+
+.safebuddy-container.safebuddy-flying .safebuddy-bubble {
+  animation: none !important;
+  transform: scale(0.96);
+  border-color: #38bdf8;
+  box-shadow: 0 0 20px rgba(56, 189, 248, 0.6), var(--sb-shadow);
+  will-change: transform;
+}
+
+/* Rơi / bay mượt mà từ trên đỉnh màn hình thẳng xuống vị trí góc dưới bên trái không dừng */
+@keyframes sb-drop-down {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, -100vh, 0);
+  }
+  20% {
+    opacity: 1;
+  }
+  88% {
+    transform: translate3d(0, 0, 0);
+  }
+  94% {
+    transform: translate3d(0, -10px, 0);
+  }
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+/* Hiệu ứng nhún nẩy (squash & stretch) tiếp đất như giọt nước */
+@keyframes sb-drop-squash {
+  0% {
+    transform: scale(0.92, 1.12);
+  }
+  86% {
+    transform: scale(0.95, 1.08);
+  }
+  91% {
+    transform: scale(1.15, 0.85);
+  }
+  96% {
+    transform: scale(0.98, 1.03);
+  }
+  100% {
+    transform: scale(1, 1);
+  }
+}
+
+/* ================= HIỆU ỨNG ANIMATIONS ================= */
+@keyframes sb-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.7) translateY(12px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes sb-bob {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes sb-jump {
+  0% {
+    transform: translateY(0) scale(1, 1);
+  }
+  100% {
+    transform: translateY(-18px) scale(0.95, 1.05);
+  }
+}
+
+@keyframes sb-wiggle {
+  0% { transform: rotate(-8deg); }
+  100% { transform: rotate(8deg); }
+}
+
+@keyframes sb-blink {
+  0%, 96%, 100% { transform: scaleY(1); }
+  98% { transform: scaleY(0.1); }
+}
+
+@keyframes sb-glow {
+  0% {
+    box-shadow: 0 0 12px rgba(56, 189, 248, 0.4), var(--sb-shadow);
+  }
+  100% {
+    box-shadow: 0 0 24px rgba(56, 189, 248, 0.75), var(--sb-shadow);
+  }
+}
+
+@keyframes sb-pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.3); opacity: 0.8; }
+}
+
+/* ================= ĐÁP ỨNG THIẾT BỊ DI ĐỘNG (MOBILE) ================= */
+@media (max-width: 640px) {
+  .safebuddy-container {
+    bottom: 14px;
+    left: 12px;
+    gap: 8px;
+  }
+  
+  .safebuddy-avatar {
+    width: 60px;
+    height: 72px;
+  }
+
+  .safebuddy-bubble {
+    max-width: calc(100vw - 100px);
+    min-width: 190px;
+    padding: 10px 12px;
+  }
+
+  .safebuddy-text {
+    font-size: 13.5px;
+    margin-bottom: 6px;
+  }
+
+  .sb-btn {
+    padding: 7px 10px;
+    font-size: 12.5px;
+  }
+}

@@ -2,7 +2,7 @@
    status:'play' = đã có; 'soon' = khung chờ phát triển.
    page   = tên file trong thư mục tro-choi/ (hoặc đường dẫn từ thư mục gốc nếu bắt đầu bằng "../") */
 SW.data.games=[
-  {icon:'🌊',glyph:'wave',title:'Mô phỏng đuối nước',sub:'Phản ứng đúng cách khi gặp sự cố',tag:'SẮP CÓ',page:'mo-phong-duoi-nuoc.html',status:'soon'},
+  {icon:'🚁',glyph:'wave',title:'Biệt đội cứu hộ cao nguyên',sub:'Phiêu lưu 3D & kỹ năng phòng chống đuối nước',tag:'3D MỚI',page:'biet-doi-cuu-ho-cao-nguyen.html',status:'play'},
   {icon:'🛡️',glyph:'mountain',title:'Đội viên tuần tra an toàn',sub:'Nhập vai tuần tra, phát hiện nguy hiểm và giúp người dân',tag:'PHỔ BIẾN',page:'doi-vien-tuan-tra-an-toan.html',status:'play'},
   {icon:'⏱️',glyph:'clock',title:'Nhận diện tình huống nhanh',sub:'10 giây – một quyết định – một cuộc đời',tag:'THÁCH THỨC',page:'nhan-dien-tinh-huong.html',status:'play'},
   {icon:'🔢',glyph:'steps',title:'Xử lý tình huống đúng thứ tự',sub:'Sắp xếp bước cứu người chuẩn xác',tag:'LOGIC',page:'xu-ly-tinh-huong.html',status:'play'},

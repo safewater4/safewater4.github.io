@@ -11,6 +11,7 @@
 <link rel="stylesheet" href="../assets/css/base.css">
 <link rel="stylesheet" href="../assets/css/layout.css">
 <link rel="stylesheet" href="../assets/css/components.css">
+<link rel="stylesheet" href="../assets/css/leaderboard.css">
 <style>
 /* ================= BỐ CỤC 2 CỘT ================= */
 .two-col-layout {
@@ -184,242 +185,13 @@
   font-weight: 700;
 }
 
-/* ================= BẢNG VÀNG & BỤC PODIUM THỂ THAO ĐỈNH CAO ================= */
+/* Sidebar Leaderboard */
 .sidebar-leaderboard {
   position: sticky;
   top: 86px;
 }
-.leaderboard-card-premium {
-  background: #ffffff;
-  border: 2px solid #cfe3f3;
-  border-radius: 26px;
-  padding: 22px 18px;
-  box-shadow: 0 16px 44px rgba(10, 132, 214, 0.09);
-}
-.lb-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding-bottom: 14px;
-  border-bottom: 2px solid #f0f4f8;
-  margin-bottom: 16px;
-}
-.lb-header h3 {
-  margin: 0;
-  font-size: 19px;
-  font-family: "Baloo 2", Nunito, sans-serif;
-  font-weight: 800;
-  color: var(--tx);
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.live-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 11px;
-  font-weight: 800;
-  color: #1a9f5a;
-  background: #e8f5e9;
-  padding: 3px 9px;
-  border-radius: 12px;
-}
-.live-badge::before {
-  content: "";
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #1a9f5a;
-  animation: blink 1.2s infinite;
-}
-@keyframes blink { 50% { opacity: 0.3; } }
-
-/* KHỐI BỤC PODIUM 3D ĐẲNG CẤP */
-.podium-stage {
-  display: grid;
-  grid-template-columns: 1fr 1.15fr 1fr;
-  gap: 8px;
-  align-items: end;
-  margin-bottom: 24px;
-  padding: 10px 4px 0;
-}
-
-.podium-col {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-}
-
-/* Thẻ thí sinh trên bục */
-.podium-avatar-wrap {
-  position: relative;
-  margin-bottom: 6px;
-}
-.podium-crown {
-  font-size: 34px;
-  line-height: 1;
-  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.15));
-  transition: transform 0.2s;
-}
-.podium-col:hover .podium-crown {
-  transform: scale(1.15) rotate(-5deg);
-}
-
-.podium-user-name {
-  font-family: "Baloo 2", Nunito, sans-serif;
-  font-size: 13.5px;
-  font-weight: 800;
-  color: var(--tx);
-  line-height: 1.25;
-  margin-bottom: 3px;
-  word-break: break-word;
-  max-width: 110px;
-}
-
-.podium-user-class {
-  display: inline-block;
-  font-size: 10.5px;
-  font-weight: 700;
-  padding: 1px 7px;
-  border-radius: 8px;
-  margin-bottom: 8px;
-  background: rgba(0,0,0,0.05);
-  color: var(--mu);
-}
-
-/* Trụ Bục Đứng (Podium Base) */
-.podium-base {
-  width: 100%;
-  border-radius: 14px 14px 6px 6px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  color: #fff;
-  font-family: "Baloo 2", Nunito, sans-serif;
-  font-weight: 800;
-  box-shadow: 0 8px 18px rgba(0,0,0,0.12);
-  position: relative;
-  border: 2px solid #ffffff;
-}
-.podium-base .rank-num {
-  font-size: 26px;
-  line-height: 1;
-}
-.podium-base .score-val {
-  font-size: 13px;
-  font-weight: 700;
-  background: rgba(0,0,0,0.25);
-  padding: 2px 8px;
-  border-radius: 10px;
-  margin-top: 4px;
-}
-
-/* Chiều cao & Màu sắc từng Bục */
-.podium-col.rank-2 { order: 1; }
-.podium-col.rank-2 .podium-base {
-  height: 95px;
-  background: linear-gradient(145deg, #a0aec0, #718096);
-  border-color: #e2e8f0;
-}
-.podium-col.rank-2 .podium-crown { font-size: 32px; }
-
-.podium-col.rank-1 { order: 2; }
-.podium-col.rank-1 .podium-base {
-  height: 125px;
-  background: linear-gradient(145deg, #fbbf24, #d97706);
-  border-color: #fef3c7;
-  box-shadow: 0 10px 24px rgba(217, 119, 6, 0.35);
-}
-.podium-col.rank-1 .podium-crown { font-size: 42px; }
-.podium-col.rank-1 .podium-user-name {
-  font-size: 14.5px;
-  color: #b45309;
-}
-
-.podium-col.rank-3 { order: 3; }
-.podium-col.rank-3 .podium-base {
-  height: 80px;
-  background: linear-gradient(145deg, #fb923c, #c2410c);
-  border-color: #ffedd5;
-}
-.podium-col.rank-3 .podium-crown { font-size: 30px; }
-
-/* DANH SÁCH THỨ HẠNG TỪ TOP 4 TRỞ ĐI (KHÔNG TRÙNG LẶP, KHÔNG SCROLL) */
-.lb-section-title {
-  font-size: 13px;
-  font-weight: 800;
-  color: var(--mu);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: 8px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.lb-list {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-.lb-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 9px 12px;
-  border-radius: 12px;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  transition: all 0.2s;
-}
-.lb-item:hover {
-  background: #ffffff;
-  border-color: var(--pr);
-  transform: translateX(3px);
-  box-shadow: 0 4px 12px rgba(10, 132, 214, 0.08);
-}
-.lb-item-left {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  overflow: hidden;
-}
-.lb-rank {
-  font-weight: 800;
-  font-size: 12.5px;
-  color: var(--mu);
-  min-width: 20px;
-  text-align: center;
-  background: #edf2f7;
-  padding: 2px 6px;
-  border-radius: 6px;
-}
-.lb-info {
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-.lb-name {
-  font-weight: 700;
-  font-size: 13px;
-  color: var(--tx);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.lb-meta {
-  font-size: 11px;
-  color: var(--mu);
-}
-.lb-score-tag {
-  font-weight: 800;
-  color: var(--pr);
-  font-size: 13.5px;
-  flex-shrink: 0;
-  text-align: right;
-  line-height: 1.2;
+.sidebar-leaderboard .podium-stage {
+  min-height: 230px;
 }
 
 .hp-field { opacity: 0; position: absolute; top: 0; left: 0; height: 0; width: 0; z-index: -1; }
@@ -509,8 +281,14 @@
     <div class="sidebar-leaderboard">
       <div class="leaderboard-card-premium">
         <div class="lb-header">
-          <h3>🏆 Bảng Vàng Vinh Danh</h3>
-          <span class="live-badge">Trực tiếp</span>
+          <div class="lb-header-title">
+            <div class="lb-trophy-badge"><span class="trophy-bounce">🏆</span></div>
+            <div>
+              <h3>Bảng Vàng Vinh Danh</h3>
+              <p class="lb-sub">Trực tiếp từ hệ thống thi</p>
+            </div>
+          </div>
+          <span class="live-badge"><span class="live-pulse"></span>Trực tiếp</span>
         </div>
 
         <!-- Bục Vinh Quang 1 - 2 - 3 Giật Cấp -->
@@ -537,6 +315,8 @@
 <script src="../assets/js/icons/sprite-3d.js"></script>
 <script src="../assets/js/core/icons.js"></script>
 <script src="../assets/js/core/layout.js"></script>
+<script src="../assets/js/vendor/confetti.browser.min.js"></script>
+<script src="../assets/js/data/leaderboard.js"></script>
 <script src="../assets/js/data/quiz-bank.js"></script>
 <script src="../assets/js/pages/kiem-tra.js"></script>
 </body>

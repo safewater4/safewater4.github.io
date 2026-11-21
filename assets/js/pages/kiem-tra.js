@@ -2,7 +2,6 @@
 (function(){
   const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxihBfQUHiQj6M0TXon-6ufZxjt6a9Lre-jeO3fvsNiE2EwlzTN71Gi2n3V7A6Q8hl3/exec';
   const BANK = window.SW.data.quizBank;
-  const LB_KEY = 'sw_leaderboard_records_v1';
 
   let currentQuestions = [];
   let userAnswers = [];
@@ -50,7 +49,7 @@
 
   /* ---- Bắt đầu làm bài thi ---- */
   function startQuiz() {
-    const BANK = window.SW.data.quizBank;
+    const bankData = window.SW.data.quizBank || BANK;
     const name = $('#inp-name').value.trim();
     const cls = $('#inp-class').value.trim();
     const school = $('#inp-school').value.trim();
@@ -71,7 +70,6 @@
     candidate = { name, cls, school, ward, prov };
 
     // Rút chuẩn ma trận: 5 Nhận biết + 3 Thông hiểu + 2 Vận dụng
-    const bankData = window.SW.data.quizBank || BANK;
     if (!bankData || !bankData.nhanBiet) {
       alert('Không tìm thấy dữ liệu ngân hàng câu hỏi. Vui lòng tải lại trang!');
       return;
@@ -201,7 +199,12 @@
       Thời gian làm bài: <b>${elapsedSeconds} giây</b>.
     `;
 
-    // Lưu vào Bảng xếp hạng LocalStorage
+    // Pháo hoa chúc mừng hoàn thành bài thi
+    if (window.confetti) {
+      window.confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 } });
+    }
+
+    // Lưu vào Bảng xếp hạng
     const record = {
       name: candidate.name,
       cls: candidate.cls,
@@ -209,11 +212,15 @@
       ward: candidate.ward,
       prov: candidate.prov,
       score: totalScore,
+      correct: `${correctCount}/10`,
+      elapsed: `${elapsedSeconds}s`,
       timeSeconds: elapsedSeconds,
       timestamp: new Date().toLocaleDateString('vi-VN')
     };
 
-    saveLeaderboard(record);
+    if (window.SW && window.SW.leaderboard) {
+      window.SW.leaderboard.saveLeaderboard(record);
+    }
     renderLeaderboard();
 
     // Honeypot check chống spam bot
@@ -258,39 +265,35 @@
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  async function getLeaderboard() {
-    // 1. Thử kéo từ Google Sheets trước
-    if (GOOGLE_SCRIPT_URL) {
-      try {
-        const res = await fetch(GOOGLE_SCRIPT_URL);
-        const data = await res.json();
-        if (Array.isArray(data) && data.length > 0) {
-          localStorage.setItem(LB_KEY, JSON.stringify(data));
-          return data;
-        }
-      } catch(e) {
-        console.warn('Đang dùng cache do chưa load được Sheets:', e);
-      }
-    }
-    // 2. Dự phòng LocalStorage
-    try {
-      const cached = JSON.parse(localStorage.getItem(LB_KEY));
-      if (Array.isArray(cached)) return cached;
-    } catch(e) {}
-    return [];
+  function fireConfetti(colType = 'gold') {
+    if (!window.confetti) return;
+    let colors = ['#fbbf24', '#f59e0b', '#0a84d6', '#00b4d8', '#ffffff'];
+    if (colType === 'silver') colors = ['#94a3b8', '#cbd5e1', '#0a84d6', '#ffffff'];
+    if (colType === 'bronze') colors = ['#ea580c', '#fdba74', '#0a84d6', '#ffffff'];
+    window.confetti({ particleCount: 50, spread: 60, origin: { y: 0.65 }, colors });
   }
 
-  function saveLeaderboard(newRecord) {
-    // Lưu tạm vào LocalStorage để phản hồi lập tức
-    let list = [];
-    try { list = JSON.parse(localStorage.getItem(LB_KEY)) || []; } catch(e) {}
-    list.push(newRecord);
-    list.sort((a, b) => b.score - a.score || a.timeSeconds - b.timeSeconds);
-    try { localStorage.setItem(LB_KEY, JSON.stringify(list)); } catch(e) {}
+  function animateCounter(el, target, suffix = '') {
+    if (!el) return;
+    const duration = 1200;
+    const startTime = performance.now();
+    function update(time) {
+      const elapsed = time - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      const current = Math.round(target * eased);
+      el.textContent = `${current}${suffix}`;
+      if (progress < 1) requestAnimationFrame(update);
+      else el.textContent = `${target}${suffix}`;
+    }
+    requestAnimationFrame(update);
   }
 
   async function renderLeaderboard() {
-    const list = await getLeaderboard();
+    let list = [];
+    if (window.SW && window.SW.leaderboard) {
+      list = await window.SW.leaderboard.getLeaderboard();
+    }
     const podiumEl = $('#podium-area');
     const tableBody = $('#lb-table-body');
 
@@ -302,7 +305,7 @@
 
       podiumEl.innerHTML = `
         <!-- HẠNG 2 (BẠC) -->
-        <div class="podium-col rank-2">
+        <div class="podium-col rank-2" id="sidebar-podium-2" title="Chúc mừng Hạng Nhì: ${top2.name}">
           <div class="podium-avatar-wrap">
             <div class="podium-crown">🥈</div>
           </div>
@@ -310,25 +313,30 @@
           <span class="podium-user-class">${top2.cls || '-'}</span>
           <div class="podium-base">
             <span class="rank-num">2</span>
-            <span class="score-val">${top2.score}đ</span>
+            <span class="score-val" id="sidebar-score-2">${top2.score}đ</span>
           </div>
         </div>
 
         <!-- HẠNG 1 (VÀNG) -->
-        <div class="podium-col rank-1">
+        <div class="podium-col rank-1" id="sidebar-podium-1" title="Quán quân SafeWater: ${top1.name} (Chạm để bắn pháo hoa)">
           <div class="podium-avatar-wrap">
+            <div class="sparkle-container">
+              <span class="sparkle sp-1">✨</span>
+              <span class="sparkle sp-2">⭐</span>
+              <span class="sparkle sp-3">🌟</span>
+            </div>
             <div class="podium-crown">👑</div>
           </div>
           <div class="podium-user-name">${top1.name}</div>
           <span class="podium-user-class">${top1.cls || '-'}</span>
           <div class="podium-base">
             <span class="rank-num">1</span>
-            <span class="score-val">${top1.score}đ</span>
+            <span class="score-val" id="sidebar-score-1">${top1.score}đ</span>
           </div>
         </div>
 
         <!-- HẠNG 3 (ĐỒNG) -->
-        <div class="podium-col rank-3">
+        <div class="podium-col rank-3" id="sidebar-podium-3" title="Chúc mừng Hạng Ba: ${top3.name}">
           <div class="podium-avatar-wrap">
             <div class="podium-crown">🥉</div>
           </div>
@@ -336,16 +344,24 @@
           <span class="podium-user-class">${top3.cls || '-'}</span>
           <div class="podium-base">
             <span class="rank-num">3</span>
-            <span class="score-val">${top3.score}đ</span>
+            <span class="score-val" id="sidebar-score-3">${top3.score}đ</span>
           </div>
         </div>
       `;
+
+      animateCounter($('#sidebar-score-1'), top1.score, 'đ');
+      animateCounter($('#sidebar-score-2'), top2.score, 'đ');
+      animateCounter($('#sidebar-score-3'), top3.score, 'đ');
+
+      $('#sidebar-podium-1').onclick = () => fireConfetti('gold');
+      $('#sidebar-podium-2').onclick = () => fireConfetti('silver');
+      $('#sidebar-podium-3').onclick = () => fireConfetti('bronze');
     }
 
-    // 2. Render Danh sách bảng từ HẠNG 4 TRỞ ĐI (KHÔNG LẶP LẠI TOP 3)
+    // 2. Render Danh sách bảng từ HẠNG 4 TRỞ ĐI
     if (tableBody) {
-      const listFrom4 = list.slice(3); // Bỏ qua 3 người đầu
-      const displayList = showAllLeaderboard ? listFrom4 : listFrom4.slice(0, 7); // Mặc định hiện Top 4 đến 10 (7 người)
+      const listFrom4 = list.slice(3);
+      const displayList = showAllLeaderboard ? listFrom4 : listFrom4.slice(0, 7);
 
       if (displayList.length === 0) {
         tableBody.innerHTML = `<div style="text-align:center;padding:14px;color:var(--mu);font-size:13px">Chưa có thêm thí sinh nào khác.</div>`;
@@ -353,10 +369,11 @@
       }
 
       tableBody.innerHTML = displayList.map((item, index) => {
-        const actualRank = index + 4; // Bắt đầu từ số 4
+        const actualRank = index + 4;
+        const delay = index * 40;
 
         return `
-          <div class="lb-item">
+          <div class="lb-item" style="animation-delay:${delay}ms">
             <div class="lb-item-left">
               <span class="lb-rank">#${actualRank}</span>
               <div class="lb-info">
@@ -366,7 +383,7 @@
             </div>
             <div class="lb-score-tag">
               <div>${item.score}đ</div>
-              <div style="font-size:10.5px;color:var(--mu);font-weight:normal">${item.elapsed || item.timeSeconds + 's'}</div>
+              <div class="lb-time-meta">⏱️ ${item.elapsed || (item.timeSeconds ? item.timeSeconds + 's' : '90s')}</div>
             </div>
           </div>
         `;

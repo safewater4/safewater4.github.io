@@ -2,10 +2,10 @@
    base.css – Nền tảng: biến màu, reset, chữ, nền trang, icon cơ bản
    ========================================================== */
 
-:root{--bg:#f2f9ff;--card:#fff;--tx:#0b2540;--mu:#4b6580;--pr:#0a84d6;--ac:#ff8a00;--rd:#e5383b;--gn:#1a9f5a;--bd:#cfe3f3;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+:root{--bg:#f2f9ff;--card:#fff;--tx:#0b2540;--mu:#4b6580;--pr:#0a84d6;--ac:#ff8a00;--rd:#e5383b;--gn:#1a9f5a;--bd:#cfe3f3;box-sizing:border-box}
 :root[data-theme=dark]{--bg:#0a1a2b;--card:#12304a;--tx:#e8f3ff;--mu:#9bb7d1;--pr:#4db3ff;--bd:#25506f}
 *{box-sizing:border-box}
-html{scroll-padding-top:env(safe-area-inset-top,0px)}
+html{scroll-padding-top:70px}
 body{margin:0;font:16px/1.5 system-ui,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--tx)}
 h1,h2,h3{margin:.4em 0}
 .mu{color:var(--mu)}

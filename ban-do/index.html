@@ -15,7 +15,21 @@
 <body>
 <!-- Header, menu, nút SOS và footer do assets/js/core/layout.js dựng tự động -->
 <main>
-<h1><svg class="i3 hi"><use href="#c-pin"/></svg> Bản đồ khu vực nguy hiểm</h1><p class="mu">Nhúng bản đồ dạng embed (thay link bằng Google My Maps của đề tài).</p><iframe title="Bản đồ" style="width:100%;height:380px;border:1px solid var(--bd);border-radius:16px" src="https://www.openstreetmap.org/export/embed.html?bbox=105.7,20.9,105.95,21.1&layer=mapnik"></iframe><div class="grid" style="margin-top:10px"><div class="card">🔴 Nguy cơ cao: sông, hồ không rào</div><div class="card">🟠 Trung bình: ao làng, kênh</div><div class="card">🟢 An toàn: bể bơi có cứu hộ</div></div>
+<h1><svg class="i3 hi"><use href="#c-pin"/></svg> Bản đồ khu vực nguy hiểm</h1>
+<p class="mu">Bản đồ các vị trí có nguy cơ đuối nước, điểm cảnh báo nước sâu và các địa điểm bơi an toàn.</p>
+<div style="position:relative;width:100%;border-radius:16px;overflow:hidden;box-shadow:0 6px 18px rgba(0,0,0,0.08);border:1px solid var(--bd);background:var(--bg2,#f8fafc)">
+  <iframe title="Bản đồ khu vực nguy hiểm" src="https://www.google.com/maps/d/u/0/embed?mid=1Lbbsy4Bo-yX7HeJ-1V5u0YChwOgMpcg&ehbc=2E312F" width="640" height="480" style="width:100%;height:520px;border:0;display:block" allowfullscreen loading="lazy"></iframe>
+</div>
+<div style="display:flex;justify-content:flex-end;margin-top:10px">
+  <a class="b" href="https://www.google.com/maps/d/u/0/viewer?mid=1Lbbsy4Bo-yX7HeJ-1V5u0YChwOgMpcg" target="_blank" rel="noopener noreferrer" style="font-size:14px;padding:6px 16px;display:inline-flex;align-items:center;gap:6px">
+    <span>Mở bản đồ toàn màn hình ↗</span>
+  </a>
+</div>
+<div class="grid" style="margin-top:14px">
+  <div class="card">🔴 <b>Nguy cơ cao:</b> sông, suối sâu, hồ đập không có rào chắn</div>
+  <div class="card">🟠 <b>Trung bình:</b> ao hồ nhỏ, kênh mương, hố nước sâu</div>
+  <div class="card">🟢 <b>An toàn:</b> bể bơi có phao cứu sinh và người giám sát</div>
+</div>
 </main>
 <script src="../assets/js/core/dom.js"></script>
 <script src="../assets/js/icons/sprite-line.js"></script>

@@ -2,7 +2,7 @@
    layout.css – Khung trang dùng chung: header, menu, nút SOS, hộp thoại, footer, lưới .grid/.split
    ========================================================== */
 
-header{position:sticky;top:env(safe-area-inset-top,0px);z-index:9;display:flex;align-items:center;gap:8px;padding:8px 14px;background:var(--pr);color:#fff;flex-wrap:wrap}
+header{position:-webkit-sticky;position:sticky;top:0;z-index:99;display:flex;align-items:center;gap:8px;padding:8px 14px;background:var(--pr);color:#fff;flex-wrap:wrap}
 .logo{font-weight:800;font-size:20px;cursor:pointer}
 nav{display:flex;gap:2px;flex-wrap:wrap;flex:1}
 nav a{background:none;border:0;color:#fff;padding:6px 10px;border-radius:8px;cursor:pointer;font:inherit;font-size:14px}

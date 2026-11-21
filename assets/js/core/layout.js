@@ -24,8 +24,8 @@
     ['home','home','Trang chủ','index.html'],
     ['kienthuc','book','Kiến thức','kien-thuc/index.html'],
     ['trochoi','game','Trò chơi','tro-choi/index.html'],
-    ['kiemtra','shield','Kiểm tra','kiem-tra/index.html'],
     ['bando','pin','Bản đồ','ban-do/index.html'],
+    ['kiemtra','shield','Kiểm tra','kiem-tra/index.html'],
     ['khaosat','clip','Khảo sát','khao-sat/index.html'],
     ['gioithieu','info','Giới thiệu','gioi-thieu/index.html']
   ];

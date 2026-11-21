@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Khảo sát – SafeWater</title>
+<title>Khảo sát nhận thức & kỹ năng – SafeWater</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -12,27 +12,44 @@
 <link rel="stylesheet" href="../assets/css/layout.css">
 <link rel="stylesheet" href="../assets/css/components.css">
 <style>
-/* ================= KHẢO SÁT DUY NHẤT SAU KHI XEM ================= */
+/* ================= PHIẾU KHẢO SÁT CHUẨN SAFENET 4.0 ================= */
 .survey-header-box {
   background: linear-gradient(135deg, rgba(10, 132, 214, 0.12), rgba(0, 180, 216, 0.05));
   border: 1px solid rgba(10, 132, 214, 0.2);
   border-radius: 20px;
-  padding: 20px 24px;
+  padding: 24px 28px;
   margin-bottom: 24px;
 }
+.survey-header-box .badge-stage {
+  display: inline-block;
+  background: var(--pr);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 30px;
+  margin-bottom: 10px;
+  letter-spacing: 0.3px;
+}
 .survey-header-box h1 {
-  margin: 0;
+  margin: 0 0 6px;
   font-size: clamp(22px, 3.5vw, 28px);
   color: var(--tx);
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
 }
-.survey-header-box p {
-  margin: 6px 0 0;
+.survey-header-box .survey-subtitle {
+  margin: 0 0 10px;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--pr);
+}
+.survey-header-box p.intro-text {
+  margin: 0;
   color: var(--mu);
   font-size: 15px;
-  line-height: 1.5;
+  line-height: 1.6;
 }
 
 /* Khung nội dung khảo sát */
@@ -40,35 +57,55 @@
   background: var(--card);
   border: 1px solid var(--bd);
   border-radius: 24px;
-  padding: 26px;
+  padding: 28px;
   box-shadow: 0 10px 30px rgba(0,0,0,0.04);
 }
 
-.panel-banner {
+/* Tiêu đề phân đoạn (Phần A, B, C) */
+.section-heading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+  border-radius: 16px;
+  font-weight: 800;
+  font-size: 17px;
+  margin: 26px 0 18px;
+  background: rgba(10, 132, 214, 0.08);
+  color: var(--pr);
+  border-left: 5px solid var(--pr);
+}
+.section-heading:first-of-type {
+  margin-top: 0;
+}
+
+/* Tiêu chí banner */
+.tc-banner {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 12px 18px;
-  border-radius: 14px;
+  background: linear-gradient(90deg, rgba(0, 180, 216, 0.12), transparent);
+  border-left: 4px solid #00b4d8;
+  padding: 10px 16px;
+  border-radius: 12px;
+  margin: 24px 0 14px;
   font-weight: 700;
-  font-size: 14.5px;
-  margin-bottom: 22px;
-  background: rgba(10, 132, 214, 0.08);
-  color: #0a84d6;
-  border-left: 4px solid #0a84d6;
+  font-size: 15.5px;
+  color: var(--tx);
 }
 
 /* Khối câu hỏi */
 .q-card {
   background: var(--bg);
-  border: 1px solid var(--bd);
+  border: 1.5px solid var(--bd);
   border-radius: 18px;
   padding: 20px;
   margin-bottom: 18px;
-  transition: border-color 0.2s;
+  transition: all 0.2s ease;
 }
 .q-card:focus-within {
   border-color: var(--pr);
+  box-shadow: 0 4px 14px rgba(10, 132, 214, 0.12);
 }
 .q-card-head {
   display: flex;
@@ -78,7 +115,7 @@
 }
 .q-num {
   font-family: "Baloo 2", Nunito, sans-serif;
-  font-size: 15px;
+  font-size: 14.5px;
   font-weight: 800;
   background: var(--card);
   border: 1px solid var(--bd);
@@ -90,20 +127,25 @@
 .q-card-head b {
   font-size: 16px;
   color: var(--tx);
-  line-height: 1.45;
+  line-height: 1.5;
 }
 
-/* Danh sách đáp án */
+/* Danh sách đáp án radio / checkbox */
 .q-options {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 9px;
+}
+.q-options.grid-opts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 10px;
 }
 .q-opt-label {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 13px 18px;
+  padding: 12px 16px;
   border-radius: 14px;
   border: 1.5px solid var(--bd);
   background: var(--card);
@@ -116,9 +158,10 @@
 .q-opt-label:hover {
   border-color: var(--pr);
   background: rgba(10, 132, 214, 0.04);
-  transform: translateX(3px);
+  transform: translateX(2px);
 }
-.q-opt-label input[type="radio"] {
+.q-opt-label input[type="radio"],
+.q-opt-label input[type="checkbox"] {
   appearance: none;
   -webkit-appearance: none;
   width: 19px;
@@ -132,6 +175,9 @@
   transition: 0.2s;
   cursor: pointer;
 }
+.q-opt-label input[type="checkbox"] {
+  border-radius: 6px;
+}
 .q-opt-label input[type="radio"]::before {
   content: "";
   width: 9px;
@@ -141,15 +187,28 @@
   transition: 0.15s transform ease-in-out;
   box-shadow: inset 1em 1em var(--pr);
 }
-.q-opt-label input[type="radio"]:checked {
-  border-color: var(--pr);
+.q-opt-label input[type="checkbox"]::before {
+  content: "✓";
+  font-size: 13px;
+  font-weight: 800;
+  color: #fff;
+  transform: scale(0);
+  transition: 0.15s transform ease-in-out;
 }
-.q-opt-label input[type="radio"]:checked::before {
+.q-opt-label input:checked {
+  border-color: var(--pr);
+  background-color: var(--pr);
+}
+.q-opt-label input[type="radio"]:checked {
+  background-color: var(--card);
+}
+.q-opt-label input[type="radio"]:checked::before,
+.q-opt-label input[type="checkbox"]:checked::before {
   transform: scale(1);
 }
 .q-opt-label.selected {
   border-color: var(--pr);
-  background: rgba(10, 132, 214, 0.07);
+  background: rgba(10, 132, 214, 0.08);
   font-weight: 600;
 }
 .q-opt-label.off {
@@ -157,41 +216,70 @@
   opacity: 0.75;
 }
 
+/* Ô nhập chữ */
+.survey-input-text {
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 1.5px solid var(--bd);
+  background: var(--card);
+  color: var(--tx);
+  font-size: 15px;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+.survey-input-text:focus {
+  border-color: var(--pr);
+}
+.survey-textarea {
+  min-height: 90px;
+  resize: vertical;
+}
+.inline-other-wrap {
+  margin-top: 8px;
+}
+
 /* Khu vực Nút hành động */
 .survey-action-bar {
-  margin-top: 24px;
-  padding-top: 18px;
+  margin-top: 28px;
+  padding-top: 20px;
   border-top: 1px dashed var(--bd);
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 12px;
+  gap: 16px;
 }
 .btn-submit {
   font-family: "Baloo 2", Nunito, sans-serif;
-  font-size: 16px;
-  font-weight: 700;
-  padding: 12px 28px;
+  font-size: 16.5px;
+  font-weight: 800;
+  padding: 14px 34px;
   border-radius: 14px;
   border: 0;
   color: #fff;
   cursor: pointer;
   transition: all 0.2s;
   background: linear-gradient(135deg, #0a84d6, #00b4d8);
-  box-shadow: 0 4px 14px rgba(10, 132, 214, 0.35);
+  box-shadow: 0 4px 16px rgba(10, 132, 214, 0.35);
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
 }
-.btn-submit:hover {
+.btn-submit:hover:not(:disabled) {
   filter: brightness(1.08);
   transform: translateY(-2px);
+}
+.btn-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 .btn-redo {
   font-family: "Baloo 2", Nunito, sans-serif;
   font-size: 15px;
   font-weight: 700;
-  padding: 10px 20px;
+  padding: 11px 22px;
   border-radius: 12px;
   background: transparent;
   border: 1.5px solid var(--bd);
@@ -204,15 +292,70 @@
   color: var(--pr);
 }
 
-/* Thẻ kết quả tổng quan */
-#kres {
-  margin-top: 20px;
-  border-radius: 18px;
-  padding: 18px 22px;
-  font-size: 16px;
-  text-align: center;
-  border: 1px solid var(--bd);
+/* Bảng kết quả tổng hợp sau khi nộp */
+.result-card {
+  margin-top: 24px;
+  border-radius: 20px;
+  padding: 24px;
   background: var(--card);
+  border: 1px solid var(--bd);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+}
+.result-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+.result-header h3 {
+  margin: 8px 0 4px;
+  font-size: 24px;
+  color: var(--tx);
+}
+.result-score-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(10, 132, 214, 0.1);
+  color: var(--pr);
+  font-family: "Baloo 2", Nunito, sans-serif;
+  font-size: 20px;
+  font-weight: 800;
+  padding: 8px 20px;
+  border-radius: 30px;
+  margin-top: 8px;
+}
+.tc-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 18px 0;
+  font-size: 14.5px;
+}
+.tc-table th, .tc-table td {
+  padding: 10px 14px;
+  border: 1px solid var(--bd);
+  text-align: left;
+}
+.tc-table th {
+  background: rgba(10, 132, 214, 0.06);
+  font-weight: 700;
+  color: var(--tx);
+}
+.tc-badge-pass {
+  display: inline-block;
+  padding: 3px 10px;
+  background: rgba(46, 204, 113, 0.15);
+  color: #27ae60;
+  border-radius: 20px;
+  font-weight: 700;
+  font-size: 13px;
+}
+.tc-badge-fail {
+  display: inline-block;
+  padding: 3px 10px;
+  background: rgba(231, 76, 60, 0.15);
+  color: #e74c3c;
+  border-radius: 20px;
+  font-weight: 700;
+  font-size: 13px;
 }
 
 /* Dark mode */
@@ -226,11 +369,20 @@
 :root[data-theme=dark] .q-opt-label {
   background: var(--card);
 }
+:root[data-theme=dark] .tc-table th {
+  background: rgba(77, 179, 255, 0.08);
+}
 
 @media (max-width: 720px) {
   .survey-viewport {
-    padding: 16px;
+    padding: 18px;
     border-radius: 18px;
+  }
+  .tc-table {
+    font-size: 13.5px;
+  }
+  .tc-table th, .tc-table td {
+    padding: 8px 10px;
   }
 }
 </style>
@@ -239,19 +391,21 @@
 <!-- Header, menu, nút SOS và footer do assets/js/core/layout.js dựng tự động -->
 <main>
   <div class="survey-header-box">
-    <h1><svg class="i3 hi"><use href="#c-clip"/></svg> Khảo sát cảm nhận & Đánh giá</h1>
-    <p>Chia sẻ nhanh 3 câu cảm nhận về kiến thức, kỹ năng hữu ích đã tích lũy được sau khi trải nghiệm nội dung trên SafeWater.</p>
+    <span class="badge-stage">Đợt: Sau trải nghiệm website</span>
+    <h1><svg class="i3 hi"><use href="#c-clip"/></svg> PHIẾU KHẢO SÁT</h1>
+    <div class="survey-subtitle">Khảo sát người dùng hệ sinh thái SafeWater 4.0: nhận thức và kĩ năng phòng, chống đuối nước</div>
+    <p class="intro-text">
+      Các em thân mến! Phiếu này giúp nhóm nghiên cứu biết các em đã hiểu gì về phòng, chống đuối nước và đánh giá hệ sinh thái SafeWater 4.0. Đây không phải bài kiểm tra tính điểm, phiếu không ghi tên, các em cứ chọn theo hiểu biết của mình. Cảm ơn các em!
+    </p>
   </div>
 
   <!-- Khung nội dung câu hỏi -->
   <div class="survey-viewport">
-    <div class="panel-banner">
-      <span>🌟 Hãy chọn các phương án phù hợp nhất với trải nghiệm thực tế của bạn sau khi xem trang web:</span>
-    </div>
-    <div id="survey-form"></div>
+    <form id="survey-form" onsubmit="return false;"></form>
   </div>
 
-  <div id="kres" role="status" hidden></div>
+  <!-- Vùng hiển thị kết quả sau khi nộp -->
+  <div id="survey-result-area" role="status" hidden></div>
 </main>
 
 <script src="../assets/js/core/dom.js"></script>
@@ -259,6 +413,7 @@
 <script src="../assets/js/icons/sprite-3d.js"></script>
 <script src="../assets/js/core/icons.js"></script>
 <script src="../assets/js/core/layout.js"></script>
+<script src="../assets/js/vendor/confetti.browser.min.js"></script>
 <script src="../assets/js/data/survey.js"></script>
 <script src="../assets/js/pages/survey.js"></script>
 </body>

@@ -15,6 +15,11 @@
 <link rel="stylesheet" href="../assets/css/components.css">
 <link rel="stylesheet" href="../assets/css/leaderboard.css">
 <style>
+/* Đảm bảo position: sticky hoạt động hoàn hảo trên mọi trình duyệt */
+html, body {
+  overflow-x: clip !important;
+}
+
 /* ================= BỐ CỤC 2 CỘT ================= */
 .two-col-layout {
   display: grid;
@@ -39,7 +44,7 @@
   gap: 10px;
 }
 .quiz-header-banner p {
-  margin: 4px 0 0;
+  margin: 6px 0 0;
   color: var(--mu);
   font-size: 14.5px;
 }
@@ -50,6 +55,34 @@
   border-radius: 24px;
   padding: 24px;
   box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+  position: relative;
+}
+
+/* Quy chế thi card */
+.rules-card {
+  background: rgba(10, 132, 214, 0.05);
+  border: 1.5px dashed rgba(10, 132, 214, 0.25);
+  border-radius: 16px;
+  padding: 16px 20px;
+  margin-bottom: 22px;
+  font-size: 14px;
+  line-height: 1.6;
+}
+.rules-card h4 {
+  margin: 0 0 8px;
+  color: var(--pr);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+}
+.rules-card ul {
+  margin: 0;
+  padding-left: 18px;
+  color: var(--tx);
+}
+.rules-card li {
+  margin-bottom: 4px;
 }
 
 /* Form */
@@ -84,7 +117,20 @@
   box-shadow: 0 0 0 4px rgba(10, 132, 214, 0.1);
 }
 
-/* Thanh điều khiển bài thi */
+/* Thanh điều khiển bài thi Sticky */
+.exam-sticky-header {
+  position: -webkit-sticky;
+  position: sticky;
+  top: 70px;
+  z-index: 100;
+  background: var(--card);
+  padding: 8px 0 12px;
+  margin-top: -8px;
+  margin-bottom: 20px;
+  border-bottom: 1.5px solid var(--bd);
+  box-shadow: 0 8px 16px -8px rgba(0, 0, 0, 0.08);
+}
+
 .quiz-topbar {
   display: flex;
   align-items: center;
@@ -93,7 +139,7 @@
   border: 1px solid var(--bd);
   border-radius: 16px;
   padding: 12px 18px;
-  margin-bottom: 20px;
+  margin-bottom: 0;
   font-weight: 700;
   font-size: 15px;
 }
@@ -117,6 +163,26 @@
 }
 @keyframes pulse { 50% { transform: scale(1.05); } }
 
+.warning-bar {
+  display: none;
+  background: #fee2e2;
+  border: 1px solid #f87171;
+  color: #991b1b;
+  border-radius: 12px;
+  padding: 10px 16px;
+  font-size: 13.5px;
+  font-weight: 700;
+  margin-bottom: 10px;
+  align-items: center;
+  gap: 6px;
+  animation: shake 0.3s ease;
+}
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
+}
+
 /* Thẻ câu hỏi */
 .q-card {
   background: var(--bg);
@@ -124,40 +190,29 @@
   border-radius: 18px;
   padding: 20px;
   margin-bottom: 18px;
+  transition: border-color 0.2s;
 }
-.q-badge {
-  font-size: 12px;
-  font-weight: 800;
-  padding: 3px 10px;
-  border-radius: 8px;
-  display: inline-block;
-  margin-bottom: 8px;
-}
-.q-badge.nb { background: #e3f2fd; color: #0a84d6; }
-.q-badge.th { background: #fff3e0; color: #e65100; }
-.q-badge.vd { background: #e8f5e9; color: #1a9f5a; }
-
 .q-card-head {
   display: flex;
   align-items: baseline;
-  gap: 10px;
+  gap: 12px;
   margin-bottom: 14px;
 }
 .q-num {
   font-family: "Baloo 2", Nunito, sans-serif;
-  font-size: 14px;
+  font-size: 14.5px;
   font-weight: 800;
   background: var(--card);
   border: 1px solid var(--bd);
   border-radius: 8px;
-  padding: 2px 8px;
+  padding: 3px 10px;
   color: var(--pr);
   flex-shrink: 0;
 }
 .q-card-head b {
   font-size: 16px;
   color: var(--tx);
-  line-height: 1.45;
+  line-height: 1.5;
 }
 
 .q-options {
@@ -187,10 +242,85 @@
   font-weight: 700;
 }
 
-/* Sidebar Leaderboard */
+/* Modal chờ nộp bài */
+.submit-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(4px);
+  z-index: 9999;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+.submit-modal-card {
+  background: #fff;
+  border-radius: 24px;
+  padding: 32px 28px;
+  max-width: 420px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.25);
+}
+.loading-spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid #e2e8f0;
+  border-top-color: #0a84d6;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 0 auto 18px;
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Đánh giá kết quả */
+.eval-badge {
+  display: inline-block;
+  padding: 6px 18px;
+  border-radius: 20px;
+  font-weight: 800;
+  font-size: 15px;
+  margin: 10px 0 16px;
+}
+.eval-badge.xuat-sac { background: #fef3c7; color: #b45309; border: 1.5px solid #f59e0b; }
+.eval-badge.tot { background: #dbeafe; color: #1d4ed8; border: 1.5px solid #3b82f6; }
+.eval-badge.dat { background: #dcfce7; color: #15803d; border: 1.5px solid #22c55e; }
+.eval-badge.can-co-gang { background: #fee2e2; color: #b91c1c; border: 1.5px solid #ef4444; }
+
+.breakdown-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin: 20px 0;
+}
+.breakdown-card {
+  background: var(--bg);
+  border: 1px solid var(--bd);
+  border-radius: 14px;
+  padding: 12px 10px;
+  text-align: center;
+}
+.breakdown-card .title {
+  font-size: 12px;
+  color: var(--mu);
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.breakdown-card .score {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--pr);
+}
+
+/* Sidebar Leaderboard Sticky */
 .sidebar-leaderboard {
+  position: -webkit-sticky;
   position: sticky;
-  top: 86px;
+  top: 70px;
+  z-index: 90;
 }
 .sidebar-leaderboard .podium-stage {
   min-height: 230px;
@@ -201,6 +331,7 @@
 @media (max-width: 960px) {
   .two-col-layout { grid-template-columns: 1fr; }
   .sidebar-leaderboard { position: static; }
+  .breakdown-grid { grid-template-columns: 1fr; }
 }
 </style>
 </head>
@@ -209,7 +340,7 @@
   <div class="quiz-header-banner">
     <div>
       <h1><svg class="i3 hi"><use href="#i-shield"/></svg> Thử thách Kiến thức An toàn Dưới nước</h1>
-      <p>Tranh tài 10 câu hỏi ngẫu nhiên trong 3 phút – Ghi danh Bảng vàng vinh danh SafeWater!</p>
+      <p>Tranh tài 20 câu hỏi trắc nghiệm trong 10 phút – Vinh danh Bảng vàng SafeWater tỉnh Lâm Đồng!</p>
     </div>
   </div>
 
@@ -217,10 +348,10 @@
     <!-- CỘT TRÁI: BÀI THI -->
     <div class="main-column">
       
-      <!-- BƯỚC 1: FORM THÍ SINH -->
+      <!-- BƯỚC 1: FORM THÍ SINH & QUY CHẾ -->
       <div id="step-start" class="quiz-box">
         <h2 style="margin-top:0">🎯 Thông tin Thí sinh</h2>
-        <p class="mu" style="margin-bottom:18px">Nhập Họ tên và Lớp để bắt đầu tính giờ và ghi nhận thành tích.</p>
+        <p class="mu" style="margin-bottom:18px">Nhập thông tin thí sinh để bắt đầu tính giờ thi và ghi nhận thành tích.</p>
         
         <div class="form-grid">
           <div class="form-group">
@@ -246,16 +377,34 @@
           <input type="text" id="inp-website" class="hp-field" tabindex="-1" autocomplete="off">
         </div>
 
-        <div style="text-align:right">
+        <div style="text-align:right;margin-bottom:20px">
           <button class="b" id="btn-start" style="font-size:16px;padding:12px 32px">Bắt đầu làm bài 🚀</button>
+        </div>
+
+        <div class="rules-card" style="margin-bottom:0">
+          <h4>📋 Thể lệ & Quy chế cuộc thi</h4>
+          <ul>
+            <li>Đề thi gồm <b>20 câu trắc nghiệm</b> rút ngẫu nhiên từ kho 300 câu hỏi an toàn nước.</li>
+            <li>Thời gian làm bài tối đa: <b>10 phút (600 giây)</b>. Hết giờ hệ thống tự động thu bài.</li>
+            <li><b>Thang điểm 100</b>: Mỗi câu đúng được <b>5 điểm</b>.</li>
+            <li><b>Xếp hạng Bảng Vàng</b>: Ưu tiên điểm cao hơn; nếu bằng điểm thì ai hoàn thành trong thời gian ngắn hơn sẽ xếp trên.</li>
+            <li><b>Chống gian lận</b>: Nghiêm cấm rời khỏi màn hình hoặc mở tab khác (hệ thống giám sát và tự động nộp bài nếu chuyển tab quá 3 lần).</li>
+          </ul>
         </div>
       </div>
 
       <!-- BƯỚC 2: KHUNG ĐỀ THI -->
       <div id="step-exam" class="quiz-box" style="display:none">
-        <div class="quiz-topbar">
-          <div>Thí sinh: <span id="lbl-student" style="color:var(--pr)"></span> (<span id="lbl-class"></span>)</div>
-          <div class="timer-pill" id="box-timer">⏱️ <span id="lbl-time">03:00</span></div>
+        <!-- Khối điều khiển Sticky: Thông tin thí sinh + Đồng hồ + Cảnh báo -->
+        <div class="exam-sticky-header">
+          <div class="warning-bar" id="tab-warning-bar">
+            ⚠️ CẢNH BÁO: Bạn vừa rời khỏi màn hình thi! (<span id="lbl-tab-switches">1</span>/3 lần). Vui lòng không chuyển tab.
+          </div>
+
+          <div class="quiz-topbar">
+            <div>Thí sinh: <span id="lbl-student" style="color:var(--pr)"></span> (<span id="lbl-class"></span>)</div>
+            <div class="timer-pill" id="box-timer">⏱️ <span id="lbl-time">10:00</span></div>
+          </div>
         </div>
 
         <div id="quiz-container"></div>
@@ -265,14 +414,34 @@
         </div>
       </div>
 
-      <!-- BƯỚC 3: KẾT QUẢ -->
+      <!-- BƯỚC 3: KẾT QUẢ & ĐÁNH GIÁ NĂNG LỰC -->
       <div id="step-result" class="quiz-box" style="display:none;text-align:center">
         <div style="font-size:46px;margin-bottom:6px">🎉</div>
         <h2 id="res-title" style="margin:0 0 8px">Hoàn thành bài kiểm tra!</h2>
+        
+        <div id="res-eval-badge" class="eval-badge xuat-sac">Đại sứ An toàn Nước</div>
+
         <div style="font-size:17px;margin-bottom:12px">
-          Tổng điểm: <b id="res-score" style="font-size:28px;color:var(--pr)">0</b> điểm
+          Tổng điểm: <b id="res-score" style="font-size:32px;color:var(--pr)">0</b> <span style="font-size:20px;color:var(--mu)">/ 100 điểm</span>
         </div>
-        <p id="res-detail" style="color:var(--mu);margin-bottom:20px;font-size:14.5px;line-height:1.5"></p>
+
+        <!-- Phân tích 3 mức độ -->
+        <div class="breakdown-grid">
+          <div class="breakdown-card">
+            <div class="title">Nhận biết</div>
+            <div class="score" id="res-nb-score">0/10</div>
+          </div>
+          <div class="breakdown-card">
+            <div class="title">Thông hiểu</div>
+            <div class="score" id="res-th-score">0/6</div>
+          </div>
+          <div class="breakdown-card">
+            <div class="title">Vận dụng</div>
+            <div class="score" id="res-vd-score">0/4</div>
+          </div>
+        </div>
+
+        <p id="res-detail" style="color:var(--mu);margin-bottom:20px;font-size:14.5px;line-height:1.6"></p>
 
         <button class="b" id="btn-retry" style="font-size:15px;padding:10px 24px">Thử sức đề khác 🔄</button>
       </div>
@@ -311,6 +480,17 @@
     </div>
   </div>
 </main>
+
+<!-- MODAL XIN CHỜ KHI NỘP BÀI -->
+<div class="submit-overlay" id="submit-loading-modal">
+  <div class="submit-modal-card">
+    <div class="loading-spinner"></div>
+    <h3 style="margin:0 0 8px;font-size:19px;color:var(--tx)">Đang nộp bài thi...</h3>
+    <p style="margin:0;font-size:14px;color:var(--mu);line-height:1.5">
+      Hệ thống đang mã hóa đối chiếu kết quả và đồng bộ dữ liệu an toàn. Vui lòng không tắt trình duyệt!
+    </p>
+  </div>
+</div>
 
 <script src="../assets/js/core/dom.js"></script>
 <script src="../assets/js/icons/sprite-line.js"></script>

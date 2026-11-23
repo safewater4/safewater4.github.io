@@ -315,6 +315,51 @@ html, body {
   color: var(--pr);
 }
 
+.question-review {
+  margin: 0 0 20px;
+  padding: 12px 16px;
+  border: 1px solid var(--bd);
+  border-radius: 14px;
+  text-align: left;
+}
+.question-review summary {
+  cursor: pointer;
+  color: var(--pr);
+  font-weight: 800;
+}
+.question-review ol {
+  margin: 10px 0 0;
+  padding-left: 22px;
+}
+.question-review > ol > li {
+  padding: 8px 0;
+}
+.question-review > ol > li + li {
+  border-top: 1px solid var(--bd);
+}
+.question-review li p {
+  margin: 0 0 4px;
+}
+.question-review .question-review-options {
+  margin: 4px 0 8px;
+  padding-left: 24px;
+  list-style-type: upper-alpha;
+}
+.question-review .review-choice-correct,
+.question-review .review-choice-incorrect {
+  font-weight: 800;
+  border-radius: 6px;
+  padding: 2px 6px;
+}
+.question-review .review-choice-correct {
+  background: #dcfce7;
+  color: #166534;
+}
+.question-review .review-choice-incorrect {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
 /* Sidebar Leaderboard Sticky */
 .sidebar-leaderboard {
   position: -webkit-sticky;
@@ -443,6 +488,11 @@ html, body {
         </div>
 
         <p id="res-detail" style="color:var(--mu);margin-bottom:20px;font-size:14.5px;line-height:1.6"></p>
+
+        <details id="question-review" class="question-review" hidden>
+          <summary>Xem câu đúng, sai</summary>
+          <ol id="question-review-list"></ol>
+        </details>
 
         <button class="b" id="btn-retry" style="font-size:15px;padding:10px 24px">Thử sức đề khác 🔄</button>
       </div>

@@ -20,7 +20,7 @@
 Nếu đã triển khai bản trước, hãy thay toàn bộ mã Apps Script trong tệp hiện tại và triển khai **Phiên bản mới**, rồi cập nhật website. Giữ nguyên tab **DapAn**, không cần nhập lại CSV hay chạy lại hàm thiết lập. Các bài cũ vẫn lưu trong **KetQuaKiemTra**. Bảng Vàng xét các lượt 14 câu để mọi thí sinh được so theo cùng thang chấm. Lượt theo đề cũ còn mở cần bắt đầu lại sau khi cập nhật, nên triển khai ngoài giờ làm bài.
 
 1. Mở địa chỉ `/exec` trong cửa sổ ẩn danh. Khi chưa có bài thi, kết quả là `{"ok":true,"entries":[]}`.
-2. Mở trang Kiểm tra trong cửa sổ ẩn danh. Làm thử một bài rồi kiểm tra màn hình kết quả, một dòng mới trong **KetQuaKiemTra** và vị trí trên Bảng Vàng. Thử lại với cùng họ tên, lớp và trường để kiểm tra hai lượt được lưu nhưng chỉ có một vị trí.
+2. Mở trang Kiểm tra trong cửa sổ ẩn danh. Làm thử một bài rồi kiểm tra màn hình kết quả, một dòng mới trong **KetQuaKiemTra** và vị trí trên Bảng Vàng. Mở **Xem câu đúng, sai** để kiểm tra nội dung và trạng thái của từng câu theo thứ tự đề thi. Thử lại với cùng họ tên, lớp và trường để kiểm tra hai lượt được lưu nhưng chỉ có một vị trí.
 3. Thử một số bài nộp gần nhau để kiểm tra thời gian phản hồi. Học sinh có thể bấm nộp lại nếu phản hồi bị gián đoạn. Một lượt đã lưu sẽ trả kết quả cũ mà không ghi thêm dòng.
 
 Mỗi đề bốc 14 câu khác nhau từ 95 nội dung đại diện, gồm 5 câu nhận biết (5 điểm/câu), 5 câu thông hiểu (7 điểm/câu) và 4 câu vận dụng (10 điểm/câu). Một câu vẫn có thể xuất hiện ở hai lượt khác nhau. Khi cập nhật nội dung ngân hàng, kiểm tra lại danh sách mã đại diện `UNIQUE_QUESTION_IDS` trong Apps Script.

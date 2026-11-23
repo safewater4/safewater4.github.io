@@ -183,8 +183,15 @@ function submitExam_(input, config, receivedAt) {
 }
 
 function result_(row) {
+  // Đọc trạng thái từ chi tiết đã lưu để cả lần nộp lại cũng nhận cùng kết quả.
+  const questionStatuses = String(row[14] || '').split(' | ').map((detail, index) => {
+    if (!detail.startsWith('C' + (index + 1) + ' (')) return null;
+    const match = detail.match(/\): (Đúng|Sai|Bỏ trống)(?= \(|$)/);
+    return match ? match[1] : null;
+  });
   return { score: row[6], correctCount: count_(row[7]), elapsedSeconds: row[8], rating: row[10],
-    nbCorrect: count_(row[11]), thCorrect: count_(row[12]), vdCorrect: count_(row[13]) };
+    nbCorrect: count_(row[11]), thCorrect: count_(row[12]), vdCorrect: count_(row[13]),
+    questionStatuses };
 }
 
 function count_(value) {

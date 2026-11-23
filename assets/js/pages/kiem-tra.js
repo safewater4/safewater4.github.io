@@ -314,6 +314,8 @@
       <i>${ratingComment}</i>
     `;
 
+    renderQuestionReview(result.questionStatuses);
+
     if (totalScore >= 70 && window.confetti) {
       window.confetti({ particleCount: 90, spread: 75, origin: { y: 0.6 } });
     }
@@ -322,7 +324,40 @@
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
+  function renderQuestionReview(statuses) {
+    const review = $('#question-review');
+    const list = $('#question-review-list');
+    review.open = false;
+    list.replaceChildren();
+    const labels = ['Đúng', 'Sai', 'Bỏ trống'];
+    review.hidden = !Array.isArray(statuses) || statuses.length !== questionCount ||
+      !statuses.every(status => labels.includes(status));
+    if (review.hidden) return;
+
+    currentQuestions.forEach((question, index) => {
+      const item = document.createElement('li');
+      const prompt = document.createElement('p');
+      prompt.textContent = question.q;
+      const options = document.createElement('ol');
+      options.type = 'A';
+      options.className = 'question-review-options';
+      question.options.forEach((option, optionIndex) => {
+        const choice = document.createElement('li');
+        choice.textContent = option;
+        if (userAnswers[index] === optionIndex) {
+          choice.className = statuses[index] === 'Đúng' ? 'review-choice-correct' : 'review-choice-incorrect';
+        }
+        options.append(choice);
+      });
+      const status = document.createElement('strong');
+      status.textContent = statuses[index];
+      item.append(prompt, options, status);
+      list.append(item);
+    });
+  }
+
   function resetQuiz() {
+    renderQuestionReview();
     $('#step-exam').style.display = 'none';
     $('#submit-status').textContent = '';
     $('#step-result').style.display = 'none';

@@ -49,8 +49,13 @@
   /* ==========================================================
      BẢNG VÀNG VINH DANH TRANG CHỦ & HIỆU ỨNG CHUYỂN ĐỘNG BẮT MẮT
      ========================================================== */
-  let isExpandedLeaderboard = false;
-  let fullLeaderboardList = [];
+  const api = window.SW.leaderboard;
+  const updateHomeList = api.mountList($('#home-ranking-list'));
+
+  function escapeHtml(value) {
+    const entities = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+    return String(value ?? '').replace(/[&<>"']/g, char => entities[char]);
+  }
 
   function animateCounter(el, target, suffix = '') {
     if (!el) return;
@@ -90,16 +95,9 @@
 
   async function renderHomeLeaderboard() {
     const podiumEl = $('#home-podium-area');
-    const tableBody = $('#home-lb-table-body');
-    if (!podiumEl || !tableBody) return;
-
-    if (window.SW && window.SW.leaderboard) {
-      fullLeaderboardList = await window.SW.leaderboard.getLeaderboard();
-    } else {
-      fullLeaderboardList = [];
-    }
-
-    const list = fullLeaderboardList;
+    const { entries: list, stale } = await api.getLeaderboard();
+    $('#home-lb-status').textContent = stale ? 'Đang mất kết nối. Bảng có thể chưa cập nhật.' : 'Trực tiếp từ hệ thống thi';
+    updateHomeList(list);
     const top1 = list[0] || { name: 'Chưa có', cls: '-', score: 0 };
     const top2 = list[1] || { name: 'Chưa có', cls: '-', score: 0 };
     const top3 = list[2] || { name: 'Chưa có', cls: '-', score: 0 };
@@ -107,12 +105,12 @@
     // 1. Render Bục Vinh Quang Top 3
     podiumEl.innerHTML = `
       <!-- HẠNG 2 (BẠC) -->
-      <div class="podium-col rank-2" id="podium-rank-2" title="Chúc mừng Hạng Nhì: ${top2.name}">
+      <div class="podium-col rank-2" id="podium-rank-2" title="Chúc mừng Hạng Nhì: ${escapeHtml(top2.name)}">
         <div class="podium-avatar-wrap">
           <div class="podium-crown">🥈</div>
         </div>
-        <div class="podium-user-name">${top2.name}</div>
-        <span class="podium-user-class">${top2.cls || '-'}</span>
+        <div class="podium-user-name">${escapeHtml(top2.name)}</div>
+        <span class="podium-user-class">${escapeHtml(top2.cls || '-')}</span>
         <div class="podium-base">
           <span class="rank-num">2</span>
           <span class="score-val" id="score-top-2">0đ</span>
@@ -120,7 +118,7 @@
       </div>
 
       <!-- HẠNG 1 (VÀNG) -->
-      <div class="podium-col rank-1" id="podium-rank-1" title="Quán quân SafeWater: ${top1.name} (Chạm để bắn pháo hoa)">
+      <div class="podium-col rank-1" id="podium-rank-1" title="Quán quân SafeWater: ${escapeHtml(top1.name)} (Chạm để bắn pháo hoa)">
         <div class="podium-avatar-wrap">
           <div class="sparkle-container">
             <span class="sparkle sp-1">✨</span>
@@ -129,8 +127,8 @@
           </div>
           <div class="podium-crown">👑</div>
         </div>
-        <div class="podium-user-name">${top1.name}</div>
-        <span class="podium-user-class">${top1.cls || '-'}</span>
+        <div class="podium-user-name">${escapeHtml(top1.name)}</div>
+        <span class="podium-user-class">${escapeHtml(top1.cls || '-')}</span>
         <div class="podium-base">
           <span class="rank-num">1</span>
           <span class="score-val" id="score-top-1">0đ</span>
@@ -138,12 +136,12 @@
       </div>
 
       <!-- HẠNG 3 (ĐỒNG) -->
-      <div class="podium-col rank-3" id="podium-rank-3" title="Chúc mừng Hạng Ba: ${top3.name}">
+      <div class="podium-col rank-3" id="podium-rank-3" title="Chúc mừng Hạng Ba: ${escapeHtml(top3.name)}">
         <div class="podium-avatar-wrap">
           <div class="podium-crown">🥉</div>
         </div>
-        <div class="podium-user-name">${top3.name}</div>
-        <span class="podium-user-class">${top3.cls || '-'}</span>
+        <div class="podium-user-name">${escapeHtml(top3.name)}</div>
+        <span class="podium-user-class">${escapeHtml(top3.cls || '-')}</span>
         <div class="podium-base">
           <span class="rank-num">3</span>
           <span class="score-val" id="score-top-3">0đ</span>
@@ -166,66 +164,12 @@
     const recTime = $('#record-time');
     const recAcc = $('#record-acc');
     if (recScore) animateCounter(recScore, top1.score, 'đ');
-    if (recTime) recTime.textContent = top1.elapsed || (top1.timeSeconds ? top1.timeSeconds + 's' : '88s');
-    if (recAcc) recAcc.textContent = top1.correct || '10/10';
-
-    // 2. Render Danh sách thứ hạng từ Top 4 trở đi
-    renderNextRankingsList();
+    if (recTime) recTime.textContent = top1.elapsed || '—';
+    if (recAcc) recAcc.textContent = top1.correct || '—';
   }
 
-  function renderNextRankingsList() {
-    const tableBody = $('#home-lb-table-body');
-    const badgeCount = $('#home-lb-count');
-    if (!tableBody) return;
-
-    const listFrom4 = fullLeaderboardList.slice(3);
-    const displayList = isExpandedLeaderboard ? listFrom4 : listFrom4.slice(0, 7);
-
-    if (badgeCount) {
-      badgeCount.textContent = isExpandedLeaderboard
-        ? `${listFrom4.length} thí sinh`
-        : `Top 4 – 10 (${Math.min(7, listFrom4.length)} thí sinh)`;
-    }
-
-    if (displayList.length === 0) {
-      tableBody.innerHTML = `<div style="text-align:center;padding:18px;color:var(--mu);font-size:13.5px">Đang cập nhật thêm thí sinh...</div>`;
-      return;
-    }
-
-    tableBody.innerHTML = displayList.map((item, index) => {
-      const actualRank = index + 4;
-      const delay = index * 40;
-
-      return `
-        <div class="lb-item" style="animation-delay:${delay}ms">
-          <div class="lb-item-left">
-            <span class="lb-rank">#${actualRank}</span>
-            <div class="lb-info">
-              <span class="lb-name" title="${item.name}">${item.name}</span>
-              <span class="lb-meta">${item.cls} · ${item.school}</span>
-            </div>
-          </div>
-          <div class="lb-score-tag">
-            <div>${item.score}đ</div>
-            <div class="lb-time-meta">⏱️ ${item.elapsed || (item.timeSeconds ? item.timeSeconds + 's' : '90s')}</div>
-          </div>
-        </div>
-      `;
-    }).join('');
-  }
-
-  const expandBtn = $('#btn-home-expand-lb');
-  if (expandBtn) {
-    expandBtn.onclick = () => {
-      isExpandedLeaderboard = !isExpandedLeaderboard;
-      expandBtn.textContent = isExpandedLeaderboard
-        ? 'Thu gọn bảng xếp hạng (Top 10) 🔼'
-        : 'Xem toàn bộ bảng xếp hạng 📋';
-      renderNextRankingsList();
-    };
-  }
-
-  // Khởi chạy Bảng Vàng khi trang load
   renderHomeLeaderboard();
-
+  setInterval(() => {
+    if (!document.hidden) renderHomeLeaderboard();
+  }, 60000);
 })();

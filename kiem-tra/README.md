@@ -27,4 +27,6 @@ Mỗi đề bốc 14 câu khác nhau từ 95 nội dung đại diện, gồm 5 c
 
 Top 10 tích lũy theo tổng điểm, số câu vận dụng đúng, số câu thông hiểu đúng, rồi thời gian ngắn hơn. Thời gian tính từ lúc Apps Script cấp lượt đến lúc nhận bài. Nếu vẫn bằng nhau, bài máy chủ nhận trước đứng trước. Đồng hồ web tự nộp sau 10 phút. Apps Script chấp nhận tối đa 15 giây thêm để bài tự nộp có thời gian đến máy chủ. Tên trùng cả họ tên, lớp và trường sẽ được gộp, nên cần đối chiếu nếu có trường hợp này.
 
+Trang chủ và trang Kiểm tra cùng hiển thị Top 10. Nút **Xem toàn bộ bảng xếp hạng** tải từng trang, mỗi trang tối đa 20 thí sinh từ hạng 4. Ba thí sinh đầu vẫn hiển thị trên bục. Sau khi triển khai Apps Script và cập nhật website, mở cả hai trang và kiểm tra thứ tự cùng các nút chuyển trang.
+
 Đáp án và lời giải đã được bỏ khỏi tệp công khai hiện tại. Nếu phiên bản cũ đã được công khai, đáp án có thể vẫn tồn tại trong lịch sử Git hoặc bản sao cũ. Phương án này xác minh điểm từ bài nộp và giữ biểu mẫu đơn giản với họ tên và lớp tự khai.

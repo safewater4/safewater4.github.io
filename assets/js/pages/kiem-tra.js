@@ -3,6 +3,7 @@
   const questionsById = new Map(Object.values(window.SW.data.quizBank).flat()
     .map(question => [question.id, question]));
   const api = window.SW.leaderboard;
+  const updateRankingList = api.mountList($('#exam-ranking-list'));
   const groupCounts = { nb: 5, th: 5, vd: 4 };
   const questionCount = Object.values(groupCounts).reduce((total, count) => total + count, 0);
   let currentQuestions = [];
@@ -396,7 +397,7 @@
     const { entries: list, stale } = await api.getLeaderboard();
     $('#lb-status').textContent = stale ? 'Đang mất kết nối. Bảng có thể chưa cập nhật.' : 'Trực tiếp từ hệ thống thi';
     const podiumEl = $('#podium-area');
-    const tableBody = $('#lb-table-body');
+    updateRankingList(list);
 
     // 1. Render Bục Vinh Quang Top 3 Thể Thao
     if (podiumEl) {
@@ -459,36 +460,6 @@
       $('#sidebar-podium-3').onclick = () => fireConfetti('bronze');
     }
 
-    // 2. Render Danh sách bảng từ HẠNG 4 TRỞ ĐI
-    if (tableBody) {
-      const displayList = list.slice(3, 10);
-
-      if (displayList.length === 0) {
-        tableBody.innerHTML = `<div style="text-align:center;padding:14px;color:var(--mu);font-size:13px">Chưa có thêm thí sinh nào khác.</div>`;
-        return;
-      }
-
-      tableBody.innerHTML = displayList.map((item, index) => {
-        const actualRank = index + 4;
-        const delay = index * 40;
-
-        return `
-          <div class="lb-item" style="animation-delay:${delay}ms">
-            <div class="lb-item-left">
-              <span class="lb-rank">#${actualRank}</span>
-              <div class="lb-info">
-                <span class="lb-name" title="${escapeHtml(item.name)}">${escapeHtml(item.name)}</span>
-                <span class="lb-meta">${escapeHtml(item.cls)} · ${escapeHtml(item.school)}</span>
-              </div>
-            </div>
-            <div class="lb-score-tag">
-              <div>${item.score}đ</div>
-              <div class="lb-time-meta">⏱️ ${escapeHtml(item.elapsed || (item.timeSeconds ? item.timeSeconds + 's' : '180s'))}</div>
-            </div>
-          </div>
-        `;
-      }).join('');
-    }
   }
 
 })();

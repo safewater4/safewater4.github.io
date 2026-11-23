@@ -54,8 +54,15 @@ function doPost(e) {
   });
 }
 
-function doGet() {
+function doGet(e) {
   return respond_(() => {
+    const page = e && e.parameter && e.parameter.rankingPage;
+    if (page !== undefined && (!/^\d{1,7}$/.test(page) || Number(page) < 1)) {
+      invalid_('Trang xếp hạng không hợp lệ.');
+    }
+    const pageSize = 20;
+    const offset = page === undefined ? 0 : 3 + (Number(page) - 1) * pageSize;
+    const limit = page === undefined ? 10 : pageSize;
     const sheet = examConfig_().book.getSheetByName(RESULT_SHEET);
     const lastRow = sheet.getLastRow();
     const rows = lastRow > 1
@@ -67,15 +74,21 @@ function doGet() {
       new Date(a[0]).getTime() - new Date(b[0]).getTime());
     const seen = new Set();
     const entries = [];
+    let hasNext = false;
     for (const row of ranked) {
       const key = JSON.stringify(row.slice(1, 4).map(value =>
         String(value).normalize('NFC').trim().replace(/\s+/g, ' ').toLowerCase()));
       if (seen.has(key)) continue;
       seen.add(key);
-      entries.push({ name: row[1], cls: row[2], school: row[3], score: row[6], elapsed: row[8] });
-      if (entries.length === 10) break;
+      if (seen.size <= offset) continue;
+      if (entries.length === limit) {
+        hasNext = true;
+        break;
+      }
+      entries.push({ name: row[1], cls: row[2], school: row[3], score: row[6], elapsed: row[8],
+        correctCount: count_(row[7]) });
     }
-    return { entries };
+    return page === undefined ? { entries } : { entries, firstRank: offset + 1, hasNext };
   });
 }
 

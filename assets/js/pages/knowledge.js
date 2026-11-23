@@ -18,7 +18,7 @@
     {icon:'🔍',title:'Nhận diện nguy cơ',colors:'#11998e,#38ef7d',
      cards:[['🏞️','Tìm điểm nguy hiểm','Ao · suối · nhà · trường, 3 độ khó','nhan-dien-nguy-co.html'],
             ['🛠️','Em làm cho cảnh an toàn','Kéo thả vật dụng, giảm thanh nguy cơ','nhan-dien-nguy-co.html#canh-an-toan']]},
-    {icon:'🎬',title:'Video',colors:'#8e2de2,#c471ed',
+    {icon:'🎬',title:'Video',colors:'#8e2de2,#c471ed',inlineVideos:videos,
      cards:videos.map(v=>['▶️',`Video ${v.id}: ${v.title}`,'Có trắc nghiệm sau video',`video-chi-tiet.html?id=${v.id}`])},
     {icon:'📰',title:'Phân tích tình huống thực tế',colors:'#f12711,#f5af19',
      cards:situations.map(t=>['🎞️',`Tình huống ${t.id}: ${t.title}`,'Video + ảnh + ghi chú',`tinh-huong-chi-tiet.html?id=${t.id}`])}
@@ -27,6 +27,14 @@
   $('#ktm').innerHTML=groups.map((g,groupIndex)=>`
     <div class="kh" style="background:linear-gradient(90deg,${g.colors})"><span class="big">${SW.icon(g.icon)}</span><h2 style="margin:0;color:#fff">${g.title}</h2></div>
     <div class="grid">${g.cards.map((c,index)=>{
+      const video = g.inlineVideos?.[index];
+      if (video?.youtubeId) {
+        return `<article class="card tile">
+          <h3>${c[1]}</h3>
+          ${SW.renderYouTubePlayer(video)}
+          <a class="b o" href="${c[3]}#vq2">Làm trắc nghiệm Video ${video.id}</a>
+        </article>`;
+      }
       if(groupIndex===0){
         return `<a class="card tile lesson-card" href="${c[3]}">
           <img class="lesson-card__image" src="${SW.data.lessonImages[index]}" alt="" loading="lazy" decoding="async" width="512" height="512">

@@ -5,7 +5,7 @@ SW.data.videos=[
   quiz:{q:'Nơi nào KHÔNG nên chơi một mình?',o:['Ao, hồ không rào','Sân trường','Thư viện'],a:0}},
  {id:2,title:'Xử lý khi bạn trượt chân, đuối nước',desc:'Hô – Ném – Chìa',
   quiz:{q:'Việc đầu tiên khi thấy bạn trượt xuống nước?',o:['Nhảy xuống kéo bạn','Hô to gọi người lớn','Bỏ chạy'],a:1}},
- {id:3,title:'Sơ cứu tại chỗ sau khi đưa bạn lên bờ',desc:'Kiểm tra – gọi 115 – hồi sinh',
+ {id:3,title:'Sơ cứu tại chỗ sau khi đưa bạn lên bờ',desc:'Kiểm tra – gọi 115 – hồi sinh',youtubeId:'hHXM2rZBGbI',
   quiz:{q:'Sau khi đưa nạn nhân lên bờ cần gọi số nào?',o:['115','Số bất kỳ','Không cần gọi'],a:0}}
 ];
 SW.data.situations=[

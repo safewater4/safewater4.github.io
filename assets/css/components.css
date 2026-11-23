@@ -15,6 +15,13 @@
 .ok{background:#1a9f5a33!important}
 .no{background:#e5383b33!important}
 .ph{aspect-ratio:16/9;background:#123;color:#fff;display:flex;align-items:center;justify-content:center;border-radius:12px;font-size:40px}
+.youtube-player {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border: 0;
+  border-radius: 12px;
+}
 input,textarea{font:inherit;padding:8px;border:1px solid var(--bd);border-radius:10px;background:var(--card);color:var(--tx)}
 .b{font-family:"Baloo 2",Nunito,system-ui,sans-serif}
 .card{border:0;box-shadow:0 8px 26px #0a4a8a22;border-radius:24px}

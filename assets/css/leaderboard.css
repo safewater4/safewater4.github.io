@@ -859,3 +859,22 @@
   .challenge-stats-grid { gap: 6px; }
   .stat-val { font-size: 14px; }
 }
+.lb-page-status {
+  margin: 8px 0;
+  color: var(--mu);
+  font-size: 13px;
+}
+.lb-page-status:empty,
+.lb-page-nav[hidden] {
+  display: none;
+}
+.lb-page-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+.lb-page-toggle {
+  width: 100%;
+  margin-top: 12px;
+}

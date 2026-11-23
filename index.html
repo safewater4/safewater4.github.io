@@ -47,7 +47,7 @@
         <div class="lb-trophy-badge"><span class="trophy-bounce">🏆</span></div>
         <div>
           <h3>Bảng Vàng Vinh Danh SafeWater</h3>
-          <p class="lb-sub">Top học sinh xuất sắc cuộc thi “Thử thách kiến thức An toàn dưới nước”</p>
+          <p class="lb-sub" id="home-lb-status" role="status">Đang tải Bảng Vàng…</p>
         </div>
       </div>
       <div class="lb-header-right">
@@ -84,15 +84,15 @@
           <div class="challenge-stats-grid">
             <div class="challenge-stat-item">
               <span class="stat-label">Điểm kỷ lục</span>
-              <strong class="stat-val text-gold" id="record-score">146đ</strong>
+              <strong class="stat-val text-gold" id="record-score">—</strong>
             </div>
             <div class="challenge-stat-item">
               <span class="stat-label">Thời gian làm</span>
-              <strong class="stat-val text-blue" id="record-time">88s</strong>
+              <strong class="stat-val text-blue" id="record-time">—</strong>
             </div>
             <div class="challenge-stat-item">
               <span class="stat-label">Độ chính xác</span>
-              <strong class="stat-val text-green" id="record-acc">10/10</strong>
+              <strong class="stat-val text-green" id="record-acc">—</strong>
             </div>
           </div>
 
@@ -106,14 +106,9 @@
       <div class="home-lb-list-col">
         <div class="lb-section-title">
           <span>Bảng Xếp Hạng Tiếp Theo</span>
-          <span class="lb-badge-count" id="home-lb-count">Top 4 – 10 (7 thí sinh)</span>
         </div>
-        <div class="lb-list" id="home-lb-table-body"></div>
-
-        <div class="home-lb-actions">
-          <button class="b o" id="btn-home-expand-lb" type="button" style="width:100%">
-            Xem toàn bộ bảng xếp hạng 📋
-          </button>
+        <div id="home-ranking-list">
+          <div class="lb-list"></div>
         </div>
       </div>
     </div>

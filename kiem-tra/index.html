@@ -340,7 +340,7 @@ html, body {
   <div class="quiz-header-banner">
     <div>
       <h1><svg class="i3 hi"><use href="#i-shield"/></svg> Thử thách Kiến thức An toàn Dưới nước</h1>
-      <p>Tranh tài 20 câu hỏi trắc nghiệm trong 10 phút – Vinh danh Bảng vàng SafeWater tỉnh Lâm Đồng!</p>
+      <p>Tranh tài 14 câu hỏi trắc nghiệm trong 10 phút – Vinh danh Bảng vàng SafeWater tỉnh Lâm Đồng!</p>
     </div>
   </div>
 
@@ -384,11 +384,11 @@ html, body {
         <div class="rules-card" style="margin-bottom:0">
           <h4>📋 Thể lệ & Quy chế cuộc thi</h4>
           <ul>
-            <li>Đề thi gồm <b>20 câu trắc nghiệm</b> rút ngẫu nhiên từ kho 300 câu hỏi an toàn nước.</li>
+            <li>Mỗi đề gồm <b>14 câu trắc nghiệm khác nhau</b>, rút ngẫu nhiên theo ba nhóm: 5 câu Nhận biết, 5 câu Thông hiểu và 4 câu Vận dụng.</li>
             <li>Thời gian làm bài tối đa: <b>10 phút (600 giây)</b>. Hết giờ hệ thống tự động thu bài.</li>
-            <li><b>Thang điểm 100</b>: Mỗi câu đúng được <b>5 điểm</b>.</li>
-            <li><b>Xếp hạng Bảng Vàng</b>: Ưu tiên điểm cao hơn; nếu bằng điểm thì ai hoàn thành trong thời gian ngắn hơn sẽ xếp trên.</li>
-            <li><b>Chống gian lận</b>: Nghiêm cấm rời khỏi màn hình hoặc mở tab khác (hệ thống giám sát và tự động nộp bài nếu chuyển tab quá 3 lần).</li>
+            <li><b>Thang điểm 100</b>: Mỗi câu đúng được <b>5 điểm</b> ở nhóm Nhận biết, <b>7 điểm</b> ở nhóm Thông hiểu và <b>10 điểm</b> ở nhóm Vận dụng.</li>
+            <li><b>Xếp hạng Bảng Vàng</b>: Xét lần lượt tổng điểm, số câu Vận dụng đúng, số câu Thông hiểu đúng và thời gian làm bài ngắn hơn. Bảng Vàng tích lũy lấy lượt tốt nhất của mỗi thí sinh để chọn Top 10.</li>
+            <li><b>Chống gian lận</b>: Nghiêm cấm rời khỏi màn hình hoặc mở tab khác (hệ thống giám sát và tự động nộp bài khi chuyển tab đến lần thứ 3).</li>
           </ul>
         </div>
       </div>
@@ -409,6 +409,7 @@ html, body {
 
         <div id="quiz-container"></div>
 
+        <p id="submit-status" role="status"></p>
         <div style="text-align:right;margin-top:20px">
           <button class="b" id="btn-submit-exam" style="font-size:16px;padding:12px 36px">Nộp bài ngay 🎯</button>
         </div>
@@ -429,11 +430,11 @@ html, body {
         <div class="breakdown-grid">
           <div class="breakdown-card">
             <div class="title">Nhận biết</div>
-            <div class="score" id="res-nb-score">0/10</div>
+            <div class="score" id="res-nb-score">0/5</div>
           </div>
           <div class="breakdown-card">
             <div class="title">Thông hiểu</div>
-            <div class="score" id="res-th-score">0/6</div>
+            <div class="score" id="res-th-score">0/5</div>
           </div>
           <div class="breakdown-card">
             <div class="title">Vận dụng</div>
@@ -456,7 +457,7 @@ html, body {
             <div class="lb-trophy-badge"><span class="trophy-bounce">🏆</span></div>
             <div>
               <h3>Bảng Vàng Vinh Danh</h3>
-              <p class="lb-sub">Trực tiếp từ hệ thống thi</p>
+              <p class="lb-sub" id="lb-status" role="status">Đang tải Bảng Vàng…</p>
             </div>
           </div>
           <span class="live-badge"><span class="live-pulse"></span>Trực tiếp</span>
@@ -471,11 +472,6 @@ html, body {
         </div>
         <div class="lb-list" id="lb-table-body"></div>
 
-        <div style="text-align:center;margin-top:16px">
-          <button class="b o" id="btn-expand-lb" style="font-size:12.5px;padding:7px 16px;border-radius:12px;width:100%">
-            Xem toàn bộ bảng xếp hạng 📋
-          </button>
-        </div>
       </div>
     </div>
   </div>
@@ -487,7 +483,7 @@ html, body {
     <div class="loading-spinner"></div>
     <h3 style="margin:0 0 8px;font-size:19px;color:var(--tx)">Đang nộp bài thi...</h3>
     <p style="margin:0;font-size:14px;color:var(--mu);line-height:1.5">
-      Hệ thống đang mã hóa đối chiếu kết quả và đồng bộ dữ liệu an toàn. Vui lòng không tắt trình duyệt!
+      Hệ thống đang chấm và lưu kết quả bài thi. Vui lòng giữ trang mở.
     </p>
   </div>
 </div>

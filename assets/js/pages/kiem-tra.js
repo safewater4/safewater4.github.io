@@ -1,17 +1,21 @@
 /* assets/js/pages/kiem-tra.js - Cuộc thi An toàn nước: Đo thời gian từng câu, Thang điểm 100, UTF-8 chuẩn & Chống gian lận */
 (function(){
-  const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxihBfQUHiQj6M0TXon-6ufZxjt6a9Lre-jeO3fvsNiE2EwlzTN71Gi2n3V7A6Q8hl3/exec';
-  const BANK = window.SW.data.quizBank;
-
+  const questionsById = new Map(Object.values(window.SW.data.quizBank).flat()
+    .map(question => [question.id, question]));
+  const api = window.SW.leaderboard;
+  const groupCounts = { nb: 5, th: 5, vd: 4 };
+  const questionCount = Object.values(groupCounts).reduce((total, count) => total + count, 0);
   let currentQuestions = [];
   let userAnswers = [];
-  let questionTimes = []; // Thời gian làm từng câu (giây)
-  let lastActionTimestamp = 0;
+  let questionTimes = [];
+  let lastSelection = 0;
+  let ticket = '';
+  let pendingSubmission = null;
+  let submitting = false;
   let timerInterval = null;
   let remainingSeconds = 600; // 10 phút = 600 giây
-  let startTime = 0;
+  let deadline = 0;
   let candidate = {};
-  let showAllLeaderboard = false;
   let tabSwitchCount = 0;
   let isExamActive = false;
 
@@ -21,12 +25,14 @@
 
   // Khởi tạo bảng xếp hạng ban đầu
   renderLeaderboard();
+  setInterval(() => {
+    if (!document.hidden && !isExamActive && !submitting) renderLeaderboard();
+  }, 60000);
 
   // Sự kiện nút
   $('#btn-start').onclick = startQuiz;
   $('#btn-submit-exam').onclick = () => submitExam(false);
   $('#btn-retry').onclick = resetQuiz;
-  $('#btn-expand-lb').onclick = toggleExpandLeaderboard;
 
   // Cho phép nhấn Enter ở ô Lớp để vào thi ngay
   $('#inp-class').addEventListener('keypress', (e) => {
@@ -64,35 +70,28 @@
       if (lbl) lbl.textContent = tabSwitchCount;
 
       if (tabSwitchCount >= 3) {
-        alert('CẢNH BÁO: Bạn đã rời khỏi màn hình bài thi quá 3 lần! Hệ thống tự động thu bài để đảm bảo tính công bằng.');
         submitExam(true);
       }
     }
   });
 
-  /* ---- Rút ngẫu nhiên mảng ---- */
-  function pickRandom(arr, n) {
-    const shuffled = [...arr].sort(() => 0.5 - Math.random());
-    return shuffled.slice(0, n);
+  function escapeHtml(value) {
+    const entities = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+    return String(value ?? '').replace(/[&<>"']/g, char => entities[char]);
   }
 
-  /* ---- Xáo trộn 4 đáp án và bảo toàn đáp án đúng ---- */
-  function shuffleOptions(qObj) {
-    const indices = [0, 1, 2, 3];
-    indices.sort(() => 0.5 - Math.random());
-    return {
-      id: qObj.id,
-      q: qObj.q,
-      options: indices.map(i => qObj.opts[i]),
-      correct: indices.indexOf(qObj.c),
-      h: qObj.h,
-      explain: qObj.ex
-    };
+  function shuffleOptions(question) {
+    const optionOrder = [0, 1, 2, 3];
+    for (let i = optionOrder.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [optionOrder[i], optionOrder[j]] = [optionOrder[j], optionOrder[i]];
+    }
+    return { q: question.q, optionOrder, options: optionOrder.map(index => question.opts[index]) };
   }
 
-  /* ---- Bắt đầu làm bài thi ---- */
-  function startQuiz() {
-    const bankData = window.SW.data.quizBank || BANK;
+  async function startQuiz() {
+    const button = $('#btn-start');
+    if (button.disabled || isExamActive || pendingSubmission) return;
     const name = $('#inp-name').value.trim();
     const cls = $('#inp-class').value.trim();
     const school = $('#inp-school').value.trim();
@@ -111,22 +110,34 @@
     }
 
     candidate = { name, cls, school, ward, prov };
-
-    // Rút chuẩn tỷ lệ 50 - 30 - 20: 10 Nhận biết + 6 Thông hiểu + 4 Vận dụng (Tổng 20 câu)
-    if (!bankData || !bankData.nhanBiet) {
-      alert('Không tìm thấy dữ liệu ngân hàng câu hỏi. Vui lòng tải lại trang!');
+    button.disabled = true;
+    const originalLabel = button.textContent;
+    button.textContent = 'Đang chuẩn bị đề…';
+    let session;
+    try {
+      session = await api.request({ action: 'start', candidate, website: $('#inp-website').value });
+      if (!Array.isArray(session.ids) || session.ids.length !== questionCount ||
+          !session.ids.every(id => questionsById.has(id)) ||
+          typeof session.ticket !== 'string' || !Number.isFinite(session.durationMs)) {
+        throw new Error('Không nhận được đề hợp lệ. Vui lòng báo giáo viên.');
+      }
+      currentQuestions = session.ids.map(id => shuffleOptions(questionsById.get(id)));
+    } catch (error) {
+      alert(error.message);
       return;
+    } finally {
+      button.disabled = false;
+      button.textContent = originalLabel;
     }
 
-    const qNB = pickRandom(bankData.nhanBiet, 10).map(q => ({ ...shuffleOptions(q), type: 'nb' }));
-    const qTH = pickRandom(bankData.thongHieu, 6).map(q => ({ ...shuffleOptions(q), type: 'th' }));
-    const qVD = pickRandom(bankData.vanDung, 4).map(q => ({ ...shuffleOptions(q), type: 'vd' }));
-
-    currentQuestions = [...qNB, ...qTH, ...qVD].sort(() => 0.5 - Math.random());
-    userAnswers = new Array(20).fill(-1);
-    questionTimes = new Array(20).fill(0);
+    ticket = session.ticket;
+    userAnswers = new Array(questionCount).fill(-1);
+    questionTimes = new Array(questionCount).fill(0);
+    lastSelection = Date.now();
+    pendingSubmission = null;
     tabSwitchCount = 0;
     isExamActive = true;
+    $('#btn-submit-exam').textContent = 'Nộp bài ngay 🎯';
 
     const bar = $('#tab-warning-bar');
     if (bar) bar.style.display = 'none';
@@ -140,21 +151,15 @@
 
     renderExamPaper();
 
-    // Bắt đầu đếm ngược 10 phút (600 giây)
-    remainingSeconds = 600;
-    startTime = Date.now();
-    lastActionTimestamp = startTime;
+    deadline = Date.now() + session.durationMs;
+    remainingSeconds = Math.ceil(session.durationMs / 1000);
     updateTimerDisplay();
     clearInterval(timerInterval);
     timerInterval = setInterval(() => {
-      remainingSeconds--;
+      remainingSeconds = Math.max(0, Math.ceil((deadline - Date.now()) / 1000));
       updateTimerDisplay();
-      if (remainingSeconds <= 0) {
-        clearInterval(timerInterval);
-        alert('Đã hết thời gian làm bài (10 phút)! Hệ thống đang tự động nộp bài thi của bạn.');
-        submitExam(true);
-      }
-    }, 1000);
+      if (remainingSeconds === 0) submitExam(true);
+    }, 250);
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
@@ -177,13 +182,13 @@
         <div class="q-card" id="card_q_${idx}">
           <div class="q-card-head">
             <span class="q-num">Câu ${idx + 1}</span>
-            <b>${q.q}</b>
+            <b>${escapeHtml(q.q)}</b>
           </div>
           <div class="q-options">
             ${q.options.map((opt, optIdx) => `
               <label class="q-opt-label" data-q="${idx}" data-opt="${optIdx}">
                 <input type="radio" name="exam_q_${idx}" value="${optIdx}">
-                <span>${opt}</span>
+                <span>${escapeHtml(opt)}</span>
               </label>
             `).join('')}
           </div>
@@ -197,12 +202,9 @@
         const qIdx = parseInt(label.getAttribute('data-q'), 10);
         const optIdx = parseInt(label.getAttribute('data-opt'), 10);
         userAnswers[qIdx] = optIdx;
-
-        // Tính thời gian dành cho câu hỏi này
         const now = Date.now();
-        const durationSec = Math.max(1, Math.round((now - lastActionTimestamp) / 1000));
-        questionTimes[qIdx] = (questionTimes[qIdx] || 0) + durationSec;
-        lastActionTimestamp = now;
+        questionTimes[qIdx] += Math.round((now - lastSelection) / 1000);
+        lastSelection = now;
 
         container.querySelectorAll(`[data-q="${qIdx}"]`).forEach(l => l.classList.remove('selected'));
         label.classList.add('selected');
@@ -212,53 +214,62 @@
 
   /* ---- Nộp bài ---- */
   async function submitExam(isAuto = false) {
-    if (!isAuto) {
-      const unAns = userAnswers.indexOf(-1);
-      if (unAns !== -1) {
-        const confirmSubmit = confirm(`Bạn còn Câu ${unAns + 1} chưa trả lời. Bạn có chắc chắn muốn nộp bài sớm không?`);
-        if (!confirmSubmit) {
-          const el = document.getElementById(`card_q_${unAns}`);
-          if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          return;
-        }
+    if (submitting || (!isExamActive && !pendingSubmission)) return;
+    if (!pendingSubmission) {
+      const unanswered = userAnswers.indexOf(-1);
+      if (!isAuto && unanswered !== -1 &&
+          !confirm('Bạn còn bỏ trống câu ' + (unanswered + 1) + '. Bạn có muốn nộp bài không?')) {
+        document.getElementById('card_q_' + unanswered).scrollIntoView({ behavior: 'smooth' });
+        return;
       }
+      pendingSubmission = {
+        action: 'submit',
+        ticket,
+        answers: userAnswers.map((answer, index) =>
+          answer === -1 ? -1 : currentQuestions[index].optionOrder[answer]),
+        questionTimes: [...questionTimes],
+        tabSwitches: tabSwitchCount
+      };
+      document.querySelectorAll('#quiz-container input').forEach(input => { input.disabled = true; });
     }
 
     isExamActive = false;
+    submitting = true;
     clearInterval(timerInterval);
-
-    // Hiển thị modal "Đang nộp bài thi..."
     const loadingModal = $('#submit-loading-modal');
-    if (loadingModal) loadingModal.style.display = 'flex';
-    $('#btn-submit-exam').disabled = true;
+    const button = $('#btn-submit-exam');
+    const status = $('#submit-status');
+    status.textContent = '';
+    loadingModal.style.display = 'flex';
+    button.disabled = true;
 
-    // Tính thời gian hoàn thành thực tế (giây)
-    const elapsedSeconds = Math.max(1, Math.round((Date.now() - startTime) / 1000));
-
-    // Chấm điểm chuẩn: 20 câu, mỗi câu 5 điểm -> Thang điểm 100
-    let correctCount = 0;
-    let nbCorrect = 0;
-    let thCorrect = 0;
-    let vdCorrect = 0;
-
-    const detailsList = [];
-    const timeList = [];
-
-    currentQuestions.forEach((q, idx) => {
-      const isCorrect = userAnswers[idx] === q.correct;
-      if (isCorrect) {
-        correctCount++;
-        if (q.type === 'nb') nbCorrect++;
-        else if (q.type === 'th') thCorrect++;
-        else if (q.type === 'vd') vdCorrect++;
+    let result;
+    try {
+      ({ result } = await api.request(pendingSubmission));
+      if (!result || !Number.isInteger(result.score)) {
+        throw new Error('Chưa nhận được kết quả. Vui lòng thử nộp lại.');
       }
-      const qTime = questionTimes[idx] > 0 ? questionTimes[idx] : Math.max(2, Math.round(elapsedSeconds / 20));
-      timeList.push(`C${idx + 1}:${qTime}s`);
-      detailsList.push(`C${idx + 1}: ${isCorrect ? 'Đúng' : 'Sai'} (${qTime}s)`);
-    });
+      pendingSubmission = null;
+    } catch (error) {
+      status.textContent = error.message;
+      if (error.code === 'expired') {
+        pendingSubmission = null;
+        button.textContent = 'Bắt đầu lượt mới';
+        button.onclick = () => {
+          resetQuiz();
+          button.onclick = () => submitExam(false);
+        };
+      } else {
+        button.textContent = 'Thử nộp lại';
+      }
+      return;
+    } finally {
+      submitting = false;
+      loadingModal.style.display = 'none';
+      button.disabled = false;
+    }
 
-    const totalScore = correctCount * 5; // Thang điểm 100
-
+    const { score: totalScore, correctCount, elapsedSeconds, nbCorrect, thCorrect, vdCorrect } = result;
     // Xếp loại năng lực & lời nhận xét
     let ratingBadgeClass = 'xuat-sac';
     let ratingTitle = 'Đại sứ An toàn Nước 🏆';
@@ -282,97 +293,38 @@
       ratingComment = 'Đừng nản lòng! Hãy quay lại góc Kiến thức của SafeWater để học lại các kỹ năng phòng chống đuối nước và thử sức lại lần nữa nhé!';
     }
 
-    // Lưu vào Bảng xếp hạng cục bộ
-    const record = {
-      name: candidate.name,
-      cls: candidate.cls,
-      school: candidate.school,
-      ward: candidate.ward,
-      prov: candidate.prov,
-      score: totalScore,
-      correct: `${correctCount}/20`,
-      elapsed: `${elapsedSeconds}s`,
-      timeSeconds: elapsedSeconds,
-      timestamp: new Date().toLocaleDateString('vi-VN')
-    };
+    $('#step-exam').style.display = 'none';
+    $('#step-result').style.display = 'block';
 
-    if (window.SW && window.SW.leaderboard) {
-      window.SW.leaderboard.saveLeaderboard(record);
+    $('#res-score').textContent = totalScore;
+
+    const badgeEl = $('#res-eval-badge');
+    if (badgeEl) {
+      badgeEl.className = `eval-badge ${ratingBadgeClass}`;
+      badgeEl.textContent = ratingTitle;
     }
 
-    // Chuẩn bị payload UTF-8 chuẩn gửi về Google Sheets (Đã tinh gọn, chi tiết bài làm đã chứa sẵn số giây từng câu)
-    const payloadData = {
-      surveyType: 'Bài kiểm tra kiến thức',
-      name: candidate.name,
-      class: candidate.cls,
-      school: candidate.school,
-      ward: candidate.ward,
-      prov: candidate.prov,
-      score: totalScore,
-      correct: `${correctCount}/20`,
-      elapsed: `${elapsedSeconds}s`,
-      timeSeconds: elapsedSeconds,
-      tabSwitches: tabSwitchCount,
-      rating: ratingTitle,
-      nbScore: `${nbCorrect}/10`,
-      thScore: `${thCorrect}/6`,
-      vdScore: `${vdCorrect}/4`,
-      questionDetails: detailsList.join(' | '),
-      timestamp: new Date().toLocaleString('vi-VN')
-    };
+    $('#res-nb-score').textContent = `${nbCorrect}/${groupCounts.nb}`;
+    $('#res-th-score').textContent = `${thCorrect}/${groupCounts.th}`;
+    $('#res-vd-score').textContent = `${vdCorrect}/${groupCounts.vd}`;
 
-    // Gửi kết quả về Google Sheets chạy ngầm (Không dùng await để giao diện không bao giờ bị đơ/treo khi mạng chậm)
-    const honeypotVal = $('#inp-website') ? $('#inp-website').value : '';
-    if (!honeypotVal && GOOGLE_SCRIPT_URL) {
-      try {
-        fetch(GOOGLE_SCRIPT_URL, {
-          method: 'POST',
-          mode: 'no-cors',
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify(payloadData)
-        }).catch(e => console.warn('Lỗi gửi điểm Google Sheets:', e));
-      } catch(e) {
-        console.warn('Lỗi khởi tạo fetch:', e);
-      }
+    $('#res-detail').innerHTML = `
+      Thí sinh: <b>${escapeHtml(candidate.name)}</b> (${escapeHtml(candidate.cls)} · ${escapeHtml(candidate.school)})<br>
+      Số câu đúng: <b>${correctCount}/${questionCount} câu</b> · Thời gian: <b>${Number(elapsedSeconds).toLocaleString('vi-VN', { maximumFractionDigits: 3 })} giây</b> ${tabSwitchCount > 0 ? `· Rời màn hình: <b>${tabSwitchCount} lần</b>` : ''}<br>
+      <i>${ratingComment}</i>
+    `;
+
+    if (totalScore >= 70 && window.confetti) {
+      window.confetti({ particleCount: 90, spread: 75, origin: { y: 0.6 } });
     }
 
-    // Luôn mở màn hình kết quả sau đúng 1.2 giây mượt mà, tuyệt đối không bị treo xoay vòng
-    setTimeout(() => {
-      if (loadingModal) loadingModal.style.display = 'none';
-      $('#btn-submit-exam').disabled = false;
-
-      // Hiển thị kết quả
-      $('#step-exam').style.display = 'none';
-      $('#step-result').style.display = 'block';
-
-      $('#res-score').textContent = totalScore;
-      
-      const badgeEl = $('#res-eval-badge');
-      if (badgeEl) {
-        badgeEl.className = `eval-badge ${ratingBadgeClass}`;
-        badgeEl.textContent = ratingTitle;
-      }
-
-      $('#res-nb-score').textContent = `${nbCorrect}/10`;
-      $('#res-th-score').textContent = `${thCorrect}/6`;
-      $('#res-vd-score').textContent = `${vdCorrect}/4`;
-
-      $('#res-detail').innerHTML = `
-        Thí sinh: <b>${candidate.name}</b> (${candidate.cls} · ${candidate.school})<br>
-        Số câu đúng: <b>${correctCount}/20 câu</b> · Thời gian: <b>${elapsedSeconds} giây</b> ${tabSwitchCount > 0 ? `· Rời màn hình: <b>${tabSwitchCount} lần</b>` : ''}<br>
-        <i>${ratingComment}</i>
-      `;
-
-      if (totalScore >= 70 && window.confetti) {
-        window.confetti({ particleCount: 90, spread: 75, origin: { y: 0.6 } });
-      }
-
-      renderLeaderboard();
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }, 1200);
+    renderLeaderboard();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   function resetQuiz() {
+    $('#step-exam').style.display = 'none';
+    $('#submit-status').textContent = '';
     $('#step-result').style.display = 'none';
     $('#step-start').style.display = 'block';
     setTimeout(() => {
@@ -406,10 +358,8 @@
   }
 
   async function renderLeaderboard() {
-    let list = [];
-    if (window.SW && window.SW.leaderboard) {
-      list = await window.SW.leaderboard.getLeaderboard();
-    }
+    const { entries: list, stale } = await api.getLeaderboard();
+    $('#lb-status').textContent = stale ? 'Đang mất kết nối. Bảng có thể chưa cập nhật.' : 'Trực tiếp từ hệ thống thi';
     const podiumEl = $('#podium-area');
     const tableBody = $('#lb-table-body');
 
@@ -421,12 +371,12 @@
 
       podiumEl.innerHTML = `
         <!-- HẠNG 2 (BẠC) -->
-        <div class="podium-col rank-2" id="sidebar-podium-2" title="Hạng Nhì: ${top2.name} (${top2.score}đ - ⏱️ ${top2.elapsed || top2.timeSeconds + 's'})">
+        <div class="podium-col rank-2" id="sidebar-podium-2" title="Hạng Nhì: ${escapeHtml(top2.name)} (${top2.score}đ - ⏱️ ${escapeHtml(top2.elapsed || top2.timeSeconds + 's')})">
           <div class="podium-avatar-wrap">
             <div class="podium-crown">🥈</div>
           </div>
-          <div class="podium-user-name">${top2.name}</div>
-          <span class="podium-user-class">${top2.cls || '-'}</span>
+          <div class="podium-user-name">${escapeHtml(top2.name)}</div>
+          <span class="podium-user-class">${escapeHtml(top2.cls || '-')}</span>
           <div class="podium-base">
             <span class="rank-num">2</span>
             <span class="score-val" id="sidebar-score-2">${top2.score}đ</span>
@@ -434,7 +384,7 @@
         </div>
 
         <!-- HẠNG 1 (VÀNG) -->
-        <div class="podium-col rank-1" id="sidebar-podium-1" title="Quán quân: ${top1.name} (${top1.score}đ - ⏱️ ${top1.elapsed || top1.timeSeconds + 's'})">
+        <div class="podium-col rank-1" id="sidebar-podium-1" title="Quán quân: ${escapeHtml(top1.name)} (${top1.score}đ - ⏱️ ${escapeHtml(top1.elapsed || top1.timeSeconds + 's')})">
           <div class="podium-avatar-wrap">
             <div class="sparkle-container">
               <span class="sparkle sp-1">✨</span>
@@ -443,8 +393,8 @@
             </div>
             <div class="podium-crown">👑</div>
           </div>
-          <div class="podium-user-name">${top1.name}</div>
-          <span class="podium-user-class">${top1.cls || '-'}</span>
+          <div class="podium-user-name">${escapeHtml(top1.name)}</div>
+          <span class="podium-user-class">${escapeHtml(top1.cls || '-')}</span>
           <div class="podium-base">
             <span class="rank-num">1</span>
             <span class="score-val" id="sidebar-score-1">${top1.score}đ</span>
@@ -452,12 +402,12 @@
         </div>
 
         <!-- HẠNG 3 (ĐỒNG) -->
-        <div class="podium-col rank-3" id="sidebar-podium-3" title="Hạng Ba: ${top3.name} (${top3.score}đ - ⏱️ ${top3.elapsed || top3.timeSeconds + 's'})">
+        <div class="podium-col rank-3" id="sidebar-podium-3" title="Hạng Ba: ${escapeHtml(top3.name)} (${top3.score}đ - ⏱️ ${escapeHtml(top3.elapsed || top3.timeSeconds + 's')})">
           <div class="podium-avatar-wrap">
             <div class="podium-crown">🥉</div>
           </div>
-          <div class="podium-user-name">${top3.name}</div>
-          <span class="podium-user-class">${top3.cls || '-'}</span>
+          <div class="podium-user-name">${escapeHtml(top3.name)}</div>
+          <span class="podium-user-class">${escapeHtml(top3.cls || '-')}</span>
           <div class="podium-base">
             <span class="rank-num">3</span>
             <span class="score-val" id="sidebar-score-3">${top3.score}đ</span>
@@ -476,8 +426,7 @@
 
     // 2. Render Danh sách bảng từ HẠNG 4 TRỞ ĐI
     if (tableBody) {
-      const listFrom4 = list.slice(3);
-      const displayList = showAllLeaderboard ? listFrom4 : listFrom4.slice(0, 7);
+      const displayList = list.slice(3, 10);
 
       if (displayList.length === 0) {
         tableBody.innerHTML = `<div style="text-align:center;padding:14px;color:var(--mu);font-size:13px">Chưa có thêm thí sinh nào khác.</div>`;
@@ -493,13 +442,13 @@
             <div class="lb-item-left">
               <span class="lb-rank">#${actualRank}</span>
               <div class="lb-info">
-                <span class="lb-name" title="${item.name}">${item.name}</span>
-                <span class="lb-meta">${item.cls} · ${item.school}</span>
+                <span class="lb-name" title="${escapeHtml(item.name)}">${escapeHtml(item.name)}</span>
+                <span class="lb-meta">${escapeHtml(item.cls)} · ${escapeHtml(item.school)}</span>
               </div>
             </div>
             <div class="lb-score-tag">
               <div>${item.score}đ</div>
-              <div class="lb-time-meta">⏱️ ${item.elapsed || (item.timeSeconds ? item.timeSeconds + 's' : '180s')}</div>
+              <div class="lb-time-meta">⏱️ ${escapeHtml(item.elapsed || (item.timeSeconds ? item.timeSeconds + 's' : '180s'))}</div>
             </div>
           </div>
         `;
@@ -507,10 +456,4 @@
     }
   }
 
-  function toggleExpandLeaderboard() {
-    showAllLeaderboard = !showAllLeaderboard;
-    const btn = $('#btn-expand-lb');
-    if (btn) btn.textContent = showAllLeaderboard ? 'Thu gọn bảng xếp hạng (Top 10) 🔼' : 'Xem toàn bộ bảng xếp hạng 📋';
-    renderLeaderboard();
-  }
 })();

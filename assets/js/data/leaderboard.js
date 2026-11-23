@@ -1,74 +1,54 @@
-/* assets/js/data/leaderboard.js - Quản lý dữ liệu Bảng vàng vinh danh SafeWater */
+/* Kết nối trang Kiểm tra với Google Apps Script. */
 window.SW = window.SW || {};
 
 window.SW.leaderboard = (function() {
   const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxihBfQUHiQj6M0TXon-6ufZxjt6a9Lre-jeO3fvsNiE2EwlzTN71Gi2n3V7A6Q8hl3/exec';
-  const LB_KEY = 'sw_leaderboard_records_v3';
+  let latestEntries = [];
+
+  async function request(payload) {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), payload ? 25000 : 8000);
+    try {
+      const options = { signal: controller.signal, credentials: 'omit' };
+      if (payload) {
+        options.method = 'POST';
+        options.headers = { 'Content-Type': 'text/plain;charset=UTF-8' };
+        options.body = JSON.stringify(payload);
+      }
+      const response = await fetch(GOOGLE_SCRIPT_URL, options);
+      if (!response.ok) throw new Error('HTTP ' + response.status);
+      const data = await response.json();
+      if (!data || typeof data.ok !== 'boolean') throw new Error('Invalid response');
+      if (!data.ok) {
+        const error = new Error(data.error || 'Hệ thống đang bận. Vui lòng thử lại.');
+        error.code = data.code || 'server';
+        throw error;
+      }
+      return data;
+    } catch (error) {
+      if (error.code) throw error;
+      throw new Error('Chưa nhận được phản hồi từ hệ thống thi. Vui lòng thử lại.');
+    } finally {
+      clearTimeout(timeout);
+    }
+  }
 
   async function getLeaderboard() {
-    // 1. Luôn ưu tiên lấy dữ liệu trực tiếp mới nhất từ Google Sheets
     try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 4000);
-      const res = await fetch(GOOGLE_SCRIPT_URL, { signal: controller.signal });
-      clearTimeout(timeoutId);
-
-      if (res.ok) {
-        const data = await res.json();
-        if (Array.isArray(data)) {
-          // Nếu bạn vừa xóa sạch trên Sheets (dữ liệu rỗng) -> Xóa sạch bộ nhớ tạm và trả về rỗng
-          if (data.length === 0) {
-            localStorage.removeItem(LB_KEY);
-            return [];
-          }
-
-          // Chuẩn hóa dữ liệu từ Sheets
-          const normalized = data.map(item => ({
-            name: item.name || 'Thí sinh',
-            cls: item.class || item.cls || '-',
-            school: item.school || 'Trường TH&THCS Nguyễn Du',
-            score: parseInt(item.score, 10) || 0,
-            elapsed: item.elapsed || (item.timeSeconds ? `${item.timeSeconds}s` : '180s'),
-            timeSeconds: parseInt(item.timeSeconds, 10) || parseInt(String(item.elapsed).replace('s',''), 10) || 180
-          }));
-
-          // Ưu tiên điểm cao xếp trên; bằng điểm thì ai ít giây hơn (nhanh hơn) xếp trên
-          normalized.sort((a, b) => (b.score || 0) - (a.score || 0) || (a.timeSeconds || 0) - (b.timeSeconds || 0));
-          localStorage.setItem(LB_KEY, JSON.stringify(normalized));
-          return normalized;
-        }
-      }
-    } catch(e) {
-      console.warn('Lỗi kết nối Google Sheets, kiểm tra cache:', e);
+      const { entries } = await request();
+      if (!Array.isArray(entries)) throw new Error('Invalid leaderboard');
+      latestEntries = entries.slice(0, 10).map(entry => ({
+        name: String(entry.name || ''),
+        cls: String(entry.cls || ''),
+        school: String(entry.school || ''),
+        score: Number(entry.score) || 0,
+        elapsed: Number(entry.elapsed).toLocaleString('vi-VN', { maximumFractionDigits: 3 }) + 's'
+      }));
+      return { entries: latestEntries, stale: false };
+    } catch {
+      return { entries: latestEntries, stale: true };
     }
-
-    // 2. Chỉ khi mất mạng hoặc không kết nối được mới lấy từ LocalStorage
-    try {
-      const cached = JSON.parse(localStorage.getItem(LB_KEY));
-      if (Array.isArray(cached)) return cached;
-    } catch(e) {}
-
-    return [];
   }
 
-  function saveLeaderboard(newRecord) {
-    let list = [];
-    try {
-      list = JSON.parse(localStorage.getItem(LB_KEY)) || [];
-    } catch(e) {}
-
-    list.push(newRecord);
-    list.sort((a, b) => (b.score || 0) - (a.score || 0) || (a.timeSeconds || 0) - (b.timeSeconds || 0));
-    try {
-      localStorage.setItem(LB_KEY, JSON.stringify(list));
-    } catch(e) {}
-    return list;
-  }
-
-  return {
-    GOOGLE_SCRIPT_URL,
-    LB_KEY,
-    getLeaderboard,
-    saveLeaderboard
-  };
+  return { request, getLeaderboard };
 })();

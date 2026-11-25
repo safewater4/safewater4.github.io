@@ -17,7 +17,12 @@
 <style>
 /* Đảm bảo position: sticky hoạt động hoàn hảo trên mọi trình duyệt */
 html, body {
-  overflow-x: clip !important;
+  overflow: visible !important;
+  overflow-x: visible !important;
+}
+
+main {
+  max-width: 1240px;
 }
 
 /* ================= BỐ CỤC 2 CỘT ================= */
@@ -121,14 +126,14 @@ html, body {
 .exam-sticky-header {
   position: -webkit-sticky;
   position: sticky;
-  top: 70px;
+  top: 66px;
   z-index: 100;
   background: var(--card);
-  padding: 8px 0 12px;
-  margin-top: -8px;
-  margin-bottom: 20px;
+  padding: 14px 20px 14px;
+  margin: -24px -24px 20px;
   border-bottom: 1.5px solid var(--bd);
-  box-shadow: 0 8px 16px -8px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 8px 18px -6px rgba(0, 0, 0, 0.08);
+  border-radius: 22px 22px 0 0;
 }
 
 .quiz-topbar {
@@ -364,7 +369,7 @@ html, body {
 .sidebar-leaderboard {
   position: -webkit-sticky;
   position: sticky;
-  top: 70px;
+  top: 66px;
   z-index: 90;
 }
 .sidebar-leaderboard .podium-stage {

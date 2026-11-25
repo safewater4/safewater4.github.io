@@ -5,20 +5,161 @@
 <meta charset="utf-8">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Video – SafeWater</title>
+<title>Video Cảnh Báo Nguy Cơ Thực Tế – SafeWater</title>
 <link rel="icon" type="image/svg+xml" href="../assets/img/favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Nunito:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../assets/css/base.css">
 <link rel="stylesheet" href="../assets/css/layout.css">
 <link rel="stylesheet" href="../assets/css/components.css">
+<style>
+main {
+  max-width: 1140px;
+  padding: 20px 16px 48px;
+}
+
+/* Banner tiêu đề trang */
+.video-header-banner {
+  background: linear-gradient(135deg, rgba(10, 132, 214, 0.12), rgba(0, 180, 216, 0.05));
+  border: 1.5px solid rgba(10, 132, 214, 0.2);
+  border-radius: 24px;
+  padding: 22px 26px;
+  margin: 16px 0 24px;
+}
+.video-header-banner h1 {
+  margin: 0;
+  font-size: clamp(22px, 3.5vw, 30px);
+  color: var(--tx);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.video-header-banner p {
+  margin: 8px 0 0;
+  color: var(--mu);
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+/* Bố cục 2 cột phát video trực tiếp */
+.video-grid-2col {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 26px;
+  align-items: stretch;
+}
+
+@media (max-width: 860px) {
+  .video-grid-2col {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+}
+
+/* Thẻ Video */
+.video-card {
+  background: var(--card);
+  border: 1.5px solid var(--bd);
+  border-radius: 22px;
+  overflow: hidden;
+  box-shadow: 0 10px 28px rgba(10, 132, 214, 0.06);
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+.video-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 36px rgba(10, 132, 214, 0.14);
+  border-color: var(--pr);
+}
+
+/* Khung video tỷ lệ chuẩn 16:9 phát trực tiếp */
+.video-wrapper {
+  position: relative;
+  width: 100%;
+  padding-top: 56.25%; /* 16:9 Aspect Ratio */
+  background: #091726;
+}
+.video-wrapper iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+/* Thông tin & cảnh báo dưới video */
+.video-info {
+  padding: 20px 22px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.video-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #c2410c;
+  background: #ffedd5;
+  border: 1px solid #fdba74;
+  padding: 4px 12px;
+  border-radius: 20px;
+  width: fit-content;
+  margin-bottom: 10px;
+}
+
+.video-title {
+  margin: 0 0 12px;
+  font-size: 18.5px;
+  font-weight: 800;
+  color: var(--tx);
+  line-height: 1.4;
+}
+
+.video-hazard {
+  font-size: 14.5px;
+  line-height: 1.55;
+  color: #991b1b;
+  background: #fef2f2;
+  border-left: 4px solid #ef4444;
+  border-radius: 0 12px 12px 0;
+  padding: 12px 16px;
+  margin-top: auto;
+}
+.video-hazard b {
+  color: #7f1d1d;
+  display: block;
+  margin-bottom: 3px;
+  font-size: 13.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+</style>
 </head>
 <body>
 <!-- Header, menu, nút SOS và footer do assets/js/core/layout.js dựng tự động -->
 <main>
-<a class="b o" href="index.html">← Kiến thức</a><h1><svg class="i3 hi"><use href="#c-video"/></svg> Video</h1><div class="grid" id="vids"></div>
+  <div style="margin-bottom:12px">
+    <a class="b o" href="index.html">← Quay lại Kiến thức</a>
+  </div>
+
+  <div class="video-header-banner">
+    <h1><svg class="i3 hi"><use href="#c-video"/></svg> Video Cảnh Báo Nguy Cơ Thực Tế</h1>
+    <p>
+      Ghi nhận thực tế các điểm đen và hiểm họa đuối nước tiềm ẩn tại khu vực Tây Nguyên / Lâm Đồng. 
+      Học sinh hãy theo dõi trực tiếp các video để nhận diện dòng xoáy ngầm, vách bạt trơn trượt và vách đá nguy hiểm để tự bảo vệ bản thân!
+    </p>
+  </div>
+
+  <!-- Danh sách 4 video chia 2 cột phát trực tiếp không chuyển trang -->
+  <div class="video-grid-2col" id="vids"></div>
 </main>
+
 <script src="../assets/js/core/dom.js"></script>
 <script src="../assets/js/icons/sprite-line.js"></script>
 <script src="../assets/js/icons/sprite-3d.js"></script>

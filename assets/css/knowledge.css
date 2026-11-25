@@ -40,3 +40,11 @@
 #ktm .lesson-card__number{width:32px;height:32px;top:11px;left:11px;font-size:15px}
 #ktm .lesson-card__link{margin-top:11px;padding-top:8px}
 @media(max-width:760px){#ktm .lesson-card{min-height:250px;padding:16px}#ktm .lesson-card__content{padding-top:100px}#ktm .lesson-card h3{font-size:20px}}
+
+#ktm .knowledge-video-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;align-items:stretch}
+#ktm .knowledge-video-card{display:flex;flex-direction:column;gap:12px;padding:20px;border:1px solid var(--bd);border-radius:24px;background:var(--card);box-shadow:0 10px 28px #0a4a8a18;transition:transform .2s,box-shadow .2s,border-color .2s}
+#ktm .knowledge-video-card:hover{transform:translateY(-4px);border-color:var(--pr);box-shadow:0 16px 34px #0a84d633}
+#ktm .knowledge-video-card h3{margin:0;color:var(--tx);font-size:21px;line-height:1.35}
+#ktm .knowledge-video-card>div:nth-child(2){margin:0!important;border-radius:16px!important;box-shadow:0 8px 20px #09172620}
+#ktm .knowledge-video-card .b{display:flex;align-items:center;justify-content:center;box-sizing:border-box;width:100%;min-height:52px;margin-top:auto;padding:10px 16px;border-radius:16px;text-align:center;font-weight:800}
+@media(max-width:760px){#ktm .knowledge-video-grid{grid-template-columns:1fr;gap:16px}#ktm .knowledge-video-card{padding:16px}#ktm .knowledge-video-card h3{font-size:19px}}

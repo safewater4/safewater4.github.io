@@ -1,0 +1,266 @@
+<!DOCTYPE html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Mê Cung Thủy Quái</title>
+<style>
+:root{--bg:#0b1a2b;--fg:#fff;--ac:#ffd23f;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html,body{height:100%;margin:0;background:var(--bg);color:var(--fg);font-family:system-ui,sans-serif;overflow:hidden;touch-action:none;user-select:none}
+body{display:flex;align-items:center;justify-content:center}
+#w{position:relative}
+canvas{width:100%;height:100%;display:block;image-rendering:pixelated;background:#000}
+#ui{position:absolute;inset:0;background:rgba(8,24,44,.93);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.5em;text-align:center;overflow:auto;padding:.5em}
+#ui h1{margin:0;color:var(--ac);font-size:2.3em;text-shadow:0 3px #c1121f;line-height:1}
+#ui p{margin:.2em;max-width:34em}
+.r{display:flex;gap:.5em;align-items:center;justify-content:center;flex-wrap:wrap}
+button{font:inherit;font-weight:700;background:#ffd23f;color:#222;border:0;border-bottom:3px solid #b8860b;border-radius:6px;padding:.35em .8em;cursor:pointer}
+button:disabled{opacity:.45}
+button.big{font-size:1.4em;padding:.4em 1.6em;background:#e63946;color:#fff;border-color:#8d0801}
+.row{display:flex;gap:.6em;align-items:center;background:#16314f;border-radius:6px;padding:.3em .6em;width:min(92%,36em);justify-content:space-between;text-align:left}
+#snd{position:absolute;right:4px;top:4px;padding:.1em .4em;opacity:.8}
+#mn{position:absolute;right:46px;top:4px;padding:.1em .6em;opacity:.9;display:none;font-size:.85em;background:#e63946;color:#fff;border-color:#8d0801}
+#pad{position:fixed;left:0;right:0;bottom:calc(8px + env(safe-area-inset-bottom,0px));display:none;justify-content:space-between;padding:0 12px;pointer-events:none}
+#pad .g{display:flex;gap:12px}
+#pad b{pointer-events:auto;width:68px;height:68px;border-radius:50%;background:rgba(255,255,255,.28);border:2px solid rgba(255,255,255,.6);display:flex;align-items:center;justify-content:center;font-size:28px;touch-action:none}
+#rot{display:none;color:#ffd23f}
+aside{display:none;flex:1;align-self:stretch;flex-direction:column;justify-content:center;gap:10px;padding:12px 16px 100px;font-size:clamp(11px,1.15vw,16px);color:#cfe8ff;background:radial-gradient(circle at 20% 30%,rgba(255,255,255,.14) 0 5px,transparent 6px) 0 0/70px 95px,radial-gradient(circle at 70% 70%,rgba(255,255,255,.1) 0 4px,transparent 5px) 0 0/55px 80px,linear-gradient(180deg,#0e2a4a,#0b4a6c 70%,#0a6a8a)}
+@media(min-aspect-ratio:17/10){aside{display:flex}}
+aside .t{color:#ffd23f;font-weight:800;letter-spacing:.08em;text-align:center;text-shadow:0 2px #7a0a14;margin-bottom:4px}
+aside .tp{display:flex;gap:10px;align-items:center;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.18);border-radius:10px;padding:8px 10px}
+aside .tp b{color:#fff}aside small{opacity:.85}
+aside .hot{background:#c1121f;color:#fff;text-align:center;border-radius:10px;padding:10px;font-size:1.2em}aside .hot b{font-size:1.6em;color:#ffd23f}
+.row.lg{border:1px solid #ffd23f;animation:sh 1.6s infinite alternate}@keyframes sh{from{box-shadow:0 0 3px #ffd23f}to{box-shadow:0 0 12px #7df9ff}}
+@media(max-width:520px){#pad b{width:54px;height:54px;font-size:22px}#pad .g{gap:8px}}
+@media(orientation:portrait){#rot{display:block}}
+</style></head><body>
+<aside id="sl"></aside><div id="w"><canvas id="c"></canvas><div id="ui"></div><button id="snd" onclick="tgl()">🔊</button><button id="mn" onclick="pause()">☰ Menu</button></div><aside id="sr"></aside>
+<div id="pad"><div class="g"><b id="bl">◀</b><b id="br">▶</b></div><div class="g"><b id="bp"></b><b id="bt">🛟</b><b id="bj">⤒</b></div></div>
+<script>
+const W=320,H=192,T=16,R=12,SC=2;
+const cv=document.getElementById('c'),x=cv.getContext('2d');cv.width=W*SC;cv.height=H*SC;x.scale(SC,SC);
+const $=id=>document.getElementById(id);
+function fit(){const s=Math.min(innerWidth/W,(innerHeight-(innerHeight>innerWidth?0:0))/H);const w=$('w');w.style.width=W*s+'px';w.style.height=H*s+'px';$('ui').style.fontSize=Math.max(10,Math.min(19,W*s/50))+'px'}
+addEventListener('resize',fit);fit();
+let S={lv:0,coins:0,mas:[1,0,0,0,0],sel:0,own:{},cos:0};
+try{Object.assign(S,JSON.parse(localStorage.getItem('mcttq')||'{}'))}catch(e){}
+while(S.mas.length<8)S.mas.push(0);
+const save=()=>{try{localStorage.setItem('mcttq',JSON.stringify(S))}catch(e){}};
+/* ---- âm thanh ---- */
+let AC,mute=false;
+function ac(){AC=AC||new(window.AudioContext||window.webkitAudioContext)();if(AC.state=='suspended')AC.resume();return AC}
+function sfx(f,d,t='square',v=.07,sl=0){if(mute)return;try{const a=ac(),o=a.createOscillator(),g=a.createGain();o.type=t;o.frequency.setValueAtTime(f,a.currentTime);if(sl)o.frequency.exponentialRampToValueAtTime(Math.max(20,f+sl),a.currentTime+d);g.gain.setValueAtTime(v,a.currentTime);g.gain.exponentialRampToValueAtTime(.001,a.currentTime+d);o.connect(g);g.connect(a.destination);o.start();o.stop(a.currentTime+d)}catch(e){}}
+function nz(d,v=.15,fq=800){if(mute)return;try{const a=ac(),b=a.createBuffer(1,a.sampleRate*d,a.sampleRate),q=b.getChannelData(0);for(let i=0;i<q.length;i++)q[i]=(Math.random()*2-1)*(1-i/q.length);const s=a.createBufferSource(),f=a.createBiquadFilter(),g=a.createGain();f.type='lowpass';f.frequency.value=fq;g.gain.value=v;s.buffer=b;s.connect(f);f.connect(g);g.connect(a.destination);s.start()}catch(e){}}
+function tgl(){mute=!mute;$('snd').textContent=mute?'🔇':'🔊';if(state=='menu')menu()}
+let step=0;setInterval(()=>{if(state=='play'&&!mute){const st=Math.floor((lv-1)/10),sc=[0,3,5,7,10,7,5,3];sfx(110*Math.pow(2,(sc[step%8]+st*2)/12),.18,'triangle',.05);if(step%8==0&&st>2)sfx(55,.4,'sawtooth',.04);step++}},200);
+/* ---- dữ liệu ---- */
+const IT=[
+{n:'Phao tròn',ic:'🛟',m:'Gặp người đuối nước, hãy ném phao thay vì nhảy xuống'},
+{n:'Sào cứu hộ',ic:'🪝',m:'Dùng vật dài để kéo người đuối nước vào bờ'},
+{n:'Áo phao',ic:'🦺',m:'Luôn mặc áo phao khi xuống nước hoặc đi thuyền'},
+{n:'Còi báo động',ic:'📣',m:'Kêu to và gọi người lớn ngay khi có người đuối nước'},
+{n:'Can nhựa rỗng',ic:'🧴',m:'Chai, can nhựa rỗng đậy kín có thể làm phao tạm'},
+{n:'Dây cứu hộ',ic:'🪢',m:'Ném dây cho nạn nhân rồi kéo vào bờ'},
+{n:'Điện thoại',ic:'📱',m:'Gọi 111 (bảo vệ trẻ em) hoặc 115 (cấp cứu) khi có tai nạn'},
+{n:'Biển cảnh báo',ic:'⚠️',m:'Tránh xa ao hồ, sông suối có biển cấm, nước sâu'}];
+const POOL=[0,0,0,1,1,3,6,6,2,4,5,7];
+const MA=[{n:'Rùa Nhanh Trí',d:'Thêm 30 giây cho mỗi màn',ic:'🐢',c:0},{n:'Cá Heo Dũng Cảm',d:'Tự hút xu đến gần bạn',ic:'🐬',c:40},{n:'Vịt Con Lanh Lợi',d:'Nhảy cao, lướt nhẹ khi rơi',ic:'🦆',c:50},{n:'Hải Âu Canh Gác',d:'Báo trước chỗ nước nguy hiểm',ic:'🕊️',c:60},{n:'Rái Cá Cứu Hộ',d:'Hồi sinh một lần mỗi màn',ic:'🦦',c:80},
+{n:'Rồng Nước',d:'Hồi sinh 1 lần/màn · đòn ném mạnh thêm · hút xu xa',ic:'🐉',c:0,L:1},{n:'Kỳ Lân Biển',d:'Đi trên mặt nước · nhảy cao (xoáy nước vẫn nguy hiểm)',ic:'🦄',c:0,L:1},{n:'Phượng Hoàng Băng',d:'+60 giây · khiên chắn nước · đòn ném làm quái đóng băng',ic:'❄️',c:0,L:1}];
+const SH=[{k:'vest',n:'Áo phao',d:'+1 mạng mỗi màn (tối đa 3)',c:40,m:3},{k:'shoe',n:'Giày chống trượt',d:'Chạy nhanh, đi vững hơn',c:25},{k:'mag',n:'Nam châm hút xu',d:'Tự hút xu ở gần',c:35},{k:'clk',n:'Đồng hồ',d:'Thêm 40 giây mỗi màn',c:30},{k:'shd',n:'Khiên chắn nước',d:'Chặn 1 lần nước phun mỗi màn',c:40},{k:'map',n:'Bản đồ',d:'Hé lộ các vùng nước sâu',c:30},{k:'c1',n:'Trang phục xanh',d:'Đổi diện mạo',c:25},{k:'c2',n:'Trang phục cam',d:'Đổi diện mạo',c:25},{k:'c3',n:'Trang phục tím',d:'Đổi diện mạo',c:25}];
+const STN=['Suối nhỏ','Ao hồ','Sông','Thác nước','Hang thủy quái'];
+const SKY=['#5c94fc','#6ab0e8','#4a8fd0','#5f7aa0','#2a1a2e'],HILL=['#3d9a4a','#3a8f7a','#7aa06a','#5a6a7a','#4a2a3a'],GT=['#3cb043','#2e8b57','#c2a35c','#8a8a9c','#7a3a3a'],MC=['#2a9d6f','#2f7fb0','#3a4fa0','#5a3aa0','#8a1020'];
+const COS=['#e63946','#2a7fff','#f4a261','#9b5de5'];
+/* ---- biểu tượng vẽ pixel ---- */
+function ico(c,id,px,py,s){c.save();c.translate(px,py);c.scale(s/12,s/12);const Q=(col,a,b,w,h)=>{c.fillStyle=col;c.fillRect(a,b,w,h)};
+if(id=='coin'){Q('#b8860b',2,0,8,12);Q('#b8860b',0,2,12,8);Q('#ffd23f',2,1,8,10);Q('#ffd23f',1,2,10,8);Q('#fff3a0',3,2,2,4);Q('#b8860b',5,3,2,6)}
+else if(id=='heart'){Q('#e63946',1,2,4,4);Q('#e63946',7,2,4,4);Q('#e63946',1,4,10,3);Q('#e63946',2,7,8,2);Q('#e63946',4,9,4,2);Q('#fff',2,3,2,1)}
+else if(id=='clk'){c.fillStyle='#fff';c.beginPath();c.arc(6,6,5.5,0,6.3);c.fill();Q('#000',5.5,2,1,4.5);Q('#000',5.5,6,3,1)}
+else if(id==0){c.lineWidth=3;c.strokeStyle='#e63946';c.beginPath();c.arc(6,6,4.5,0,6.3);c.stroke();c.strokeStyle='#fff';c.beginPath();c.arc(6,6,4.5,.2,1.2);c.stroke();c.beginPath();c.arc(6,6,4.5,3.3,4.3);c.stroke()}
+else if(id==1){c.strokeStyle='#8a5a2b';c.lineWidth=2;c.beginPath();c.moveTo(1,11);c.lineTo(10,2);c.stroke();c.strokeStyle='#ddd';c.beginPath();c.arc(9,4,3,3.5,6.3);c.stroke()}
+else if(id==2){Q('#ff8c1a',2,1,3,10);Q('#ff8c1a',7,1,3,10);Q('#ff8c1a',2,6,8,5);Q('#fff',2,8,8,1);Q('#d96a00',5,1,2,4)}
+else if(id==3){Q('#e63946',1,4,5,5);Q('#ffd23f',6,2,2,9);Q('#ffd23f',8,1,3,11);Q('#fff',2,5,2,2)}
+else if(id==4){Q('#3aa0ff',2,3,8,9);Q('#aee3ff',3,4,2,6);Q('#e63946',4,0,4,3);Q('#1a6fc0',2,3,8,1)}
+else if(id==5){c.strokeStyle='#d2b48c';c.lineWidth=2;c.beginPath();c.arc(6,6,4.5,0,6.3);c.stroke();c.beginPath();c.arc(6,6,2,0,6.3);c.stroke();Q('#d2b48c',9,9,3,2)}
+else if(id==6){Q('#222',3,0,6,12);Q('#6fd3ff',4,1,4,8);Q('#aaa',5,10,2,1)}
+else if(id==7){c.fillStyle='#ffd23f';c.beginPath();c.moveTo(6,0);c.lineTo(12,11);c.lineTo(0,11);c.fill();Q('#000',5,4,2,4);Q('#000',5,9,2,1)}
+else if(id=='fist'){Q('#e63946',0,4,2,6);Q('#ffd0a0',2,3,8,7);Q('#c98a5a',4,3,1,3);Q('#c98a5a',6,3,1,3);Q('#c98a5a',8,3,1,3);Q('#ffd0a0',9,2,3,3);Q('#c98a5a',2,9,8,1)}
+c.restore()}
+function mic(c,i,px,py,s){c.save();c.translate(px,py);c.scale(s/16,s/16);const Q=(col,a,b,w,h)=>{c.fillStyle=col;c.fillRect(a,b,w,h)};
+if(i==0){Q('#2e7d32',2,4,10,7);Q('#1b5e20',4,5,2,2);Q('#1b5e20',8,5,2,2);Q('#9ccc65',12,5,4,4);Q('#000',14,6,1,1);Q('#9ccc65',3,11,3,3);Q('#9ccc65',9,11,3,3)}
+else if(i==1){Q('#4a90d9',2,5,11,6);Q('#4a90d9',13,7,3,3);Q('#2f6db0',5,2,3,3);Q('#4a90d9',0,3,3,3);Q('#cfe8ff',4,9,8,2);Q('#000',11,6,1,1)}
+else if(i==2){Q('#ffd23f',2,7,10,7);Q('#ffd23f',9,2,5,6);Q('#ff8c1a',14,5,2,2);Q('#000',12,3,1,1);Q('#e0b020',4,9,5,3)}
+else if(i==3){Q('#fff',2,7,10,5);Q('#cfd8dc',3,4,7,3);Q('#fff',11,4,4,4);Q('#ffd23f',15,6,1,2);Q('#000',13,5,1,1);Q('#b0bec5',0,8,3,2)}
+else if(i==5){Q('#0e8fb0',0,10,3,3);Q('#19c6e0',2,8,9,4);Q('#19c6e0',4,5,4,4);Q('#19c6e0',9,3,5,5);Q('#ffd23f',10,1,1,3);Q('#ffd23f',13,1,1,3);Q('#fff',12,4,1,1);Q('#bff6ff',3,11,8,1);Q('#ffd23f',4,4,1,2);Q('#ffd23f',6,4,1,2);Q('#ff7a59',14,6,2,1)}
+else if(i==6){Q('#f5e9ff',3,6,9,6);Q('#f5e9ff',10,2,5,5);Q('#ffd23f',13,0,1,3);Q('#000',13,4,1,1);Q('#ff7ad9',8,2,2,6);Q('#7ad9ff',0,9,4,5);Q('#f5e9ff',4,12,2,3);Q('#f5e9ff',9,12,2,3);Q('#ff7ad9',1,10,2,2)}
+else if(i==7){Q('#6fd3ff',0,3,5,4);Q('#6fd3ff',1,7,4,3);Q('#bfe9ff',5,6,6,6);Q('#bfe9ff',10,3,4,4);Q('#ffd23f',14,5,2,1);Q('#000',12,4,1,1);Q('#ff6b6b',11,1,1,2);Q('#ff6b6b',12,0,1,2);Q('#e0f7ff',1,12,9,2);Q('#fff',0,13,4,2)}
+else{Q('#8d5a2b',2,6,10,7);Q('#8d5a2b',10,2,5,6);Q('#d7b48a',12,5,3,3);Q('#000',13,4,1,1);Q('#5a3418',0,9,3,2);Q('#5a3418',4,12,2,2);Q('#5a3418',9,12,2,2)}
+if(i>=5){const k=Math.floor(frame/8)%3;[[0,1],[13,3],[7,0],[2,13]].forEach((p,j)=>{if((j+k)%3<2)Q(i==7?'#e0f7ff':'#fff',p[0],p[1],2,2)})}
+c.restore()}
+function iu(k,id,s=24,lk){const cv2=document.createElement('canvas');cv2.width=cv2.height=s;const c=cv2.getContext('2d');k=='m'?mic(c,id,0,0,s):ico(c,id,0,0,s);return `<img src="${cv2.toDataURL()}" width=${s} height=${s} style="image-rendering:pixelated;vertical-align:middle${lk?';filter:brightness(0) opacity(.4)':''}">`}
+function side(){const mk=(ids,t)=>`<div class=t>${t}</div>`+ids.map(i=>`<div class=tp>${iu('i',i,36)}<div><b>${IT[i].n}</b><br><small>${IT[i].m}</small></div></div>`).join('');$('sl').innerHTML=mk([0,1,3,6],'DỤNG CỤ CỨU ĐUỐI');$('sr').innerHTML=mk([2,4,5,7],'NHỚ NHÉ!')+`<div class=hot>Gọi <b>111</b> · <b>115</b><br><small>Bảo vệ trẻ em · Cấp cứu</small></div>`}
+/* ---- trạng thái ---- */
+let M,cols,pits,whirl,coins,P,proj=[],balls=[],ammo=[],parts=[],mon,lv=1,sel=1,lives,time,cam=0,shake=0,toastT=0,tA='',tB='',state='menu',inv=0,ck=32,flt=0,magT=0,warn=0,otter=0,shd=0,boxL=0,gct=0,frame=0,mas=0,got=0,flagX=0,pcd=0,punchT=0,pn=0,tr={fb:new Set(),sg:[],cr:[],sw:[],ff:[]};
+const keys={},press={};
+function toast(a,b){tA=a;tB=b||'';toastT=260}
+/* ---- sinh mê cung ---- */
+function gen(n){
+let s=n*7919+13;const rn=()=>{s=(Math.imul(s,1103515245)+12345)&0x7fffffff;return s/2147483647};
+const boss=n%10==0;cols=110+n*2;M=[];for(let r=0;r<R;r++)M.push(new Uint8Array(cols));
+for(let c=0;c<cols;c++){M[10][c]=1;M[11][c]=1}
+pits=[];whirl=[];coins=[];boxL=0;let c=9;const g=cols-16,gw=boss?8:6,lim=g-9,want=8+Math.floor(n/6);
+while(c<lim){const k=rn();
+if(k<.28+n*.005){const w=2+(rn()<.3+n*.01?1:0);for(let i=0;i<w;i++){M[10][c+i]=M[11][c+i]=0;coins.push({x:(c+i)*T+8,y:8*T})}pits.push({c,w});c+=w+3}
+else if(k<.45+n*.003){whirl.push(c*T+1);c+=4}
+else if(k<.8){const len=3+(rn()*3|0);for(let i=0;i<len;i++){const b=rn()<.4&&boxL<want;M[7][c+i]=b?2:1;if(b)boxL++;else coins.push({x:(c+i)*T+8,y:6*T+8})}c+=len+2}
+else{for(let i=0;i<4;i++)coins.push({x:(c+i)*T+8,y:9*T+8});c+=5}}
+for(let a=0;boxL<want&&a<300;a++){const cc=10+(rn()*(lim-12)|0);if(!M[7][cc]&&M[10][cc]){M[7][cc]=2;boxL++}}
+for(let cc=g;cc<g+gw;cc++)for(let r=0;r<10;r++)M[r][cc]=4;
+mon={gx:g*T,gw:gw*T,hp:3+Math.floor(n/8)+(boss?2:0),cd:90,stun:0,fl:0,dead:false,boss};mon.max=mon.hp;flagX=(cols-4)*T;mkTr(n)}
+/* ---- màn hình ---- */
+function ui(h){const u=$('ui');u.innerHTML=h;u.style.display='flex';$('pad').style.display='none';$('mn').style.display='none'}
+function hide(){$('ui').style.display='none';$('pad').style.display='flex';$('mn').style.display='block'}
+function menu(){state='menu';sel=Math.min(sel,S.lv+1,50);ui(`<h1>MÊ CUNG<br>THỦY QUÁI</h1><p>Phòng chống đuối nước · Cứu người bằng dụng cụ, đừng nhảy xuống nước!</p><div class=r><button onclick=chg(-1)>◀</button><b>Màn ${sel} · ${STN[Math.floor((sel-1)/10)]}</b><button onclick=chg(1)>▶</button><button onclick=lvUI()>Chọn màn</button></div><button class=big onclick=go()>CHƠI</button><div class=r><button onclick=masUI()>Linh vật</button><button onclick=shopUI()>Cửa hàng</button><button onclick=helpUI()>Hướng dẫn</button></div><p>🪙 ${S.coins} xu · Linh vật: ${iu('m',S.sel,18)} ${MA[S.sel].n}</p><p id=rot>↻ Xoay ngang điện thoại để chơi tốt hơn</p><p>Phím ← → chạy · Cách nhảy</p><p><b>Ném vật phẩm: nhấn Z, X, C, K, Shift, Enter hoặc ↓</b></p><p><b>Đấm tay: nhấn F hoặc J (đứng sát thác nước)</b></p><p>Đã qua ${S.lv}/50 màn · Tiến trình tự động lưu, lần sau vào chơi tiếp ngay.</p>`)}
+function lvUI(){state='lv';ui(`<h1 style="font-size:1.4em">Chọn màn</h1><p>Màn chưa qua thì bị khóa mờ · Đã qua ${S.lv}/50</p>`+STN.map((n,g)=>`<div style="width:100%"><small>${n} · màn ${g*10+1}–${g*10+10}</small><div class=r style="gap:.25em">`+[...Array(10)].map((_,i)=>{const l=g*10+i+1,lk=l>S.lv+1;return `<button style="border-radius:50%;width:2.3em;height:2.3em;padding:0;${lk?'opacity:.3;':''}${l==sel?'background:#e63946;color:#fff;':''}" ${lk?'disabled':''} onclick="sel=${l};menu()">${l}</button>`}).join('')+`</div></div>`).join('')+`<button onclick=menu()>Quay lại</button>`)}
+function chg(d){sel=Math.max(1,Math.min(S.lv+1,50,sel+d));menu()}
+function masUI(){state='mas';ui(`<h1 style="font-size:1.6em">Chọn linh vật</h1><p>🪙 ${S.coins} xu · Thắng thủy quái cuối chặng để mở khóa miễn phí</p>`+MA.map((m,i)=>{const lg=m.L,lk=lg&&!S.mas[i];return `<div class="row${lg?' lg':''}"><span>${iu('m',i,28,lk)} <b>${lk?'??? Huyền thoại bí ẩn':m.n}</b>${lg&&!lk?' ✨':''}<br><small>${lk?'Siêu hiếm: rơi từ hộp may mắn (tỉ lệ rất thấp) hoặc thắng thủy quái màn 50':m.d}</small></span>${S.mas[i]?`<button onclick=pick(${i}) ${S.sel==i?'disabled':''}>${S.sel==i?'Đang chọn':'Chọn'}</button>`:lg?`<button disabled>Khóa</button>`:`<button onclick=buyM(${i}) ${S.coins<m.c?'disabled':''}>Mua ${m.c} xu</button>`}</div>`}).join('')+`<button onclick=menu()>Quay lại</button>`)}
+function pick(i){S.sel=i;save();masUI()}
+function buyM(i){if(S.coins>=MA[i].c){S.coins-=MA[i].c;S.mas[i]=1;S.sel=i;save();sfx(900,.2);masUI()}}
+function shopUI(){state='shop';ui(`<h1 style="font-size:1.6em">Cửa hàng</h1><p>🪙 ${S.coins} xu</p>`+SH.map(s=>{const o=S.own[s.k]||0,cs=s.k[0]=='c'&&s.k.length==2,ci=cs?+s.k[1]:0;let b;if(cs&&o)b=`<button onclick=equip(${ci}) ${S.cos==ci?'disabled':''}>${S.cos==ci?'Đang mặc':'Mặc'}</button>`;else if(!cs&&o>=(s.m||1))b=`<button disabled>Đã có${s.m?' '+o:''}</button>`;else b=`<button onclick="buy('${s.k}')" ${S.coins<s.c?'disabled':''}>${s.c} xu${s.m?' ('+o+'/'+s.m+')':''}</button>`;return`<div class=row><span><b>${s.n}</b><br><small>${s.d}</small></span>${b}</div>`}).join('')+`<button onclick=menu()>Quay lại</button>`)}
+function buy(k){const s=SH.find(a=>a.k==k);if(S.coins<s.c)return;S.coins-=s.c;S.own[k]=(S.own[k]||0)+1;if(k[0]=='c'&&k.length==2)S.cos=+k[1];save();sfx(900,.2);shopUI()}
+function equip(i){S.cos=i;save();shopUI()}
+function endUI(t,body,btns){ui(`<h1 style="font-size:1.8em">${t}</h1>${body}<div class=r>${btns}</div>`)}
+const tip=()=>{const k=Math.random()*IT.length|0;return iu('i',k,18)+' '+IT[k].m};const tipT=()=>IT[Math.random()*IT.length|0].m;
+function win(){state='win';S.lv=Math.max(S.lv,lv);let ex='';if(lv%10==0&&lv<50&&!S.mas[lv/10]){S.mas[lv/10]=1;ex=`<p>🎉 Mở khóa linh vật: ${iu('m',lv/10,20)} ${MA[lv/10].n}!</p>`}save();sfx(660,.15);setTimeout(()=>sfx(880,.15),150);setTimeout(()=>sfx(1320,.3),300);
+if(lv==50&&!S.mas[5]){S.mas[5]=1;save();ex=`<p>✨ Linh vật huyền thoại: ${iu('m',5,22)} Rồng Nước đã thuộc về bạn!</p>`}
+if(lv==50)return endUI('CHIẾN THẮNG!',`${ex}<p>Bạn đã đánh bại thủy quái khổng lồ và cứu cả dòng sông! Hãy nhớ: không xuống nước một mình, luôn mặc áo phao, và gọi 111 / 115 khi có tai nạn.</p>`,`<button class=big onclick=menu()>Về menu</button>`);
+endUI(`Qua màn ${lv}!`,`<p>Xu nhặt được: 🪙 ${got} · Tổng: ${S.coins}</p>${ex}<p>${tip()}</p>`,`<button class=big onclick=start(${lv+1})>Màn tiếp</button><button onclick=menu()>Menu</button>`)}
+function lose(){state='lose';save();endUI('Bạn đã thua!',`<p>Thủy quái đã thắng lần này. Hãy nhớ:</p><p>${tip()}</p>`,`<button class=big onclick=start(${lv})>Chơi lại</button><button onclick=menu()>Menu</button>`)}
+function go(){sfx(600,.08);start(sel)}
+/* ---- bắt đầu màn ---- */
+function start(n){lv=n;sel=n;gen(n);mas=S.sel;P={x:32,y:10*T-15,w:12,h:14,vx:0,vy:0,on:true,f:1};ck=32;proj=[];balls=[];ammo=[];parts=[];
+lives=3+(S.own.vest||0);time=120+n+(mas==0?30:0)+(mas==7?60:0)+(S.own.clk?40:0);pcd=punchT=pn=0;flt=0;magT=0;warn=S.own.map?1:0;otter=(mas==4||mas==5)?1:0;shd=(S.own.shd||mas==7)?1:0;got=0;gct=0;inv=60;shake=0;
+hide();state='play';toast(`Màn ${n} · ${STN[Math.floor((n-1)/10)]}`,mon.boss?'Thủy quái chặng đang chờ bạn!':'Nhảy qua nước sâu, đến thác nước!')}
+/* ---- vật phẩm ---- */
+function giveItem(){if(Math.random()<.006){const lk=[5,6,7].filter(i=>!S.mas[i]);if(lk.length){const i=lk[Math.random()*lk.length|0];S.mas[i]=1;save();toast('✨ Huyền thoại xuất hiện!',MA[i].n+' đã chọn bạn! Vào mục Linh vật để chọn.');sfx(1320,.4,'triangle',.08);for(let j=0;j<30;j++)parts.push({x:P.x+6,y:P.y,vx:Math.random()*4-2,vy:-Math.random()*4,l:40,c:'#ffd23f'});return}}
+const id=POOL[Math.random()*POOL.length|0],it=IT[id];toast(it.n,it.m);
+if([0,1,3,6].includes(id))ammo.push(id);else if(id==2)lives++;else if(id==4)flt=600;else if(id==5)magT=900;else if(id==7)warn=1}
+function bump(c,r){M[r][c]=3;boxL--;if(tr.fb.has(c)){prank('Cục rác! Hộp này chơi khăm!','Vật lạ ven nước có thể nguy hiểm, đừng nhặt hay cúi sát mép nước.');sfx(200,.2,'sawtooth',.06)}else if(lv<=10&&Math.random()<.07){prank('Hộp rỗng! Hihi!','Đừng buồn, lần sau may mắn hơn. Ra gần nước phải có người lớn đi cùng nhé.');sfx(300,.15)}else{giveItem();sfx(880,.08);setTimeout(()=>sfx(1320,.15),80)}for(let i=0;i<10;i++)parts.push({x:c*T+8,y:r*T,vx:Math.random()*3-1.5,vy:-Math.random()*3,l:30,c:'#ffe066'})}
+function throwIt(){if(!ammo.length){toast('Chưa có vật phẩm','Đập hộp ? để lấy dụng cụ, hoặc đứng sát thác nước và bấm F/J để đấm');return}const id=ammo.shift();proj.push({x:P.x+8,y:P.y+3,vx:3.8*P.f,vy:-1.3,id});sfx(500,.1,'triangle',.07,200)}
+function splash(px,py,n,c='#bfe9ff'){for(let i=0;i<n;i++)parts.push({x:px,y:py,vx:Math.random()*4-2,vy:-Math.random()*4,l:25,c})}
+/* ---- chiêu trêu & đấm tay ---- */
+const JK=['Ối! Nước lạnh quá!','Hihi, thử lại nhé!','Cá nhỏ đang cười bạn đó!','Chỉ suýt nữa thôi!','Nhìn kỹ trước khi nhảy nha!'];
+function prank(a,b){toast(a,b);toastT=320}
+function hurt(d){mon.hp-=d;mon.fl=8;shake=8;if(mon.fw&&mon.hp>0&&mon.hp<=mon.max*.3){mon.fw=0;mon.weak=140;mon.stun=0;mon.wn=0}}
+function mkTr(n){const st=Math.floor((n-1)/10),k=1+Math.floor((n-1)%10/3)+(st>3?1:0);let q=n*131+17;const r2=()=>{q=(Math.imul(q,1103515245)+12345)&0x7fffffff;return q/2147483647};
+tr={fb:new Set(),sg:[],cr:[],sw:[],ff:[],sy:0};mon.sl=0;mon.fw=0;mon.weak=0;const gc=mon.gx/T,used=[];
+const ok=(c,a,b)=>{for(let i=c-a;i<=c+b;i++)if(!M[10][i])return 0;return !whirl.some(w=>Math.abs(w/T-c)<4)&&!pits.some(p=>Math.abs(p.c-c)<4)};
+const pc=f=>{for(let a=0;a<300;a++){const c=14+(r2()*(gc-30)|0);if(f(c)&&used.every(u=>Math.abs(u-c)>6)){used.push(c);return c}}return -1};
+if(st>=1){for(let c=0;c<cols;c++)if(M[7][c]==2&&r2()<.28+st*.04)tr.fb.add(c);let z=0;for(const p of pits){if(z>=k)break;const c=p.c-4;if(c>14&&M[10][c-1]&&M[10][c]&&M[10][c+1]&&r2()<.6){tr.sg.push({x:c*T,h:0});z++}}}
+if(st>=2){for(let i=0;i<k;i++){const c=pc(c=>ok(c,3,4));if(c>0)tr.cr.push({c,t:-1,f:0})}
+for(let i=0;i<k;i++){const c=pc(c=>ok(c,2,2));if(c>0)tr.sw.push({x:c*T+1,s:0,t:0})}
+let z=0;for(const o of coins){if(z>=k*3)break;if(o.y==9*T+8&&ok(Math.floor(o.x/T),5,5)&&r2()<.25){o.sh=1;o.hx=o.x;z++}}}
+if(st>=3){let c=pc(c=>ok(c,2,2));if(c<0)c=pc(c=>M[10][c]&&M[10][c+1]&&M[10][c+2]);if(c>0)tr.ff.push({x:c*T,h:0});mon.sl=1}
+if(st>=4)mon.fw=1}
+function punch(){if(pcd>0)return;pcd=34;punchT=10;sfx(260,.08,'triangle',.07,-80);
+if(!mon.dead&&P.x+P.w>=mon.gx-12&&P.x<mon.gx){hurt(.5);splash(mon.gx,P.y+6,8);sfx(140,.15,'sawtooth',.08,-60);if(!pn){pn=1;toast('Đấm trúng!','Đấm tay yếu hơn dụng cụ cứu hộ. Dụng cụ vẫn là cách an toàn nhất!')}}
+else if(!mon.dead&&P.x>mon.gx-200&&toastT<80)toast('Chưa tới!','Phải đứng sát màn thác nước mới đấm trúng.')}
+/* ---- vật lý ---- */
+const sol=(c,r)=>r>=R||r<0?false:c<0||c>=cols?true:M[r][c]>0;
+function mvX(){P.x+=P.vx;const d=Math.sign(P.vx);if(!d)return;const c=Math.floor((d>0?P.x+P.w:P.x)/T);for(let r=Math.floor(P.y/T);r<=Math.floor((P.y+P.h-1)/T);r++)if(sol(c,r)){P.x=d>0?c*T-P.w:(c+1)*T;break}}
+function mvY(){P.y+=P.vy;P.on=false;const c1=Math.floor((P.x+1)/T),c2=Math.floor((P.x+P.w-2)/T);
+if(P.vy>0){const r=Math.floor((P.y+P.h)/T);for(let c=c1;c<=c2;c++)if(sol(c,r)){P.y=r*T-P.h;P.vy=0;P.on=true;break}}
+else if(P.vy<0){const r=Math.floor(P.y/T);for(let c=c1;c<=c2;c++)if(sol(c,r)){P.y=(r+1)*T;P.vy=0;if(M[r][c]==2)bump(c,r);break}}
+if(flt>0&&!P.on&&P.vy>=0&&P.y+P.h>=160&&P.y+P.h<176){P.y=160-P.h;P.vy=0;P.on=true}}
+function die(m){if(inv>0||state!='play')return;sfx(220,.5,'sawtooth',.1,-170);splash(P.x+6,Math.min(P.y+14,160),16);
+if(otter){otter=0;toast(MA[mas].n+' cứu bạn!','Luôn có người lớn và dụng cụ cứu hộ ở gần khi ở gần nước');respawn();return}
+lives--;if(lives<=0){lose();return}toast(m,JK[Math.random()*JK.length|0]+' '+tipT());respawn()}
+function respawn(){let c0=Math.floor(ck/T),c=c0;while(c>1&&!(M[10][c]&&M[10][c+1]))c--;if(c!=c0)ck=c*T+2;P.x=ck;P.y=10*T-P.h-1;P.vx=P.vy=0;inv=120;balls=[];time=Math.max(time,20)}
+const ov=(a,b,c,d,e,f,g,h)=>a<e+g&&a+c>e&&b<f+h&&b+d>f;
+function upd(){
+const sp=S.own.shoe?2.1:1.8,ax=(keys.l?-1:0)+(keys.r?1:0);P.vx=ax*sp;if(ax)P.f=ax;
+if(press.j&&P.on){P.vy=(mas==2||mas==6)?-7:-6.3;P.on=false;sfx(400,.12,'square',.06,300)}
+if(!keys.j&&P.vy<-2.5)P.vy=-2.5;
+P.vy=Math.min(7,P.vy+.3);if(mas==2&&keys.j&&P.vy>1.4)P.vy=1.4;
+if(press.t)throwIt();if(press.p)punch();press.j=press.t=press.p=0;
+if(mas==6)flt=9;mvX();mvY();if(P.y>H+10)die('Rơi xuống nước sâu!');
+if(P.on&&P.y+P.h>=159){const c0=Math.floor(P.x/T);if(M[10][c0-1]&&M[10][c0]&&M[10][c0+1]&&M[10][c0+2]&&!whirl.some(w=>Math.abs(w-P.x)<40)&&!tr.sw.some(w=>Math.abs(w.x-P.x)<40)&&P.x<mon.gx-30)ck=P.x}
+time-=1/60;if(time<=0){time=0;die('Hết giờ!')}
+if(inv>0)inv--;if(pcd>0)pcd--;if(punchT>0)punchT--;if(flt>0)flt--;if(magT>0)magT--;if(shake>0)shake--;if(toastT>0)toastT--;
+const mr=(mas==1?50:0)+(mas==5?60:0)+(S.own.mag?40:0)+(magT>0?70:0);
+for(const k of coins){if(k.g)continue;const dx=P.x+6-k.x,dy=P.y+7-k.y,d=Math.hypot(dx,dy);if(k.sh&&Math.abs(dx)<44&&Math.abs(dy)<30){const nx=k.x-Math.sign(dx||1)*1.2;if(Math.abs(nx-k.hx)<56){k.x=nx;if(!tr.sy){tr.sy=1;prank('Xu nhát gan!','Xu chạy trốn kìa! Đuổi theo nhanh, nhưng đừng lao sát mép nước nhé.')}}}if(mr&&d<mr){k.x+=dx*.15;k.y+=dy*.15}if(d<10){k.g=1;S.coins++;got++;sfx(1100,.07,'square',.05,500);parts.push({x:k.x,y:k.y,vx:0,vy:-1,l:15,c:'#ffd23f'})}}
+for(const w of whirl)if(ov(P.x+2,P.y+2,P.w-4,P.h-2,w,150,14,10))die('Xoáy nước nguy hiểm!');
+for(const w of tr.sw){if(w.s==0&&w.x-P.x>0&&w.x-P.x<130){w.s=1;w.t=40}else if(w.s==1&&--w.t<=0){w.s=2;prank('Xoáy nước bất ngờ!','Nước chảy xiết rất nguy hiểm, hãy đứng cách xa mép nước.')}else if(w.s==2&&ov(P.x+2,P.y+2,P.w-4,P.h-2,w.x,150,14,10))die('Xoáy nước bất ngờ!')}
+for(const q of tr.cr){if(q.f)continue;if(P.on&&P.x+6>q.c*T&&P.x+6<(q.c+2)*T&&q.t<0)q.t=30;if(q.t>=0&&--q.t<=0){q.f=1;M[10][q.c]=M[10][q.c+1]=M[11][q.c]=M[11][q.c+1]=0;splash(q.c*T+16,158,14,'#8b5a2b');nz(.4,.15,400);shake=10;prank('Đường giả sụp rồi!','Bờ ven nước dễ sụt lở. Đi theo lối an toàn, tránh sát mép nước.')}}
+for(const g of tr.sg)if(!g.h&&Math.abs(P.x-g.x)<14){g.h=1;prank('Biển báo nói dối!','Mũi tên chỉ ngược rồi! Hãy tự quan sát kỹ nước phía trước.')}
+for(const f of tr.ff)if(!f.h&&Math.abs(P.x+6-f.x-2)<12){f.h=1;time=Math.max(5,time-5);prank('Cờ giả! Trừ 5 giây','Cờ thật ở cuối thác nước. Đừng vội vàng khi ở gần nước!')}
+if(mas>=5&&frame%3==0)parts.push({x:P.x+Math.random()*30-8,y:P.y+Math.random()*16-4,vx:0,vy:-.4,l:18,c:['#fff','#7df9ff','#ffd23f','#ff9de2'][Math.random()*4|0]});
+/* thủy quái */
+if(!mon.dead){const near=P.x>mon.gx-280;if(near&&frame%25==0)nz(.3,.04,2500);
+if(mon.fl>0)mon.fl--;if(mon.stun>0)mon.stun--;
+if(mon.sl&&near&&(P.x>mon.gx-120||mon.hp<mon.max)){mon.sl=0;mon.cd=20;shake=22;nz(1,.3,200);sfx(60,.8,'sawtooth',.14,-20);prank('GẦM!!! Nó giả vờ ngủ!','Mặt nước yên tĩnh vẫn có thể nguy hiểm. Đừng bao giờ lại gần nước một mình!')}
+if(mon.weak>0&&!mon.wn){mon.wn=1;prank('Ối... em yếu quá...','Cẩn thận, có thể là giả vờ! Giữ khoảng cách an toàn với nước.')}
+if(mon.weak>0&&--mon.weak<=0&&mon.hp>0){mon.hp=Math.ceil(mon.max*.6);shake=18;prank('Hồi máu rồi! Nó giả vờ yếu!','Đừng chủ quan: nước chưa yên thì chưa an toàn.')}
+if(near&&mon.stun<=0&&!mon.sl&&mon.weak<=0&&--mon.cd<=0){const st=Math.floor((lv-1)/10);nz(.9,.25,300);sfx(70,.7,'sawtooth',.12,-30);shake=14;mon.cd=(lv>=31&&Math.random()<.3)?24:Math.max(lv>=41?45:55,(115-st*10-lv/2-(lv>=41?15:0))|0)+(lv>=31?(Math.random()*25|0):0);balls.push({x:mon.gx-4,y:Math.random()<.5?148:126,vx:-(1.3+st*.15+lv*.01)})}
+if(mon.hp<=0){mon.dead=true;for(let cc=mon.gx/T;cc<(mon.gx+mon.gw)/T;cc++)for(let r=0;r<10;r++)M[r][cc]=0;shake=40;nz(1.2,.25,500);splash(mon.gx+mon.gw/2,100,40);toast('Thủy quái đã bị đẩy lùi!','Dòng thác đã yên. Hãy tới lá cờ!')}}
+for(const b of balls){b.x+=b.vx;if(ov(P.x+1,P.y,P.w-2,P.h,b.x-4,b.y-4,8,8)&&inv<=0){if(shd){shd=0;b.x=-999;toast('Khiên chắn nước!','Dụng cụ phòng hộ giúp bạn an toàn hơn');sfx(700,.15)}else{b.x=-999;die('Trúng nước phun!')}}}
+balls=balls.filter(b=>b.x>cam-20);
+for(const q of proj){q.x+=q.vx;q.y+=q.vy;q.vy+=.05;
+if(!mon.dead&&q.x+4>=mon.gx&&q.y<160){q.x=-9999;if(q.id==3)mon.stun=220;if(q.id==1)mon.cd+=60;hurt((q.id==6?3:q.id==3?.5:1)+(mas==5?1:0));if(mas==7)mon.stun=Math.max(mon.stun,100);splash(mon.gx,q.y,12);sfx(150,.25,'sawtooth',.1,-80);toast('Đánh trúng thủy quái!',IT[q.id].m)}
+else if(q.y>160||sol(Math.floor(q.x/T),Math.floor(q.y/T))){q.x=-9999}}
+proj=proj.filter(q=>q.x>cam-30&&q.x<cam+W+60);
+if(!ammo.length&&boxL<=0&&!mon.dead&&P.x>mon.gx-300&&++gct>300){gct=0;ammo.push(0);toast('Phao tròn','Gặp người đuối nước, hãy ném phao thay vì nhảy xuống')}
+for(const p of parts){p.x+=p.vx;p.y+=p.vy;p.vy+=.15;p.l--}parts=parts.filter(p=>p.l>0);
+cam=Math.max(0,Math.min(cols*T-W,P.x-110));frame++;if(frame%300==0)save();
+if(mon.dead&&P.x>flagX-8)win()}
+/* ---- vẽ ---- */
+const tx=(s,a,b,c='#fff')=>{x.lineWidth=2.5;x.strokeStyle='#000';x.strokeText(s,a,b);x.fillStyle=c;x.fillText(s,a,b)};
+function monster(){const st=Math.floor((lv-1)/10),gx=mon.gx,s=mon.gw,cx=gx+s/2,cy=88,bs=mon.boss?1.15:1;
+x.fillStyle=mon.fl>0&&frame%2?'#fff':mon.weak>0?'#8a9a8a':MC[st];x.fillRect(gx+4,cy-66,s-8,126);x.fillRect(gx,cy-50,s,100);
+if(mon.boss){x.fillStyle='#e8e0c8';for(const sx of[gx+8,gx+s-20]){x.beginPath();x.moveTo(sx,cy-62);x.lineTo(sx+6,cy-92);x.lineTo(sx+12,cy-62);x.fill()}}
+const es=(mon.boss?18:14)*bs;for(const ex of[cx-s*.24,cx+s*.24]){x.fillStyle='#000';x.fillRect(ex-es/2-2,cy-34,es+4,es);x.fillStyle=frame%40<3?'#300':'#ff1a1a';x.fillRect(ex-es/2,cy-32,es,es-4);x.fillStyle='#ffe0a0';x.fillRect(ex-2,cy-28,4,es-12);if(mon.sl){x.fillStyle=MC[st];x.fillRect(ex-es/2-2,cy-34,es+4,es);x.fillStyle='#000';x.fillRect(ex-es/2,cy-24,es,2)}}
+if(mon.sl)tx('Zzz',cx-10,cy-74+Math.sin(frame/15)*3);if(mon.weak>0)tx('Ối...',cx-14,cy-74);
+const mw=s*.7,my=cy+2,open=mon.cd<14&&mon.stun<=0?18:6;x.fillStyle='#200000';x.fillRect(cx-mw/2,my,mw,28+open);
+x.fillStyle='#fff';for(let i=0;i<mw;i+=9){x.beginPath();x.moveTo(cx-mw/2+i,my);x.lineTo(cx-mw/2+i+4.5,my+13);x.lineTo(cx-mw/2+i+9,my);x.fill();x.beginPath();x.moveTo(cx-mw/2+i,my+28+open);x.lineTo(cx-mw/2+i+4.5,my+15+open);x.lineTo(cx-mw/2+i+9,my+28+open);x.fill()}
+x.fillStyle='rgba(180,225,255,.5)';for(let i=0;i<s;i+=5){const o=(frame*3+i*7)%40;x.fillRect(gx+i,0,3,160);x.fillStyle='rgba(255,255,255,.55)';x.fillRect(gx+i,(o*4)%160,2,14);x.fillStyle='rgba(180,225,255,.5)'}
+x.fillStyle='#fff';for(let i=0;i<s;i+=6)x.fillRect(gx+i,152+Math.sin(frame/5+i)*3,5,8)}
+function player(px,py){if(inv>0&&frame%6<3)return;const f=P.f;x.fillStyle='#5a3418';x.fillRect(px+1,py-1,10,3);x.fillStyle='#ffd0a0';x.fillRect(px+2,py+1,8,5);x.fillStyle='#000';x.fillRect(px+(f>0?7:3),py+3,2,2);x.fillStyle=COS[S.cos];x.fillRect(px+2,py+6,8,5);
+x.fillStyle='#235';const w=P.on&&P.vx?Math.floor(frame/5)%2:0;x.fillRect(px+2,py+11,3,3-w);x.fillRect(px+7,py+11,3,2+w);if(flt>0&&mas!=6){x.fillStyle='#ff4d4d';x.fillRect(px-2,py+13,16,3);x.fillStyle='#fff';x.fillRect(px+2,py+13,4,3)}}
+function draw(){const st=Math.floor((lv-1)/10),t=frame,cx=Math.floor(cam);
+x.save();if(shake>0)x.translate((Math.random()-.5)*shake*.5|0,(Math.random()-.5)*shake*.3|0);
+x.fillStyle=SKY[st];x.fillRect(-10,-10,W+20,H+20);
+x.fillStyle=HILL[st];for(let i=0;i<6;i++){const hx=((i*90-cam*.3)%(W+90)+W+90)%(W+90)-60;x.fillRect(hx,120,60,40);x.fillRect(hx+10,108,40,12)}
+x.fillStyle='rgba(255,255,255,.8)';for(let i=0;i<4;i++){const hx=((i*130-cam*.15)%(W+130)+W+130)%(W+130)-40;x.fillRect(hx,24+i*10,34,8);x.fillRect(hx+8,18+i*10,18,6)}
+x.fillStyle='#1e6fd9';x.fillRect(0,160,W,32);x.fillStyle='#5db4ff';for(let i=0;i<W/8+1;i++)x.fillRect(i*8,162+Math.sin((i*8+cx+t*2)/10)*2|0,8,2);
+x.translate(-cx,0);
+for(let r=0;r<R;r++)for(let c=Math.floor(cx/T);c<=Math.floor(cx/T)+21&&c<cols;c++){const v=M[r][c];if(!v||v==4)continue;const px=c*T,py=r*T;
+if(r>=10){x.fillStyle='#8b5a2b';x.fillRect(px,py,T,T);if(r==10){x.fillStyle=GT[st];x.fillRect(px,py,T,4)}else{x.fillStyle='#6b4423';x.fillRect(px+3,py+4,3,3);x.fillRect(px+10,py+9,3,3)}}
+else if(v==1){x.fillStyle='#b5651d';x.fillRect(px,py,T,T);x.fillStyle='#6b3a10';x.fillRect(px,py+7,T,1);x.fillRect(px+7,py,1,7);x.fillRect(px+3,py+8,1,8);x.fillRect(px,py,T,1)}
+else{x.fillStyle=v==2?'#ffc61a':'#8a6a30';x.fillRect(px,py,T,T);x.fillStyle=v==2?'#b8860b':'#5a4020';x.fillRect(px,py,T,1);x.fillRect(px,py+15,T,1);x.fillRect(px,py,1,T);x.fillRect(px+15,py,1,T);if(v==2){x.fillStyle='#fff';x.font='bold 11px sans-serif';x.fillText('?',px+5,py+12)}}}
+for(const p of pits){const px=p.c*T;if(px<cx-60||px>cx+W+20)continue;if(warn||(mas==3&&px>P.x&&px<P.x+200)){const by=128+Math.sin(t/6)*3;x.fillStyle='#e63946';x.beginPath();x.moveTo(px+p.w*8,by-14);x.lineTo(px+p.w*8-9,by+2);x.lineTo(px+p.w*8+9,by+2);x.fill();x.fillStyle='#fff';x.font='bold 10px sans-serif';x.fillText('!',px+p.w*8-2,by)}}
+for(const w of tr.sw)if(w.s==1){x.strokeStyle='rgba(232,248,255,.7)';x.lineWidth=1;x.beginPath();x.arc(w.x+7,158,2+(frame%20)/3,0,6.3);x.stroke()}
+for(const g of tr.sg){x.fillStyle='#6b4423';x.fillRect(g.x+7,148,3,12);x.fillStyle='#ffd23f';x.fillRect(g.x,136,18,13);x.fillStyle='#222';x.fillRect(g.x+7,142,8,2);x.beginPath();x.moveTo(g.x+3,143);x.lineTo(g.x+8,139);x.lineTo(g.x+8,147);x.fill()}
+for(const q of tr.cr)if(!q.f){const o=q.t>=0?(frame%4<2?-1:1):0;x.fillStyle='#4a2a10';x.fillRect(q.c*T+o+5,160,1,5);x.fillRect(q.c*T+o+6,164,3,1);x.fillRect((q.c+1)*T+o+4,160,1,6)}
+for(const f of tr.ff){x.fillStyle='#ddd';x.fillRect(f.x,100,3,60);x.fillStyle=f.h?'#999':'#ff9f1c';x.fillRect(f.x+3,f.h?140:102,20,12);x.fillStyle='#000';const fy=f.h?144:106;x.fillRect(f.x+8,fy,2,2);x.fillRect(f.x+15,fy,2,2);x.fillRect(f.x+10,fy+5,5,1)}
+for(const w of whirl.concat(tr.sw.filter(q=>q.s==2).map(q=>q.x))){x.strokeStyle='#e8f8ff';x.lineWidth=2;for(let k=0;k<3;k++){x.beginPath();x.arc(w+7,155,3+k*2.5,t/5+k*2,t/5+k*2+4);x.stroke()}x.fillStyle='rgba(30,111,217,.8)';x.fillRect(w,158,14,2)}
+for(const k of coins){if(k.g||k.x<cx-10||k.x>cx+W+10)continue;const w=Math.abs(Math.sin((t+k.x)/10))*6+2;x.fillStyle='#ffd23f';x.fillRect(k.x-w/2,k.y-5,w,10);x.fillStyle='#b8860b';x.fillRect(k.x-w/2,k.y-5,1,10)}
+x.fillStyle='#ddd';x.fillRect(flagX,64,3,96);x.fillStyle='#e63946';x.fillRect(flagX+3,66,20,12+Math.sin(t/8)*2);
+if(!mon.dead)monster();
+for(const b of balls){x.fillStyle='#2b8cff';x.fillRect(b.x-5,b.y-4,10,8);x.fillStyle='#aee3ff';x.fillRect(b.x-4,b.y-3,4,3)}
+for(const q of proj)ico(x,q.id,q.x-6,q.y-6,12);
+player(P.x,P.y);if(punchT>0){const o=(10-punchT)*.8*P.f;ico(x,'fist',P.x+(P.f>0?10:-10)+o,P.y+4,10)}
+mic(x,mas,P.x+(mas==3?(P.f>0?40:-48):(P.f>0?-15:13)),P.y-1+Math.sin(t/8)*2,15);
+for(const p of parts){x.fillStyle=p.c;x.fillRect(p.x,p.y,2,2)}
+x.restore();
+x.font='bold 9px sans-serif';ico(x,'heart',6,3,10);tx(lives,19,12);ico(x,'coin',38,3,10);tx(S.coins,51,12);ico(x,'clk',86,3,10);tx(Math.ceil(time),99,12);tx('Màn '+lv,130,12);
+tx('Ném:',W-125,12);if(ammo.length){ico(x,ammo[0],W-97,3,10);tx('×'+ammo.length,W-84,12)}else tx('—',W-97,12);ico(x,'fist',6,177,10);x.fillStyle='#000';x.fillRect(19,179,30,6);x.fillStyle=pcd>0?'#888':'#7CFC00';x.fillRect(20,180,28*(1-pcd/34),4);x.font='bold 8px sans-serif';tx('F/J',52,186);x.font='bold 9px sans-serif';
+if(!mon.dead&&P.x>mon.gx-320){x.fillStyle='#000';x.fillRect(110,18,100,8);x.fillStyle='#e63946';x.fillRect(111,19,98*Math.max(0,mon.hp)/mon.max,6);tx('Thủy quái',142,36)}
+if(toastT>0){x.globalAlpha=Math.min(1,toastT/30);x.font='9px sans-serif';const ls=[];if(tB){let l='';for(const w of tB.split(' ')){if(l&&x.measureText(l+' '+w).width>W-24){ls.push(l);l=w}else l=l?l+' '+w:w}ls.push(l)}x.fillStyle='rgba(0,0,0,.78)';x.fillRect(6,44,W-12,18+ls.length*10);x.fillStyle='#ffd23f';x.font='bold 10px sans-serif';x.textAlign='center';x.fillText(tA,W/2,56);x.fillStyle='#fff';x.font='9px sans-serif';ls.forEach((t,i)=>x.fillText(t,W/2,67+i*10));x.textAlign='left';x.globalAlpha=1}}
+/* ---- vòng lặp & điều khiển ---- */
+let last=0,acc=0;
+function loop(ts){requestAnimationFrame(loop);acc+=Math.min(ts-last,100);last=ts;while(acc>=16.67){acc-=16.67;if(state=='play')upd()}if(state=='play')draw()}
+addEventListener('keydown',e=>{if(state!='play')return;const k=e.key;if(k=='ArrowLeft'||k=='a')keys.l=1;else if(k=='ArrowRight'||k=='d')keys.r=1;else if(k==' '||k=='ArrowUp'){keys.j=1;if(!e.repeat)press.j=1}else if(k=='f'||k=='F'||k=='j'||k=='J'){if(!e.repeat)press.p=1}else if(k=='x'||k=='X'||k=='z'||k=='Z'||k=='c'||k=='C'||k=='k'||k=='K'||k=='Shift'||k=='Enter'||k=='ArrowDown'){if(!e.repeat)press.t=1}else return;e.preventDefault()});
+addEventListener('keyup',e=>{const k=e.key;if(k=='ArrowLeft'||k=='a')keys.l=0;else if(k=='ArrowRight'||k=='d')keys.r=0;else if(k==' '||k=='ArrowUp')keys.j=0});
+[['bl','l'],['br','r'],['bj','j'],['bt','t'],['bp','p']].forEach(([id,k])=>{const e=$(id);e.addEventListener('pointerdown',ev=>{ev.preventDefault();keys[k]=1;if(k=='j')press.j=1;if(k=='t')press.t=1;if(k=='p')press.p=1;try{e.setPointerCapture(ev.pointerId)}catch(_){}});['pointerup','pointercancel'].forEach(n=>e.addEventListener(n,()=>{if(k!='t')keys[k]=0}))});
+addEventListener('contextmenu',e=>e.preventDefault());
+function pause(){if(state!='play')return;state='pause';save();for(const k in keys)keys[k]=0;ui(`<h1 style="font-size:1.8em">Tạm dừng</h1><p>Tiến trình đã được lưu: đã qua ${S.lv} màn · ${S.coins} xu</p><button class=big onclick=resume()>Tiếp tục</button><div class=r><button onclick=start(${lv})>Chơi lại màn ${lv}</button><button onclick=menu()>Thoát ra menu</button><button onclick="helpUI('pause')">Hướng dẫn</button></div>`)}
+function resume(){state='play';hide()}
+addEventListener('visibilitychange',()=>{if(document.hidden){if(state=='play')pause();save()}});addEventListener('pagehide',save);
+function helpUI(b){state='help';const back=b=='pause'?"state='play';pause()":'menu()';const L=[[0,'Phao tròn','Ném: làm thủy quái yếu đi'],[1,'Sào cứu hộ','Ném: đẩy lùi thủy quái'],[3,'Còi báo động','Ném: làm quái choáng, tạm ngừng phun nước'],[6,'Điện thoại','Ném: gây sát thương lớn nhất'],[2,'Áo phao','Thêm 1 mạng'],[4,'Can nhựa rỗng','Nổi trên mặt nước khoảng 10 giây'],[5,'Dây cứu hộ','Tự hút xu ở gần'],[7,'Biển cảnh báo','Hiện dấu ! trên vùng nước sâu'],['fist','Đấm tay','Phím F/J: trừ ít máu, có thời gian nghỉ']];
+ui(`<div style="margin:auto;display:flex;flex-direction:column;align-items:center;gap:.4em;width:100%"><h1 style="font-size:1.6em">Hướng dẫn chơi</h1><p><b>Mục tiêu:</b> chạy qua mê cung, nhặt xu, nhảy qua nước sâu, dùng dụng cụ cứu đuối đánh thủy quái sau thác nước, rồi chạy tới lá cờ.</p><div class=row><span><b>Máy tính</b><br>← → (hoặc A D): chạy · Phím cách (hoặc ↑): nhảy, giữ lâu thì nhảy cao<br>Z, X, C, K, Shift, Enter hoặc ↓: <b>ném vật phẩm</b><br>F hoặc J: <b>đấm bằng tay</b> (phím riêng, phải đứng sát thác nước)</span></div><div class=row><span><b>Điện thoại</b><br>Nút ◀ ▶ để chạy · nút mũi tên để nhảy · nút phao để ném · nút nắm đấm để đấm</span></div><div class=row><span><b>Cách chơi</b><br>1. Nhảy lên đập ô <b>?</b> từ dưới để lấy vật phẩm.<br>2. Rơi xuống nước sâu, chạm xoáy nước hoặc trúng nước phun sẽ mất mạng.<br>3. Nước phun thấp thì nhảy qua, nước phun cao thì đứng yên cho nó bay qua.<br>4. Thủy quái chỉ yếu khi bạn ném dụng cụ trúng nó (có thanh máu phía trên). Hết ném thì phải tìm thêm hộp ô.<br>5. Hết vật phẩm vẫn không kẹt màn: đứng <b>sát màn thác</b> rồi bấm F/J (hoặc nút nắm đấm) để đấm. Đấm yếu hơn vật phẩm và có thời gian nghỉ giữa hai cú.<br>6. Thủy quái gục, thác đổ xong mới chạy tới lá cờ được.<br>7. Lên màn cao, game sẽ trêu bạn: hộp giả, biển báo nói dối, đường sụp, xoáy nước bất ngờ, xu nhát, thủy quái giả vờ ngủ hoặc giả vờ yếu... Tinh ý là né được, và mỗi lần dính đều có lời nhắc an toàn!</span></div>`+L.map(a=>`<div class=row><span>${iu('i',a[0],26)} <b>${a[1]}</b></span><small style="text-align:right">${a[2]}</small></div>`).join('')+`<div class=row><span><b>Linh vật huyền thoại</b>: Rồng Nước, Kỳ Lân Biển, Phượng Hoàng Băng. Siêu hiếm: rơi từ hộp may mắn với tỉ lệ rất thấp hoặc thắng thủy quái màn 50.</span></div><div class=row><span><b>Xu</b>: nhặt xu để mua linh vật, áo phao, khiên, trang phục... ở Linh vật và Cửa hàng. Tiến trình tự động lưu.</span></div><button class=big onclick="${back}">Đã hiểu</button></div>`)}
+$('bt').innerHTML=iu('i',0,38);$('bp').innerHTML=iu('i','fist',34);side();sel=Math.min(S.lv+1,50);if(!S.seen){S.seen=1;save();helpUI()}else menu();requestAnimationFrame(loop);
+</script></body></html>

@@ -1,6 +1,6 @@
 /* pages/games.js – trang Trò chơi: danh sách game (data/games.js), mỗi game là 1 trang trong tro-choi/ */
 (function(){
-  /* Dedicated illustrations for the seven game cards. */
+  /* Dedicated illustrations for the game cards. */
   $('#gl').innerHTML=SW.data.games.map((g,index)=>{
     const ready=g.status==='play';
     const action=ready?'Chơi ngay':'Sắp ra mắt';

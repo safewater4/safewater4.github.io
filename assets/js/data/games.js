@@ -4,11 +4,9 @@
 SW.data.games=[
   {icon:'🚁',glyph:'wave',title:'Biệt đội cứu hộ cao nguyên',sub:'Phiêu lưu 3D & kỹ năng phòng chống đuối nước',tag:'3D MỚI',page:'biet-doi-cuu-ho-cao-nguyen.html',status:'play'},
   {icon:'🛡️',glyph:'mountain',title:'Đội viên tuần tra an toàn',sub:'Nhập vai tuần tra, phát hiện nguy hiểm và giúp người dân',tag:'PHỔ BIẾN',page:'doi-vien-tuan-tra-an-toan.html',status:'play'},
-  {icon:'⏱️',glyph:'clock',title:'Nhận diện tình huống nhanh',sub:'10 giây – một quyết định – một cuộc đời',tag:'THÁCH THỨC',page:'nhan-dien-tinh-huong.html',status:'play'},
-  {icon:'🔢',glyph:'steps',title:'Xử lý tình huống đúng thứ tự',sub:'Sắp xếp bước cứu người chuẩn xác',tag:'LOGIC',page:'xu-ly-tinh-huong.html',status:'play'},
-  {icon:'🦸',glyph:'hero',title:'Nhập vai cứu người đuối nước',sub:'Trở thành người hùng trong gang tấc (Đồ họa 3D)',tag:'3D HÀNH ĐỘNG',page:'cuoc-chien-cuu-nguoi.html',status:'play'},
+  {icon:'🦸',glyph:'hero',title:'Cuộc chiến cứu người',sub:'Hành động 3D, học cách cứu người an toàn',tag:'3D HÀNH ĐỘNG',page:'cuoc-chien-cuu-nguoi.html',status:'play'},
   {icon:'🃏',glyph:'puzzle',title:'Lật Thẻ Thông Minh',sub:'Lật thẻ tìm cặp hình giống nhau – 100 màn',tag:'TRÍ NHỚ',page:'lat-the-thong-minh.html',status:'play'},
-  {icon:'🔍',glyph:'search',title:'Tìm điểm nguy hiểm ẩn nấp',sub:'Phát hiện cạm bẫy trước khi quá muộn',tag:'TRINH THÁM',page:'../kien-thuc/nhan-dien-nguy-co.html',status:'play'}
+  {icon:'🧩',glyph:'steps',title:'Mê Cung Thủy Quái',sub:'Vượt mê cung, né xoáy nước và đánh bại thủy quái',tag:'PHIÊU LƯU',page:'me-cung-thuy-quai.html',status:'play'}
 ];
 
 /* Chinh phục đỉnh núi: 5 câu trắc nghiệm */

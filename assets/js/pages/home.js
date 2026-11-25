@@ -98,9 +98,9 @@
     const { entries: list, stale } = await api.getLeaderboard();
     $('#home-lb-status').textContent = stale ? 'Đang mất kết nối. Bảng có thể chưa cập nhật.' : 'Trực tiếp từ hệ thống thi';
     updateHomeList(list);
-    const top1 = list[0] || { name: 'Chưa có', cls: '-', score: 0 };
-    const top2 = list[1] || { name: 'Chưa có', cls: '-', score: 0 };
-    const top3 = list[2] || { name: 'Chưa có', cls: '-', score: 0 };
+    const top1 = list[0] || { name: 'Chưa có', cls: '-', score: 0, elapsed: '—' };
+    const top2 = list[1] || { name: 'Chưa có', cls: '-', score: 0, elapsed: '—' };
+    const top3 = list[2] || { name: 'Chưa có', cls: '-', score: 0, elapsed: '—' };
 
     // 1. Render Bục Vinh Quang Top 3
     podiumEl.innerHTML = `
@@ -114,6 +114,7 @@
         <div class="podium-base">
           <span class="rank-num">2</span>
           <span class="score-val" id="score-top-2">0đ</span>
+          <span class="podium-elapsed">⏱️ ${escapeHtml(top2.elapsed || '—')}</span>
         </div>
       </div>
 
@@ -132,6 +133,7 @@
         <div class="podium-base">
           <span class="rank-num">1</span>
           <span class="score-val" id="score-top-1">0đ</span>
+          <span class="podium-elapsed">⏱️ ${escapeHtml(top1.elapsed || '—')}</span>
         </div>
       </div>
 
@@ -145,6 +147,7 @@
         <div class="podium-base">
           <span class="rank-num">3</span>
           <span class="score-val" id="score-top-3">0đ</span>
+          <span class="podium-elapsed">⏱️ ${escapeHtml(top3.elapsed || '—')}</span>
         </div>
       </div>
     `;

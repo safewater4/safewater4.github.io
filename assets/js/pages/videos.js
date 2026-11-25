@@ -13,7 +13,8 @@
             title="${v.title}" 
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
             allowfullscreen 
-            loading="lazy">
+            loading="lazy"
+            referrerpolicy="strict-origin-when-cross-origin">
           </iframe>
         </div>
         <div class="video-info">
@@ -46,7 +47,8 @@
             src="https://www.youtube-nocookie.com/embed/${v.youtubeId}?rel=0" 
             title="${v.title}" 
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-            allowfullscreen>
+            allowfullscreen
+            referrerpolicy="strict-origin-when-cross-origin">
           </iframe>
         </div>
         <div class="video-info">

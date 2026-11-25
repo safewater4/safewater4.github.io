@@ -416,6 +416,7 @@
           <div class="podium-base">
             <span class="rank-num">2</span>
             <span class="score-val" id="sidebar-score-2">${top2.score}đ</span>
+            <span class="podium-elapsed">⏱️ ${escapeHtml(top2.elapsed || '—')}</span>
           </div>
         </div>
 
@@ -434,6 +435,7 @@
           <div class="podium-base">
             <span class="rank-num">1</span>
             <span class="score-val" id="sidebar-score-1">${top1.score}đ</span>
+            <span class="podium-elapsed">⏱️ ${escapeHtml(top1.elapsed || '—')}</span>
           </div>
         </div>
 
@@ -447,6 +449,7 @@
           <div class="podium-base">
             <span class="rank-num">3</span>
             <span class="score-val" id="sidebar-score-3">${top3.score}đ</span>
+            <span class="podium-elapsed">⏱️ ${escapeHtml(top3.elapsed || '—')}</span>
           </div>
         </div>
       `;

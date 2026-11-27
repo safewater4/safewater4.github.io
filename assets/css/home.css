@@ -130,3 +130,17 @@
   #home .grid>.tile .big{width:60px;height:60px;border-radius:17px;margin:0}
   #home .grid>.tile .big svg.i3{width:44px;height:44px}
 }
+
+/* Thanh truy cập nhanh Kiểm tra & Khảo sát ngay dưới thanh điều hướng */
+.home-quick-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:0 0 16px}
+.home-qa-btn{display:flex;align-items:center;justify-content:center;gap:10px;padding:13px 18px;border-radius:20px;font:800 18px/1.2 "Baloo 2",Nunito,system-ui,sans-serif;color:#fff;text-decoration:none;box-shadow:0 8px 18px #0a4a8a26;transition:transform .18s ease,filter .18s ease,box-shadow .18s ease}
+.home-qa-btn:hover{transform:translateY(-2px);filter:brightness(1.06);box-shadow:0 12px 24px #0a4a8a38}
+.home-qa-btn:active{transform:translateY(0)}
+.home-qa-btn svg.i3{width:28px;height:28px;filter:drop-shadow(0 2px 3px #00000026)}
+.home-qa-btn.qa-quiz{background:linear-gradient(135deg,#0a84d6,#00b4d8)}
+.home-qa-btn.qa-survey{background:linear-gradient(135deg,#ff8a00,#ffb703)}
+@media(max-width:760px){
+  .home-quick-actions{gap:10px;margin-bottom:12px}
+  .home-qa-btn{padding:11px 12px;border-radius:16px;font-size:16px;gap:8px}
+  .home-qa-btn svg.i3{width:24px;height:24px}
+}
